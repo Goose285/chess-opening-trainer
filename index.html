@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#14181f">
+  <title>Opening Trainer — play the lines, get graded</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%9E%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/chessground.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><span class="logo">♞</span><span>Opening Trainer</span></div>
+    <div id="engine-pill" class="pill pill-wait" title="Engine status"><i></i><span>Loading engine…</span></div>
+  </header>
+
+  <!-- ============ SETUP ============ -->
+  <main id="setup" class="screen">
+    <div class="intro">
+      <h1>Learn openings by playing them</h1>
+      <p>Pick an opening and a side. You make every move yourself; the computer answers with a random book line, and Stockfish grades each of your moves.</p>
+    </div>
+
+    <div class="setup-controls">
+      <div class="seg" id="color-seg" role="radiogroup" aria-label="Play as">
+        <button data-color="white" role="radio" class="active">♔ White</button>
+        <button data-color="black" role="radio">♚ Black</button>
+        <button data-color="random" role="radio">⚄ Random</button>
+      </div>
+    </div>
+
+    <div id="opening-grid" class="grid" role="listbox" aria-label="Openings"></div>
+
+    <div class="startbar">
+      <div class="startbar-inner">
+        <div id="start-label" class="start-label">Choose an opening</div>
+        <button id="start-btn" class="btn primary" disabled>Start training</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ TRAINING ============ -->
+  <main id="train" class="screen hidden">
+    <div class="layout">
+      <section class="board-col">
+        <div class="tag" id="tag-top"><span class="dot"></span><span class="tag-name"></span></div>
+        <div class="board-row">
+          <div id="evalbar" class="evalbar" title="Engine evaluation (White's point of view)"><div class="fill"></div><span class="val">0.0</span></div>
+          <div class="board-wrap"><div id="board" class="cg-board-host"></div></div>
+        </div>
+        <div class="tag" id="tag-bottom"><span class="dot"></span><span class="tag-name"></span></div>
+      </section>
+
+      <aside class="side">
+        <div class="card head">
+          <div class="head-top">
+            <div>
+              <div class="eyebrow">Training</div>
+              <h2 id="opening-title">Opening</h2>
+            </div>
+            <div class="score-box" title="Run score (points per move; 100 max)">
+              <div class="score-num" id="score-num">0</div>
+              <div class="score-sub" id="score-sub">pts</div>
+            </div>
+          </div>
+          <div class="stats">
+            <div><b id="st-moves">0</b><span>your moves</span></div>
+            <div><b id="st-first">0</b><span>first-try ok</span></div>
+            <div><b id="st-streak">0</b><span>streak</span></div>
+          </div>
+        </div>
+
+        <div id="feedback" class="card feedback state-idle" aria-live="polite">
+          <div class="fb-badge" id="fb-badge">…</div>
+          <div class="fb-body">
+            <div class="fb-title" id="fb-title">Ready</div>
+            <div class="fb-text" id="fb-text"></div>
+            <div class="fb-chips" id="fb-chips"></div>
+            <div class="fb-actions" id="fb-actions"></div>
+          </div>
+        </div>
+
+        <div class="card moves-card">
+          <div class="eyebrow">Moves</div>
+          <div id="movelist" class="movelist"></div>
+        </div>
+
+        <div class="actions">
+          <button id="hint-btn" class="btn">💡 Hint <small>(max 50 pts)</small></button>
+          <button id="restart-btn" class="btn">↻ New line</button>
+          <button id="menu-btn" class="btn ghost">☰ Openings</button>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- ============ SUMMARY ============ -->
+  <div id="summary" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="sum-title">
+    <div class="modal-card">
+      <div class="eyebrow" id="sum-eyebrow">Line complete</div>
+      <h2 id="sum-title">Summary</h2>
+      <div class="sum-line" id="sum-line"></div>
+      <div class="sum-hero">
+        <div class="ring" id="sum-ring"><span id="sum-pct">0%</span></div>
+        <div>
+          <div class="sum-score"><b id="sum-points">0</b> / <span id="sum-max">0</span> pts</div>
+          <div class="sum-rating" id="sum-rating"></div>
+        </div>
+      </div>
+      <div class="grade-grid" id="sum-grades"></div>
+      <div class="sum-moves" id="sum-moves"></div>
+      <div class="modal-actions">
+        <button id="sum-again" class="btn primary">New line, same opening</button>
+        <button id="sum-review" class="btn">Review board</button>
+        <button id="sum-menu" class="btn ghost">Choose opening</button>
+      </div>
+    </div>
+  </div>
+
+  <noscript><p style="padding:2rem;color:#fff">This trainer needs JavaScript.</p></noscript>
+  <script src="dist/app.js"></script>
+</body>
+</html>

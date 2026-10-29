@@ -1,0 +1,24 @@
+{
+  "name": "chess-opening-trainer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Interactive chess opening trainer with Stockfish grading",
+  "scripts": {
+    "build": "esbuild src/main.js --bundle --minify --format=iife --outfile=dist/app.js",
+    "test:book": "node tools/check-book.mjs",
+    "serve": "python3 -m http.server 8080",
+    "test:e2e": "node tools/e2e.mjs && node tools/e2e-extra.mjs",
+    "audit": "node tools/audit-book.mjs"
+  },
+  "dependencies": {
+    "chess.js": "^1.4.0",
+    "chessground": "^9.2.1"
+  },
+  "devDependencies": {
+    "esbuild": "*",
+    "stockfish": "^19.0.1",
+    "playwright-core": "*"
+  },
+  "license": "GPL-3.0-or-later"
+}
