@@ -45,7 +45,10 @@
     <div class="startbar">
       <div class="startbar-inner">
         <div id="start-label" class="start-label">Choose an opening</div>
-        <button id="start-btn" class="btn primary" disabled>Start training</button>
+        <div class="start-btns">
+          <button id="watch-btn" class="btn" disabled title="Watch the opening played out with explanations before you drill it">▶ Watch it first</button>
+          <button id="start-btn" class="btn primary" disabled>Start training</button>
+        </div>
       </div>
     </div>
   </main>
@@ -98,8 +101,53 @@
 
         <div class="actions">
           <button id="hint-btn" class="btn">💡 Hint <small>(max 50 pts)</small></button>
+          <button id="learn-btn" class="btn">📖 Learn more</button>
           <button id="restart-btn" class="btn">↻ New line</button>
           <button id="menu-btn" class="btn ghost">☰ Openings</button>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- ============ WATCH IT FIRST (demo) ============ -->
+  <main id="demo" class="screen hidden" aria-label="Watch the opening">
+    <div class="layout">
+      <section class="board-col">
+        <div class="board-wrap"><div id="demo-board" class="cg-board-host"></div></div>
+      </section>
+
+      <aside class="side">
+        <div class="card head">
+          <div class="eyebrow">Watch it first</div>
+          <h2 id="demo-title">Opening</h2>
+          <label class="demo-line-pick"><span>Line</span><select id="demo-line" aria-label="Choose a line to watch"></select></label>
+        </div>
+
+        <div class="card demo-note" id="demo-note" aria-live="polite">
+          <div class="dn-top"><span class="dn-label" id="demo-label">Ready</span><span class="dn-count" id="demo-count">0 / 0</span></div>
+          <div class="dn-text" id="demo-text"></div>
+          <div class="dn-bar"><i id="demo-bar"></i></div>
+        </div>
+
+        <div class="card demo-ctl">
+          <div class="dc-row">
+            <button id="demo-restart" class="btn icon" title="Restart (Home)" aria-label="Restart">⏮</button>
+            <button id="demo-prev" class="btn icon" title="Previous move (←)" aria-label="Previous move">◀</button>
+            <button id="demo-play" class="btn primary play" title="Play / pause (Space)" aria-label="Play">▶ Play</button>
+            <button id="demo-next" class="btn icon" title="Next move (→)" aria-label="Next move">▶▎</button>
+            <div class="seg seg-sm" id="demo-speed" role="radiogroup" aria-label="Speed">
+              <button data-speed="0.6" role="radio" aria-checked="false">0.6×</button>
+              <button data-speed="1" role="radio" aria-checked="true" class="active">1×</button>
+              <button data-speed="2" role="radio" aria-checked="false">2×</button>
+            </div>
+          </div>
+          <div id="demo-moves" class="demo-moves" aria-label="Moves of this line"></div>
+        </div>
+
+        <div class="actions">
+          <button id="demo-practice" class="btn primary">🎯 Start practicing</button>
+          <button id="demo-learn" class="btn">📖 Learn more</button>
+          <button id="demo-back" class="btn ghost">☰ Openings</button>
         </div>
       </aside>
     </div>
@@ -124,6 +172,24 @@
         <button id="sum-again" class="btn primary">New line, same opening</button>
         <button id="sum-review" class="btn">Review board</button>
         <button id="sum-menu" class="btn ghost">Choose opening</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ LEARN MORE (popup) ============ -->
+  <div id="learn" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="learn-title">
+    <div class="modal-card learn-card">
+      <div class="learn-head">
+        <div>
+          <div class="eyebrow" id="learn-eyebrow">Learn more</div>
+          <h2 id="learn-title">Opening</h2>
+        </div>
+        <button id="learn-x" class="x-btn" aria-label="Close">✕</button>
+      </div>
+      <div id="learn-body" class="learn-body"></div>
+      <div class="modal-actions learn-actions">
+        <button id="learn-watch" class="btn">▶ Watch it first</button>
+        <button id="learn-close" class="btn primary">Got it</button>
       </div>
     </div>
   </div>

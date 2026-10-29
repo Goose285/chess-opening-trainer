@@ -66,3 +66,10 @@ Openings with `gambit: true` show up under the **♟ Gambits** filter in the pic
 ## Piece lift (chess.com-style)
 
 `src/lift.js` + the `piece::before` rules in `css/app.css`. A tapped piece hovers slightly; a piece in hand scales up (1.22× mouse, 1.4× touch), gets a drop shadow, sits a little above the finger on touch, the legal target square under it is highlighted, and on release it eases onto the square. The artwork is drawn on a pseudo-element so chessground's own `translate()` positioning isn't disturbed. Respects `prefers-reduced-motion`.
+
+## Watch it first + Learn more
+
+- **▶ Watch it first** (button on every opening card, and in the bottom bar for the selected opening): `src/demo.js` plays a line on a view-only board with arrows (green = move, red = capture, blue = castled rook, red ring = check), the last-move highlight and a plain-language note per move. Controls: play/pause, next/prev (also ←/→/Space/Home), restart, speed (0.6×/1×/2×), click any move chip to jump, and a line picker for every line of the opening. **Start practicing** jumps straight into the drill.
+- **📖 Learn more** (opening card, the demo and the drill): `src/learn.js` shows the idea, plans for both sides, key squares/structure, traps & mistakes and who plays it. During a drill it also shows a "This position" note about the last move played (it never reveals the next book move). Closes with ✕, "Got it", Escape or a tap on the backdrop.
+- Content lives in `src/lore.js` (`WALK`: hand-written per-move notes for each opening's main line) and `src/lore-text.js` (`LORE`: the popup text). Lines other than the main line, and moves beyond the written notes, get a factual generated note (`src/explain.js`: develops/castles/captures/check/what it attacks).
+- `npm run test:lore` replays every note against the real line (the SAN in each note must be the move played at that ply) and every trap line shown in the popup (legal, and mate when it says mate). `npm run test:learn` is the browser test (all 35 popups; all 122 lines play to the right final position; controls; phone-size layout).

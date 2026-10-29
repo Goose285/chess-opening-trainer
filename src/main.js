@@ -4,6 +4,10 @@ import { OPENINGS } from './openings.js';
 import { buildBook, bookMoves, pickBookMove, lineNameAt, posKey } from './book.js';
 import { attachLift } from './lift.js';
 import { EngineManager } from './engine.js';
+import { openDemo, closeDemo, initDemo, demoState } from './demo.js';
+import { openLearn, initLearn } from './learn.js';
+import { positionNote } from './explain.js';
+import { LORE } from './lore-text.js';
 import { GRADES, centipawnLoss, gradeFromLoss, formatEval, uciToSan, summaryRating, capEval } from './grading.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -41,20 +45,29 @@ function renderGrid() {
   const cards = [...pool, { id: 'random', name: 'Surprise me', eco: '', side: '', blurb: filter === 'gambit' ? 'A random gambit.' : 'A random opening from the library.', lines: [] }];
   $('#filter-count').textContent = `${pool.length} opening${pool.length === 1 ? '' : 's'} · ${pool.reduce((n, o) => n + o.lines.length, 0)} lines`;
   for (const o of cards) {
-    const c = el('button', 'ocard' + (o.id === selectedId ? ' selected' : ''));
-    c.dataset.id = o.id; c.setAttribute('role', 'option'); c.setAttribute('aria-selected', o.id === selectedId);
+    const c = el('div', 'ocard' + (o.id === selectedId ? ' selected' : ''));
+    c.dataset.id = o.id; c.setAttribute('role', 'option'); c.setAttribute('aria-selected', o.id === selectedId); c.tabIndex = 0;
     if (o.gambit) c.classList.add('gambit');
     const sideIcon = o.side === 'white' ? '<span class="chip w">White</span>' : o.side === 'black' ? '<span class="chip b">Black</span>' : '<span class="chip r">?</span>';
+    const extras = o.lines.length && LORE[o.id]
+      ? `<span class="oc-btns"><button type="button" class="mini" data-act="watch" aria-label="Watch ${esc(o.name)} first">▶ Watch</button><button type="button" class="mini" data-act="learn" aria-label="Learn more about ${esc(o.name)}">📖 Learn more</button></span>` : '';
     c.innerHTML = `<div class="oc-top"><span class="oc-eco">${esc(o.eco || 'Random')}${o.gambit ? ' · <b class="gtag">Gambit</b>' : ''}</span>${sideIcon}</div>
       <div class="oc-name">${esc(o.name)}</div><div class="oc-blurb">${esc(o.blurb)}</div>
-      <div class="oc-foot">${o.lines.length ? o.lines.length + ' lines' : 'Any opening'}</div>`;
-    c.addEventListener('click', () => {
+      <div class="oc-foot"><span>${o.lines.length ? o.lines.length + ' lines' : 'Any opening'}</span>${extras}</div>`;
+    const choose = () => {
       selectedId = o.id; prefs.opening = selectedId;
       // follow the opening's own side (unless "Random" is chosen) so e.g. the Englund trainer for Black starts as Black
       if (o.side && colorChoice !== 'random' && colorChoice !== o.side) setColor(o.side);
       savePrefs(); renderGrid(); updateStartBar();
+    };
+    c.addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-act]');
+      if (!b) return choose();
+      choose();
+      if (b.dataset.act === 'watch') watchOpening(o); else openLearn(o, { onWatch: () => watchOpening(o) });
     });
-    c.addEventListener('dblclick', () => { if (selectedId) startRun(); });
+    c.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target === c) { e.preventDefault(); choose(); const again = grid.querySelector(`.ocard[data-id="${o.id}"]`); if (again) again.focus({ preventScroll: true }); } });
+    c.addEventListener('dblclick', (e) => { if (!e.target.closest('button') && selectedId) startRun(); });
     grid.appendChild(c);
   }
 }
@@ -62,6 +75,8 @@ function updateStartBar() {
   const btn = $('#start-btn'), lab = $('#start-label');
   const o = OPENINGS.find((x) => x.id === selectedId);
   btn.disabled = !selectedId;
+  $('#watch-btn').disabled = !selectedId || selectedId === 'random';
+  $('#watch-btn').title = selectedId === 'random' ? 'Pick a specific opening to watch it first' : 'Watch the opening played out with explanations before you drill it';
   const sideTxt = colorChoice === 'random' ? 'a random side' : colorChoice === 'white' ? 'White' : 'Black';
   lab.innerHTML = selectedId ? `<b>${esc(o ? o.name : 'Surprise me')}</b> · as ${sideTxt}` : 'Choose an opening';
 }
@@ -84,9 +99,27 @@ $('#filter-seg').addEventListener('click', (e) => {
   renderGrid();
 });
 $('#start-btn').addEventListener('click', () => startRun());
+$('#watch-btn').addEventListener('click', () => { const o = OPENINGS.find((x) => x.id === selectedId); if (o) watchOpening(o); });
+
+// ---------------------------------------------------------------- "Watch it first" + "Learn more"
+function watchOpening(o) {
+  show('demo');
+  openDemo(o, 0, true);
+}
+initDemo({
+  practice: (o) => { selectedId = o.id; prefs.opening = o.id; savePrefs(); updateStartBar(); startRun(o); },
+  learn: (o) => openLearn(o),
+  back: () => { closeDemo(); show('setup'); renderGrid(); },
+});
+initLearn();
+$('#learn-btn').addEventListener('click', () => {
+  const s = session; if (!s) return;
+  const note = positionNote(s.opening, s.game.history(), lineNameAt(s.book, s.game.fen()));
+  openLearn(s.opening, { note });
+});
 
 function show(id) {
-  for (const s of ['setup', 'train']) $('#' + s).classList.toggle('hidden', s !== id);
+  for (const s of ['setup', 'train', 'demo']) $('#' + s).classList.toggle('hidden', s !== id);
   window.scrollTo(0, 0);
 }
 
@@ -137,6 +170,7 @@ function pickOpening() {
 async function startRun(reuseOpening) {
   const opening = reuseOpening || pickOpening();
   if (!opening) return;
+  closeDemo();
   const userColor = colorChoice === 'random' ? (Math.random() < 0.5 ? 'white' : 'black') : colorChoice;
   session = {
     opening, book: buildBook(opening), userColor, game: new Chess(), phase: 'busy',
@@ -447,4 +481,4 @@ $('#filter-seg').querySelectorAll('button').forEach((x) => { x.classList.toggle(
 renderGrid(); updateStartBar();
 
 // test/debug hook
-window.__ot = { Chess, bookMoves, posKey, engine, getSession: () => session, getCg: () => cg };
+window.__ot = { demoState, Chess, bookMoves, posKey, engine, getSession: () => session, getCg: () => cg };
