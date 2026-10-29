@@ -322,3 +322,15 @@ body.noscroll { overflow: hidden; }
   .filter-row { gap: 8px; }
   .level-row .filter-label { width: 100%; }
 }
+
+/* ---------- play-style pill + filter ---------- */
+.stag { --rc: #93a1b3; display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; letter-spacing: .3px; color: var(--rc); background: color-mix(in srgb, var(--rc) 14%, transparent); border: 1px solid color-mix(in srgb, var(--rc) 45%, transparent); border-radius: 999px; padding: 2px 9px 2px 6px; white-space: nowrap; }
+.stag b { font-weight: 400; font-size: 12px; line-height: 1; }
+.s-aggressive { --rc: #fb7185; } .s-sharp { --rc: #facc15; } .s-balanced { --rc: #2dd4bf; } .s-positional { --rc: #f0abfc; } .s-solid { --rc: #94a3b8; }
+#style-seg { flex-wrap: wrap; }
+#style-seg button b { font-weight: 400; }
+#style-seg button.active.st-aggressive { box-shadow: inset 0 0 0 1px #fb7185; } #style-seg button.active.st-sharp { box-shadow: inset 0 0 0 1px #facc15; }
+#style-seg button.active.st-balanced { box-shadow: inset 0 0 0 1px #2dd4bf; } #style-seg button.active.st-positional { box-shadow: inset 0 0 0 1px #f0abfc; } #style-seg button.active.st-solid { box-shadow: inset 0 0 0 1px #94a3b8; }
+.ln-feel { font-size: 13.5px !important; margin-top: 2px !important; }
+.ln-feel b { color: var(--text); }
+@media (max-width: 520px) { #style-seg button { padding: 7px 9px; font-size: 13px; } }

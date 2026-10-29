@@ -4,7 +4,7 @@ import { Chess } from 'chess.js';
 import { OPENINGS } from '../src/openings.js';
 import { WALK, MAIN_LINE } from '../src/lore.js';
 import { LORE } from '../src/lore-text.js';
-import { META, levelOf } from '../src/meta.js';
+import { META, levelOf, STYLE, STYLES } from '../src/meta.js';
 
 let bad = 0;
 const fail = (m) => { bad++; console.log('FAIL', m); };
@@ -20,6 +20,12 @@ for (const o of OPENINGS) {
     if (meta.hi - meta.lo < 400) fail(`${o.id}: range too narrow`);
     if (!meta.why || meta.why.length < 40) fail(`${o.id}: why missing`);
     if (meta.trappy && meta.hi > 1400) fail(`${o.id}: trappy openings should top out by ~1400`);
+  }
+  const sty = STYLE[o.id];
+  if (!sty) fail(`${o.id}: no STYLE`);
+  else {
+    if (!STYLES.some((x) => x.key === sty.style)) fail(`${o.id}: unknown style ${sty.style}`);
+    if (!sty.feel || sty.feel.length < 40 || (sty.feel.match(/\. /g) || []).length > 0) fail(`${o.id}: feel must be one sentence`);
   }
   const walk = WALK[o.id];
   const lore = LORE[o.id];
@@ -52,6 +58,7 @@ for (const o of OPENINGS) {
   }
 }
 for (const k of Object.keys(WALK)) if (!ids.includes(k)) fail(`WALK has unknown id ${k}`);
+for (const k of Object.keys(STYLE)) if (!ids.includes(k)) fail(`STYLE has unknown id ${k}`);
 for (const k of Object.keys(META)) if (!ids.includes(k)) fail(`META has unknown id ${k}`);
 for (const k of Object.keys(LORE)) if (!ids.includes(k)) fail(`LORE has unknown id ${k}`);
 console.log(bad ? `${bad} problem(s)` : `lore OK: ${ids.length} openings, walkthroughs aligned, trap lines legal`);

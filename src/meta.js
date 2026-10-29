@@ -88,3 +88,53 @@ export const META = {
 
 export const ratingText = (o) => { const x = META[o.id]; return x ? `${x.lo}–${x.hi}` : ''; };
 export const levelKey = (id) => (META[id] ? levelOf(META[id].lo).key : null);
+
+// ---- play style: how the opening *feels* to play. One of five fixed styles per opening.
+export const STYLES = [
+  { key: 'aggressive', label: 'Aggressive', icon: '🔥', hint: 'attacking, sacrifices' },
+  { key: 'sharp', label: 'Sharp', icon: '⚡', hint: 'tactical, double-edged' },
+  { key: 'balanced', label: 'Balanced', icon: '⚖️', hint: 'classical, flexible' },
+  { key: 'positional', label: 'Positional', icon: '🧭', hint: 'slow manoeuvring' },
+  { key: 'solid', label: 'Solid', icon: '🛡️', hint: 'safe, defensive' },
+];
+export const styleInfo = (key) => STYLES.find((s) => s.key === key);
+
+const st = (style, feel) => ({ style, feel });
+export const STYLE = {
+  italian: st('balanced', 'Expect natural development and a slow build-up where both sides manoeuvre for a good moment to strike.'),
+  ruy: st('balanced', 'Expect a rich, strategic fight with tension in the centre and small edges that grow over many moves.'),
+  scotch: st('sharp', 'Expect an open centre, quick piece activity and concrete tactics from the first few moves.'),
+  najdorf: st('sharp', 'Expect a double-edged fight where both kings can come under fire and accurate calculation decides it.'),
+  dragon: st('sharp', 'Expect a race: opposite-side castling, pawn storms and tactics where one slow move can lose.'),
+  french: st('solid', 'Expect a locked, resilient structure and a slow strategic game where Black counterattacks White\'s pawn chain.'),
+  caro: st('solid', 'Expect a safe, sturdy position with few weaknesses and a patient fight that often ends in a good endgame.'),
+  qg: st('balanced', 'Expect classical, principled play: a fight for the centre with clear plans and few early tricks.'),
+  slav: st('solid', 'Expect a healthy, hard-to-crack structure and careful, methodical play rather than early fireworks.'),
+  london: st('solid', 'Expect the same safe, compact setup every game, with quiet development and a slow build-up to e4.'),
+  kid: st('sharp', 'Expect a closed centre and a race of attacks on opposite wings, where timing matters more than memorising.'),
+  nimzo: st('balanced', 'Expect a rich strategic battle over e4 and the pawn structure, with piece play over quick attacks.'),
+  scandi: st('solid', 'Expect early queen activity, simple development and a sturdy position with little for White to attack.'),
+  english: st('positional', 'Expect flexible, patient manoeuvring where the long diagonal and small structural edges matter most.'),
+  catalan: st('positional', 'Expect slow, long-term pressure from the fianchettoed bishop, with small edges you have to convert patiently.'),
+  pirc: st('balanced', 'Expect Black to let White have the centre, then hit it with flexible counterplay when it overextends.'),
+  'fried-liver': st('aggressive', 'Expect an all-out knight sacrifice on f7 and a fast king hunt where tactics decide everything.'),
+  traxler: st('aggressive', 'Expect wild mutual sacrifices where both kings are exposed and you must calculate every check.'),
+  'kings-gambit': st('aggressive', 'Expect a pawn sacrificed at once, open lines, an exposed king and attack-first romantic chess.'),
+  evans: st('aggressive', 'Expect a pawn sacrificed for tempo, a big centre and fast attacks against the black king.'),
+  danish: st('aggressive', 'Expect two pawns sacrificed for open lines and bishops aimed at the king, so attack quickly or fall behind.'),
+  'scotch-gambit': st('aggressive', 'Expect fast development, bishop pressure on f7 and an open, tactical attack on the e-file.'),
+  'smith-morra': st('aggressive', 'Expect a pawn down for a lead in development and open files that you must turn into an attack.'),
+  budapest: st('sharp', 'Expect an early pawn sacrifice, active knights and sudden tricks that punish a careless White.'),
+  benko: st('positional', 'Expect a long-term initiative: the pawn is gone for good, and you win by slowly pressing on open files.'),
+  albin: st('sharp', 'Expect a cramping pawn on d4, tricky tactics and a tense fight over whether the extra pawn survives.'),
+  'englund-black': st('sharp', 'Expect early tricks and queen sorties where the main goal is to set traps for a careless opponent.'),
+  'englund-white': st('sharp', 'Expect early tricks and queen sorties, so take the pawn and stay accurate to avoid the traps.'),
+  stafford: st('aggressive', 'Expect a pawn sacrificed for quick development, direct threats on f2 and a lot of traps.'),
+  'vienna-gambit': st('aggressive', 'Expect f4 and fast development, a fight for the centre and attacking play against the black king.'),
+  qga: st('solid', 'Expect a calm, sound game: Black takes the pawn, gives it back at the right moment and then equalises.'),
+  latvian: st('aggressive', 'Expect a reckless attack from move two: lots of tactics and risk, with Black\'s king under pressure too.'),
+  'blackmar-diemer': st('aggressive', 'Expect a pawn sacrificed for open lines and a fast attack on the king with plenty of tactics.'),
+  halloween: st('aggressive', 'Expect a knight sacrificed early to grab the centre and attack, so it is risky and quite unsound.'),
+  jerome: st('aggressive', 'Expect a bishop sacrificed on f7 to drag the king out: pure attack, with little margin for error.'),
+};
+export const styleOf = (id) => (STYLE[id] ? styleInfo(STYLE[id].style) : null);

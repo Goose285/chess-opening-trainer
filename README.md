@@ -77,3 +77,7 @@ Openings with `gambit: true` show up under the **♟ Gambits** filter in the pic
 ## Descriptions + recommended ratings
 
 `src/meta.js` holds, for every opening, a one-line description, a recommended rating range (the pill on each card, colour-coded: Beginner < 1000 green, Intermediate 1000–1599 blue, Advanced 1600–1999 purple, Expert 2000+ red; the level is set by the low end of the range), a short "why", and a `trappy` flag for fun/surprise openings that stop working against strong, prepared players (those top out at ~1400). The picker has a **Rating** filter that combines with the side/gambit filter, and the Learn-more popup repeats the description, range and reasoning. `npm run test:lore` validates the data; `npm run test:ratings` is the browser test.
+
+## Play style
+
+Every opening has one of five fixed styles in `src/meta.js` (`STYLE`): 🔥 Aggressive (attacking, sacrifices), ⚡ Sharp (tactical, double-edged), ⚖️ Balanced (classical, flexible), 🧭 Positional (slow manoeuvring), 🛡️ Solid (safe, defensive). It shows as a pill on the card next to the rating pill, as a one-sentence "what to expect" in the Learn-more popup, and as a **Style** filter in the picker (combines with side / gambit / rating filters and is remembered). `npm run test:lore` checks every opening has a valid style and a one-sentence note; `npm run test:style` is the browser test.

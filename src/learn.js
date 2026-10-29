@@ -1,6 +1,6 @@
 // The "Learn more" popup: idea, plans for both sides, key squares / structure, traps and who plays the opening.
 import { LORE } from './lore-text.js';
-import { META, levelOf } from './meta.js';
+import { META, levelOf, STYLE, styleInfo } from './meta.js';
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -24,9 +24,11 @@ export function openLearn(opening, opts = {}) {
   const list = (a) => `<ul>${a.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`;
   const side = opening.side === 'white' ? ['Your plans as White', 'Black\'s plans'] : ['White\'s plans', 'Your plans as Black'];
   const meta = META[opening.id];
+  const sty = STYLE[opening.id] ? { ...STYLE[opening.id], ...styleInfo(STYLE[opening.id].style) } : null;
   const lv = meta ? levelOf(meta.lo) : null;
   const rating = meta ? `<section class="ln-sec ln-rating"><p class="ln-desc">${esc(meta.desc)}</p>
-      <div class="ln-rrow"><span class="rtag r-${lv.key}"><i></i>${meta.lo}–${meta.hi}<em>${lv.label}</em></span>${meta.trappy ? '<span class="rtag r-fun"><i></i>Fun / trappy</span>' : ''}</div>
+      <div class="ln-rrow"><span class="rtag r-${lv.key}"><i></i>${meta.lo}–${meta.hi}<em>${lv.label}</em></span>${sty ? `<span class="stag s-${sty.key}"><b aria-hidden="true">${sty.icon}</b>${sty.label}</span>` : ''}${meta.trappy ? '<span class="rtag r-fun"><i></i>Fun / trappy</span>' : ''}</div>
+      ${sty ? `<p class="ln-feel"><b>${sty.label} (${esc(sty.hint)}).</b> ${esc(sty.feel)}</p>` : ''}
       <p class="ln-why"><b>Recommended rating ${meta.lo}–${meta.hi}.</b> ${esc(meta.why)}${meta.trappy ? ' It is unsound against strong, prepared opponents (roughly above ' + meta.hi + ').' : ''}</p></section>` : '';
   const note = opts.note
     ? `<section class="ln-sec ln-now"><h3>📍 This position</h3><div class="ln-now-t">${esc(opts.note.title)}</div><p>${esc(opts.note.text)}</p>${opts.note.line ? `<p class="ln-line">Variation so far: <b>${esc(opts.note.line)}</b></p>` : ''}</section>` : '';

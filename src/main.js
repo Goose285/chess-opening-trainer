@@ -8,7 +8,7 @@ import { openDemo, closeDemo, initDemo, demoState } from './demo.js';
 import { openLearn, initLearn } from './learn.js';
 import { positionNote } from './explain.js';
 import { LORE } from './lore-text.js';
-import { META, LEVELS, levelOf, levelKey, ratingText } from './meta.js';
+import { META, LEVELS, levelOf, levelKey, ratingText, STYLES, styleOf, STYLE } from './meta.js';
 import { GRADES, centipawnLoss, gradeFromLoss, formatEval, uciToSan, summaryRating, capEval } from './grading.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -33,6 +33,7 @@ const savePrefs = () => { try { localStorage.setItem('ot-prefs', JSON.stringify(
 
 let selectedId = prefs.opening || null;
 let filter = prefs.filter || 'all';   // all | gambit | white | black
+let styleFilter = prefs.style || 'all'; // all | aggressive | sharp | balanced | positional | solid
 let levelFilter = prefs.level || 'all'; // all | beginner | intermediate | advanced | expert
 let colorChoice = prefs.color || 'white';
 let session = null;   // current run
@@ -41,10 +42,14 @@ let detachLift = null;
 
 // ---------------------------------------------------------------- setup screen
 const grid = $('#opening-grid');
+function stylePill(o) {
+  const y = styleOf(o.id); if (!y) return '';
+  return `<span class="stag s-${y.key}" title="${esc(y.label)} (${esc(y.hint)})"><b aria-hidden="true">${y.icon}</b>${y.label}</span>`;
+}
 function ratingPill(o) {
   const x = META[o.id]; if (!x) return '';
   const lv = levelOf(x.lo);
-  return `<div class="oc-tags"><span class="rtag r-${lv.key}" title="Recommended rating ${x.lo}–${x.hi} (${lv.label})${x.trappy ? ' · fun/trappy: unsound against strong play' : ''}"><i></i>${ratingText(o)}<em>${lv.label}</em></span></div>`;
+  return `<div class="oc-tags"><span class="rtag r-${lv.key}" title="Recommended rating ${x.lo}–${x.hi} (${lv.label})${x.trappy ? ' · fun/trappy: unsound against strong play' : ''}"><i></i>${ratingText(o)}<em>${lv.label}</em></span>${stylePill(o)}</div>`;
 }
 function renderGrid() {
   grid.innerHTML = '';
@@ -96,6 +101,7 @@ $('#color-seg').addEventListener('click', (e) => { const b = e.target.closest('b
 
 function matchesFilter(o) {
   if (levelFilter !== 'all' && levelKey(o.id) !== levelFilter) return false;
+  if (styleFilter !== 'all' && (STYLE[o.id] || {}).style !== styleFilter) return false;
   if (filter === 'gambit') return !!o.gambit;
   if (filter === 'white' || filter === 'black') return o.side === filter;
   return true;
@@ -114,6 +120,16 @@ levelSeg.addEventListener('click', (e) => {
   const b = e.target.closest('button'); if (!b) return;
   levelFilter = b.dataset.level; prefs.level = levelFilter; savePrefs();
   levelSeg.querySelectorAll('button').forEach((x) => { const on = x === b; x.classList.toggle('active', on); x.setAttribute('aria-checked', on); });
+  renderGrid();
+});
+const styleSeg = $('#style-seg');
+styleSeg.innerHTML = '<button data-style="all" role="radio">Any style</button>' + STYLES.map((y) => `<button data-style="${y.key}" role="radio" class="st-${y.key}" title="${esc(y.hint)}"><b aria-hidden="true">${y.icon}</b> ${y.label}</button>`).join('');
+if (!styleSeg.querySelector(`[data-style="${styleFilter}"]`)) styleFilter = 'all';
+styleSeg.querySelectorAll('button').forEach((x) => { const on = x.dataset.style === styleFilter; x.classList.toggle('active', on); x.setAttribute('aria-checked', on); });
+styleSeg.addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  styleFilter = b.dataset.style; prefs.style = styleFilter; savePrefs();
+  styleSeg.querySelectorAll('button').forEach((x) => { const on = x === b; x.classList.toggle('active', on); x.setAttribute('aria-checked', on); });
   renderGrid();
 });
 $('#start-btn').addEventListener('click', () => startRun());
