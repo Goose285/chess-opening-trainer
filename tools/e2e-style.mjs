@@ -20,8 +20,8 @@ const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
 page.on('pageerror', (e) => errors.push(e.message)); page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 await page.goto(URL_); await page.evaluate(() => localStorage.clear()); await page.reload();
 const cards = await cardsOf(page); const by = Object.fromEntries(cards.map((c) => [c.id, c]));
-check('35 cards each with exactly one style pill', cards.length === 35 && cards.every((c) => c.style && c.label));
-check('rating pill + gambit tag still present', cards.every((c) => c.hasRating) && cards.filter((c) => c.gambit).length === 19);
+check('48 cards each with exactly one style pill', cards.length === 48 && cards.every((c) => c.style && c.label));
+check('rating pill + gambit tag still present', cards.every((c) => c.hasRating) && cards.filter((c) => c.gambit).length === 32);
 check('only the five fixed styles are used', [...new Set(cards.map((c) => c.style))].sort().join() === 'aggressive,balanced,positional,sharp,solid');
 for (const [s, ids] of Object.entries(WANT)) check(`${s}: ${ids.join(', ')}`, ids.every((i) => by[i].style === s), ids.filter((i) => by[i].style !== s).join());
 check('every style has its own icon', new Set(cards.map((c) => c.style + c.icon)).size === 5 && cards.every((c) => c.icon.length > 0));
@@ -34,18 +34,18 @@ for (const s of Object.keys(WANT)) {
   const cs = await cardsOf(page); total += cs.length;
   check(`filter ${s}: only ${s} openings (${cs.length})`, cs.length > 0 && cs.every((c) => c.style === s) && cs.length === cards.filter((c) => c.style === s).length);
 }
-check('the five styles partition all 35 openings', total === 35);
+check('the five styles partition all 48 openings', total === 48);
 // combines with the other filters
 await page.click('#style-seg button[data-style="aggressive"]'); await page.click('#filter-seg button[data-filter="gambit"]'); await page.click('#level-seg button[data-level="beginner"]');
 let cs = await cardsOf(page);
 check('style + Gambits + rating combine', cs.length > 0 && cs.every((c) => c.style === 'aggressive' && c.gambit), cs.map((c) => c.id).join());
 await page.click('#filter-seg button[data-filter="white"]');
 cs = await cardsOf(page);
-check('style + White side combine', cs.every((c) => c.style === 'aggressive') && cs.length > 0 && cs.length < 13);
+check('style + White side combine', cs.every((c) => c.style === 'aggressive') && cs.length > 0 && cs.length < 24);
 await page.reload();
 check('style filter persisted after reload', await page.$eval('#style-seg button[data-style="aggressive"]', (b) => b.classList.contains('active')) && (await cardsOf(page)).every((c) => c.style === 'aggressive'));
 await page.click('#style-seg button[data-style="all"]'); await page.click('#level-seg button[data-level="all"]'); await page.click('#filter-seg button[data-filter="all"]');
-check('resetting filters restores 35', (await cardsOf(page)).length === 35);
+check('resetting filters restores 48', (await cardsOf(page)).length === 48);
 await page.click('#style-seg button[data-style="solid"]'); await page.click('#level-seg button[data-level="advanced"]');
 check('an empty combination shows just the Surprise card, no error', (await cardsOf(page)).length === 0 && (await page.$$('.ocard[data-id="random"]')).length === 1 && /0 openings/.test(await page.textContent('#filter-count')));
 await page.click('#style-seg button[data-style="all"]'); await page.click('#level-seg button[data-level="all"]');
@@ -59,7 +59,7 @@ for (const c of cards) {
   if (!(r.pill.includes('s-' + c.style) && r.feel.startsWith(lab) && r.feel.length > 80 && /Expect/.test(r.feel))) bad.push(c.id + ':' + r.feel.slice(0, 30));
   await page.click('#learn-x');
 }
-check('Learn more shows the style pill + a one-sentence "what to expect" for all 35', bad.length === 0, bad.slice(0, 3).join(' | '));
+check('Learn more shows the style pill + a one-sentence "what to expect" for all 48', bad.length === 0, bad.slice(0, 3).join(' | '));
 
 // phone
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
@@ -70,7 +70,7 @@ check('phone: no sideways scroll', await m.evaluate(() => document.documentEleme
 check('phone: style filter buttons fit the screen', await m.evaluate(() => [...document.querySelectorAll('#style-seg button, #level-seg button')].every((b) => { const r = b.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth; })));
 check('phone: no pill is clipped or overlapping its card edge', await m.evaluate(() => [...document.querySelectorAll('.oc-tags')].every((t) => t.scrollWidth <= t.clientWidth + 1)));
 await m.tap('#style-seg button[data-style="sharp"]');
-check('phone: tapping a style filters', (await cardsOf(m)).length === 8 && (await cardsOf(m)).every((c) => c.style === 'sharp'));
+check('phone: tapping a style filters', (await cardsOf(m)).length === 14 && (await cardsOf(m)).every((c) => c.style === 'sharp'));
 await m.evaluate(() => window.scrollTo(0, 0)); await m.screenshot({ path: '/tmp/st-setup-m.png' });
 await m.tap('.ocard[data-id="scotch"] .mini[data-act="learn"]');
 check('phone: popup style line visible', await m.evaluate(() => { const r = document.querySelector('#learn-body .ln-feel').getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth; }));

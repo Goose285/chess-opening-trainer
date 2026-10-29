@@ -283,5 +283,109 @@ export const LORE = {
     structure: 'White has two pawns for a piece and an exposed black king. Key squares: f7, e5 and h5.',
     traps: [t('Greedy Black play', 'If Black overlooks the attack the black king can get into trouble.'), t('Trading queens', 'Black should trade queens to make White\'s lost piece count.')],
     players: 'Named after the American amateur Alonzo Wheeler Jerome (1870s). Popular as a curiosity.'
-  }
+  },
+  schliemann: {
+    idea: "After 1.e4 e5 2.Nf3 Nc6 3.Bb5 Black plays 3...f5, the Schliemann or Jaenisch Gambit. Instead of the slow Ruy Lopez set-ups, Black attacks e4 immediately and fights for the initiative. It is sharp, unusual and sound enough to be used even by strong players.",
+    white: ["Play 4.Nc3 and after ...fxe4 5.Nxe4 develop calmly; the knight on e4 is strong if Black plays ...d5 carelessly.", "Look for the tactical shot Nxe5 with ideas of Nxc6 and discovered checks from the b5 bishop.", "Do not be afraid of 4.d4 or 4.Bxc6: simple development gives White a comfortable game."],
+    black: ["Take on e4 and play ...d5 or ...Nf6 to challenge the knight, then develop fast.", "Use the open f-file: ...Qf6, ...Be7 and ...O-O aim at the white king's side.", "After 4.exf5 play ...e4 to harass the knight and take the centre."],
+    structure: "Open and tactical: the f-file is half-open for Black, e4 and e5 are the key squares, and the b5 bishop and c6 knight are often traded. Black's king usually castles quickly to avoid tricks.",
+    traps: [t("Discovered check on a7", "In the main line after ...Qg5 Qe2 Nf6, Nxa7+ is a discovered check from the b5 bishop and wins a pawn and more if Black is careless with the king.", "e4 e5 Nf3 Nc6 Bb5 f5 Nc3 fxe4 Nxe4 d5 Nxe5 dxe4 Nxc6 Qg5 Qe2 Nf6 Nxa7+ Kd8"), t("Grabbing too much with Bxc6 and Nxe5", "After 4.d4 fxe4 5.Bxc6 dxc6 6.Nxe5 Black has the bishop pair and quick development, so White should not expect an easy extra pawn.", "e4 e5 Nf3 Nc6 Bb5 f5 d4 fxe4 Bxc6 dxc6 Nxe5 Nf6 Bg5 Be7 Nc3")],
+    players: "Named after the 19th-century players Schliemann and Jaenisch, who analysed 3...f5; it is popular with attacking club players and has been used as a surprise weapon by strong grandmasters."
+  },
+  marshall: {
+    idea: "In the Ruy Lopez Black plays ...d5 on move 8 after White's slow c3, sacrificing the e5 pawn for a big lead in development and a powerful attack. It was invented by Frank Marshall in 1918 and has been a hugely respected weapon ever since.",
+    white: ["Take the pawn with Nxe5 and Rxe5 and then consolidate with d4 and Re1.", "Neutralise the attack: many players avoid the Marshall with Anti-Marshall systems like 8.a4 or 8.h3.", "Be ready to return the pawn if needed and trade queens."],
+    black: ["Sacrifice the pawn, then play ...Nf6, ...c6, ...Bd6 and ...Qh4 to attack.", "Keep the queen near the king: ...Qh3 and ...Bg4 are the key attacking moves.", "Don't rush; the initiative is long-lasting and can last into the endgame."],
+    structure: "White has an extra pawn but little development on the kingside; Black has bishops on d6 and g4 and a queen aiming at h3. Key squares: e5, f4, g2 and h2.",
+    traps: [t("Careless defence", "If White plays slowly after 12.d4 Bd6 13.Re1 Qh4 14.g3 Qh3, Black's pieces swarm the king with ...Bg4 and ...Rae8, and White must find accurate defence.", "e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Be7 Re1 b5 Bb3 O-O c3 d5 exd5 Nxd5 Nxe5 Nxe5 Rxe5 c6 d4 Bd6 Re1 Qh4 g3 Qh3 Qe2 Bg4"), t("The Steiner 9...e4", "In the Steiner Variation Black pushes ...e4 and ...exf3 and ...fxg2 for a wild attack; White has extra material and the Qf3 resource to defend, so know the theory before trying it.", "e4 e5 Nf3 Nc6 Bb5 a6 Ba4 Nf6 O-O Be7 Re1 b5 Bb3 O-O c3 d5 exd5 e4 dxc6 exf3 d4 fxg2")],
+    players: "Named after the American champion Frank Marshall, who held it back for years until he sprang it on Capablanca; today it is a main line at the top level."
+  },
+  "icelandic-palme": {
+    idea: "After 1.e4 d5 2.exd5 Nf6 3.c4 Black plays 3...e6, the Icelandic Gambit. Black offers a pawn for quick development, an open e-file and tricks.",
+    white: ["Take on e6, then develop with Nf3, d4 and Qe2; the extra pawn is worth keeping if you stay calm.", "Decline with 4.Nc3 or 4.d3 for a quieter game.", "Trade queens if Black gets too active."],
+    black: ["Take back on e6 with the bishop and develop with ...Qe7, ...Nc6 and ...O-O-O.", "Use the e-file and the long diagonal to pressure White's king and queen.", "Play for tricks such as ...Bb4+ to gain tempi."],
+    structure: "White has the d5 pawn and often a space edge; Black has quick development and open lines. Key squares: e6, e4, d4 and the e-file.",
+    traps: [t("Careless d4", "In the line 4.dxe6 Bxe6 5.d4 Black gets in ...Bb4+ and ...Qe7 with a pleasant game, so White should be careful with development.", "e4 d5 exd5 Nf6 c4 e6 dxe6 Bxe6 d4 Bb4+ Bd2 Bxd2+ Qxd2 Qe7 Qe3"), t("Overreaching with Nf3", "After 4.Nf3 exd5 5.cxd5 Nxd5 Black's knight and bishop quickly harass White's pieces and Black has an active position.", "e4 d5 exd5 Nf6 c4 e6 Nf3 exd5 cxd5 Nxd5 Nc3 Nb4 d4 Bf5")],
+    players: "A rare, fashionable surprise weapon against the Scandinavian, popular with players who like early tactics."
+  },
+  elephant: {
+    idea: "After 1.e4 e5 2.Nf3 Black plays 2...d5, the Elephant (or Queen's Pawn Counter) Gambit. Black ignores the attack on e5 and strikes in the centre, offering a pawn for activity. It is unsound but loaded with early traps.",
+    white: ["Take the pawn with 3.exd5 and develop with Nc3 and d4; the extra pawn is yours.", "Be careful of ...e4 hitting the knight: Qe2 or Ne5 are good replies.", "Do not rush captures; make sure your pieces are developed."],
+    black: ["Play ...e4 (Paulsen) to harass the knight, then ...Nf6 and ...Be7 and castle.", "Try ...Bd6 (Maroczy) to guard e5 and develop quickly.", "Look for tricks when White's queen is on the e-file."],
+    structure: "Black has less material but quick development and central space; the e-file is the main battle zone. Key squares: e4, d5, e5 and f3.",
+    traps: [t("Qe2 and the pin", "After 3.exd5 e4 4.Qe2 Nf6 White's queen on the e-file can become a target; if White carelessly plays Nc3 and Nxe4 Black regains the pawn with ...Nxd5 and gets quick development.", "e4 e5 Nf3 d5 exd5 e4 Qe2 Nf6 Nc3 Be7 Nxe4 Nxd5"), t("Nxe5 and the wasp sting", "In the Wasp Variation, 3.Nxe5 dxe4 4.Bc4 Qg5 5.d4 Qxg2 looks greedy for Black: 6.Bxf7+ and Rf1 give White a strong attack, so Black needs to know when to stop grabbing pawns.", "e4 e5 Nf3 d5 Nxe5 dxe4 Bc4 Qg5 d4 Qxg2 Bxf7+ Kd8 Rf1")],
+    players: "A rare opening, often used as a surprise by club players; the named lines honour Louis Paulsen and Géza Maróczy, who tried them in the 19th and early 20th centuries."
+  },
+  "von-hennig-schara": {
+    idea: "After 1.d4 d5 2.c4 e6 3.Nc3 c5 4.cxd5 Black plays 4...cxd4!?, the Von Hennig-Schara (Schara) Gambit. White's queen takes the pawn, but Black gains time hitting it with the knight and bishop.",
+    white: ["Take on d4 with the queen but retreat it to d1 and keep the extra pawn.", "Play simple development with e3, Bd2 and Be2, and trade queens if you can.", "Avoid pushing e4 too early or you may drop material."],
+    black: ["Recapture on d5 with a pawn, then play ...Be6 and ...Rd8 for a lead in development.", "Use the open d-file and a quick ...Nf6 and ...Bg7 or ...Bd6.", "Trade queens: Black's activity is worth the pawn."],
+    structure: "White has an extra pawn, but Black has active pieces and the d-file. Key squares: d5, d4, c3 and the d-file.",
+    traps: [t("Greedy queen", "After 5.Qxd4 Nc6 White's queen must retreat; if it goes to d1 and then grabs on d5, Black continues with ...Be6 and gains time.", "d4 d5 c4 e6 Nc3 c5 cxd5 cxd4 Qxd4 Nc6 Qd1 exd5 Qxd5 Be6"), t("Nb5 and ...Nf6", "After 5.Nb5 Nf6 White's knight is far away and Black takes the initiative with ...Qa5+ and ...Nc6.", "d4 d5 c4 e6 Nc3 c5 cxd5 cxd4 Nb5 Nf6 Qxd4 Qa5+")],
+    players: "Named after von Hennig and Schara, two early 20th-century players who tried it; it remains a favourite of Black players who like activity over material."
+  },
+  rousseau: {
+    idea: "After 1.e4 e5 2.Nf3 Nc6 3.Bc4 Black plays 3...f5, the Rousseau (or Italian) Gambit. Black attacks e4 at once, but weakens the king; against calm play the gambit is unsound but very tricky.",
+    white: ["Take the pawn on e5 or e4 and develop with Nc3 and d3; keep the king safe.", "Be careful of ...Qh4 ideas; the f-file is open for Black.", "Use the bishop on c4 and Ng5 to aim at f7 and h7."],
+    black: ["Play ...fxe4 and ...Nf6 to attack the e4 pawn and open lines.", "Try ...Nxe5 tricks if White grabs on e5.", "Look for ...Qh4+ and ...Bc5 to attack the f2 square."],
+    structure: "Open and risky; Black's king has weaknesses on e8 and g8. Key squares: e5, e4, f7 and f2.",
+    traps: [t("Don't take on e5 too quickly", "4.Nxe5? Nxe5 5.d4 looks like a clever fork, but the knight simply takes the bishop with 5...Nxc4 and Black is a piece (or more) up.", "e4 e5 Nf3 Nc6 Bc4 f5 Nxe5 Nxe5 d4 Nxc4"), t("Bxg8 trick", "The wild 4.d4 fxe4 5.Ng5 d5 6.Bb3 Nxd4! line looks scary, but Black comes out ahead if he keeps finding the natural captures.", "e4 e5 Nf3 Nc6 Bc4 f5 d4 fxe4 Ng5 d5 Bb3 Nxd4 Nxe4 dxe4 Qh5+ Kd7")],
+    players: "Named after a 19th-century player called Rousseau; it is a rare club opening used for surprise."
+  },
+  fajarowicz: {
+    idea: "After 1.d4 Nf6 2.c4 e5 3.dxe5 Black plays 3...Ne4 instead of the Budapest ...Ng4. This is the Fajarowicz Gambit: Black gets quick piece play and tactics like ...Bb4+ and ...Qe7.",
+    white: ["Play 4.a3 to stop ...Bb4+ and develop with Nf3, Nbd2 or Qc2.", "Watch for ...Bb4+ and ...Qe7 tricks before developing the queenside knight.", "Keep the extra pawn and trade pieces."],
+    black: ["Use ...Bb4+, ...Qe7 and ...Nc5 to recover the pawn.", "Keep the knight active: ...Ne4 and ...Nc6 build pressure.", "Sacrifice a second pawn if it opens lines."],
+    structure: "White has an extra pawn on e5; Black has quick development and tactical chances. Key squares: e4, e5, f2 and c3.",
+    traps: [t("4.Nf3 Bb4+", "After 4.Nf3 Bb4+ 5.Bd2 Nxd2 6.Nbxd2 Black regains the e5 pawn soon with ...d6 and gets a comfortable game.", "d4 Nf6 c4 e5 dxe5 Ne4 Nf3 Bb4+ Bd2 Nxd2 Nbxd2 Be7 e3 d6"), t("Qc2 and ...Bb4+", "4.Qc2 Bb4+ 5.Nc3 d5 gives Black good play, with the e5 pawn under pressure and White's queen exposed to knight tricks.", "d4 Nf6 c4 e5 dxe5 Ne4 Qc2 Bb4+ Nc3 d5")],
+    players: "Named after the Polish player Leon Fajarowicz; it is a rare line used by tricky players in blitz."
+  },
+  blumenfeld: {
+    idea: "After 1.d4 Nf6 2.c4 e6 3.Nf3 c5 4.d5 Black plays 4...b5!?, the Blumenfeld Countergambit. Black offers a pawn to win the centre with ...d5 and ...e5, often getting a strong pawn centre.",
+    white: ["Accept with dxe6 and cxb5, then develop with Nc3 and e4 to challenge the centre.", "Decline with Bg5, e4 or g3 if you don't want to fight for the pawn.", "Be ready to return the pawn to calm the position."],
+    black: ["Take back on e6 and play ...d5 for a strong centre with ...Nbd7 and ...e5.", "Use the half-open f-file and play ...Bb7 to hit the long diagonal.", "Keep the pawn centre protected and avoid overextending."],
+    structure: "Black gets a big pawn centre (d5/e5) for a pawn; White gets the c- and b-files. Key squares: d5, e5, e6 and e4.",
+    traps: [t("Greedy cxb5", "After 5.dxe6 fxe6 6.cxb5 d5 Black's centre grows quickly; if White plays slowly with Nc3 and e4 it can lead to complications.", "d4 Nf6 c4 e6 Nf3 c5 d5 b5 dxe6 fxe6 cxb5 d5 Nc3 Nbd7 e4 d4 e5 Ng4"), t("Duz-Khotimirsky Bg5", "After 5.Bg5 exd5 6.cxd5 h6 7.Bxf6 Qxf6 material is level and Black has the bishop pair and active play.", "d4 Nf6 c4 e6 Nf3 c5 d5 b5 Bg5 exd5 cxd5 h6 Bxf6 Qxf6 Qc2")],
+    players: "Named after Benjamin Blumenfeld, a Russian master of the early 20th century who championed it."
+  },
+  "wing-gambit": {
+    idea: "After 1.e4 c5 White plays 2.b4!?, the Wing Gambit. The b-pawn deflects Black's c-pawn so White can build a big centre with e4 and d4, and use the a- and b-files.",
+    white: ["After ...cxb4 play a3 to open lines and develop with Bb2, Nf3 and d4.", "Look for the e5 break and use the bishop on the long diagonal.", "Be ready to recover the pawns with axb4."],
+    black: ["Take the pawn and play ...d5 to hit the centre.", "Return material if needed and play ...e6 and ...Nf6.", "Don't greedily take both pawns without developing."],
+    structure: "White gets open a- and b-files and a strong centre for the pawns; Black has extra pawns. Key squares: d4, e5, b4 and a3.",
+    traps: [t("The Marienbad ...d5", "In the Marienbad Variation 4.exd5 Qxd5 5.Bb2 e5 6.Nf3 Black is a pawn up, but White's development and open lines give strong attacking chances.", "e4 c5 b4 cxb4 a3 d5 exd5 Qxd5 Bb2 e5 Nf3 Nf6 axb4 Bxb4 Bxe5"), t("Declined with ...Nf6", "After 2...Nf6 3.e5 Nd5 4.Bb2 Nxb4 White gets a quick lead in development with c3 and d4.", "e4 c5 b4 Nf6 e5 Nd5 Bb2 Nxb4 c3 N4c6 d4 e6")],
+    players: "The named variations (Marienbad, Carlsbad, Abrahams, Santasiere) honour places and players that tested it in the 20th century; it is a popular surprise weapon at club level."
+  },
+  "goring-gambit": {
+    idea: "In the Scotch Game 1.e4 e5 2.Nf3 Nc6 3.d4 exd4, White plays 4.c3!?, the Goring Gambit. White offers a pawn (or two) to gain a big centre, open lines and quick development.",
+    white: ["After ...dxc3 play Nxc3 and Bc4 or Bd3 and castle quickly.", "Aim your pieces at f7 and the e-file; use e5 and Qb3.", "If Black returns the pawn, enjoy the central space."],
+    black: ["Take the pawn on c3 and play ...Bb4 or ...Nf6 to challenge White's development.", "Return the pawns at the right time (for example with ...d6 and ...Nf6) to blunt the attack.", "Watch the d-file and the f7 square once your king is still in the centre."],
+    structure: "White has a lead in development and central control but is a pawn (or two) down. Key squares: e5, d5 and f7.",
+    traps: [t("Bishop pin on the knight", "In the main line Black pins the c3 knight with ...Bb4; if White plays Bd3 and O-O he gets a strong outpost with Nd5.", "e4 e5 Nf3 Nc6 d4 exd4 c3 dxc3 Nxc3 Bb4 Bd3 Nge7 O-O O-O Nd5"), t("Double pawn sacrifice", "After 5.Bc4 cxb2 6.Bxb2 White has open lines and a big lead in development.", "e4 e5 Nf3 Nc6 d4 exd4 c3 dxc3 Bc4 cxb2 Bxb2 Bb4+ Nc3 Nf6 e5 d5")],
+    players: "Named after Carl Göring, a German chess master of the 19th century; it was a favourite of attacking amateurs in the Romantic era."
+  },
+  "staunton-gambit": {
+    idea: "After 1.d4 f5 White plays 2.e4!?, the Staunton Gambit. After 2...fxe4 3.Nc3 Nf6 4.Bg5 White pins the knight and usually regains the pawn with a nice lead in development.",
+    white: ["Develop with Nc3, Bg5 and Nxe4, then continue with Nf3 and Bd3.", "Look for Bxf6 and Nxf6+ ideas and a good knight on e5.", "Aim for the kingside with Qg4 or h4."],
+    black: ["Defend e4 with ...Nf6 and ...e6, then complete development.", "Try the Alekhine (...g6) or Chigorin (...c6) set-ups to keep the pawn.", "Return the pawn when needed and play ...d5."],
+    structure: "White has a big centre and quick development; Black may keep the extra pawn if he plays carefully. Key squares: e4, e5, g5 and f6.",
+    traps: [t("Bg5 pin", "If Black ignores Bg5 and plays ...e6 and ...Be7, White regains the pawn on e4 and gets a better game.", "d4 f5 e4 fxe4 Nc3 Nf6 Bg5 e6 Nxe4 Be7 Bxf6 Bxf6 Nf3"), t("Alekhine h4", "After 4...g6 5.h4 d5 6.h5 White gets good attacking chances on the kingside.", "d4 f5 e4 fxe4 Nc3 Nf6 Bg5 g6 h4 d5 h5 Bf5")],
+    players: "Named after Howard Staunton, the English champion of the 1840s; a favourite way to fight the Dutch for attacking players."
+  },
+  "muzio-gambit": {
+    idea: "In the King's Gambit Accepted White plays 3.Nf3 g5 4.Bc4 g4 5.O-O!? the Muzio Gambit: after ...gxf3 White has given a knight for an open f-file and a ferocious attack. It's famous, spectacular and risky.",
+    white: ["Take on f3 with the queen, aim bishop and queen at f7 and bring the rook to f1.", "Use e5 and d3 to open the position and attack.", "Look for Bxf7+ ideas if Black's king is exposed."],
+    black: ["Accept the knight and play ...Qf6 or ...Qe7 to defend f7.", "Give back the extra material when needed and consolidate with ...d6 and ...Bh6.", "Try the Brentano (...d5) idea to counterattack."],
+    structure: "White has an open f-file and a big lead in development; Black has an extra piece. Key squares: f7, f4, f3 and the e-file.",
+    traps: [t("Qf6 and e5", "After 6...Qf6 7.e5 Qxe5 8.d3 Bh6 White has given a knight, but Black's king is stuck in the centre and Bd2, Nc3 and Rae1 pile on.", "e4 e5 f4 exf4 Nf3 g5 Bc4 g4 O-O gxf3 Qxf3 Qf6 e5 Qxe5 d3 Bh6"), t("From's Defence 6...Qe7", "Black's 6...Qe7 looks natural, but 7.Qxf4 Qc5+ 8.Rf2 attacks with tempo and White regains material with strong threats; Black must know the theory.", "e4 e5 f4 exf4 Nf3 g5 Bc4 g4 O-O gxf3 Qxf3 Qe7 Qxf4 Qc5+")],
+    players: "A Romantic-era favourite found in the oldest King's Gambit analysis; still popular with attacking players in blitz."
+  },
+  "belgrade-gambit": {
+    idea: "In the Four Knights Scotch (1.e4 e5 2.Nf3 Nc6 3.Nc3 Nf6 4.d4 exd4) White plays 5.Nd5!?, the Belgrade Gambit. The knight jumps into the centre, attacks f6, c7 and e7, and White may give a pawn for quick attacks.",
+    white: ["Attack the knight on e4 with Qe2 and Nd2 to pin it against the king.", "Follow with Nxd4 or Nb4 ideas to win material if Black errs.", "Be prepared to trade queens or take the pawn back."],
+    black: ["Take on e4 with the knight, defend with ...f5 and kick the queen with ...d3.", "Exchange the knight on d5 with ...Nxd5 and play ...Qe7+.", "Do not take on e4 without knowing the line: 5...Be7 and 5...Nxd5 are safer."],
+    structure: "Open centre with tactical play; the e-file pin is the central theme. Key squares: e4, d5, d4 and e2.",
+    traps: [t("The pinned knight", "After 5...Nxe4 6.Qe2 the knight on e4 is pinned against the king: Black must defend it with ...f5 and cannot simply retreat it, and 6...Qe7?? loses the queen to Nxe7.", "e4 e5 Nf3 Nc6 Nc3 Nf6 d4 exd4 Nd5 Nxe4 Qe2 f5 Nd2 d3"), t("Nxd5 Qe7+", "After 5...Nxd5 6.exd5 Qe7+ White has a pleasant game with Be2, Nxd4 and Nb5.", "e4 e5 Nf3 Nc6 Nc3 Nf6 d4 exd4 Nd5 Nxd5 exd5 Qe7+ Be2 Ne5 Nxd4")],
+    players: "Named after the city of Belgrade; it remains a rare, tricky weapon at club level."
+  },
 };

@@ -17,7 +17,7 @@ watch(page);
 await page.goto(URL_); await ready(page);
 await page.click('#filter-seg button[data-filter="all"]');
 const ids = await page.$$eval('.ocard', (c) => c.map((x) => x.dataset.id).filter((x) => x !== 'random'));
-check('35 openings have Watch + Learn buttons', ids.length === 35 && (await page.$$('.ocard .mini[data-act="watch"]')).length === 35 && (await page.$$('.ocard .mini[data-act="learn"]')).length === 35);
+check('48 openings have Watch + Learn buttons', ids.length === 48 && (await page.$$('.ocard .mini[data-act="watch"]')).length === 48 && (await page.$$('.ocard .mini[data-act="learn"]')).length === 48);
 check('start bar has "Watch it first" (disabled until an opening is picked)', await page.$eval('#watch-btn', (b) => b.disabled && /Watch it first/.test(b.textContent)));
 
 // every opening: Learn-more popup content
@@ -32,7 +32,7 @@ for (const id of ids) {
   await page.click('#learn-x');
   if (await visible(page, '#learn')) learnBad.push(id + ' did not close');
 }
-check('Learn-more popup renders full content for all 35 openings and closes', learnBad.length === 0, learnBad.slice(0, 3).join(' | '));
+check('Learn-more popup renders full content for all 48 openings and closes', learnBad.length === 0, learnBad.slice(0, 3).join(' | '));
 
 // close methods + focus return
 await page.click('.ocard[data-id="italian"] .mini[data-act="learn"]');
@@ -73,7 +73,7 @@ for (const id of ids) {
   }
   await page.click('#demo-back');
 }
-check('Watch-it-first plays every line of all 35 openings to the correct final position, with a note on every move', bad.length === 0, bad.slice(0, 2).join(' | '));
+check('Watch-it-first plays every line of all 48 openings to the correct final position, with a note on every move', bad.length === 0, bad.slice(0, 2).join(' | '));
 
 // demo controls on one opening
 await page.click('.ocard[data-id="fried-liver"]');

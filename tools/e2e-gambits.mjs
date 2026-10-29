@@ -16,10 +16,10 @@ await page.waitForFunction(() => /ready|Basic/.test(document.querySelector('#eng
 await page.click('#filter-seg button[data-filter="gambit"]');
 const cards = await page.$$eval('.ocard', (c) => c.map((x) => ({ id: x.dataset.id, gambit: x.classList.contains('gambit') })));
 const ids = cards.filter((c) => c.id !== 'random').map((c) => c.id);
-check('gambit filter shows only gambits', ids.length === 19 && cards.filter((c) => c.id !== 'random').every((c) => c.gambit), `${ids.length} cards`);
+check('gambit filter shows only gambits', ids.length === 32 && cards.filter((c) => c.id !== 'random').every((c) => c.gambit), `${ids.length} cards`);
 const wanted = process.env.ONLY ? process.env.ONLY.split(',') : ids;
 await page.click('#filter-seg button[data-filter="all"]');
-check('"All" filter shows everything', (await page.$$('.ocard')).length === 36);
+check('"All" filter shows everything', (await page.$$('.ocard')).length === 49);
 await page.click('#filter-seg button[data-filter="black"]');
 check('"Black" filter only lists Black openings', (await page.$$eval('.ocard:not([data-id="random"]) .chip', (c) => c.every((x) => x.classList.contains('b')))));
 await page.click('#filter-seg button[data-filter="gambit"]');

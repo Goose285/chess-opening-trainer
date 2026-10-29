@@ -16,7 +16,7 @@ const pill = await page.textContent('#engine-pill span');
 check('engine initialised', /Stockfish 19 ready/.test(pill) || /file:/.test(URL_), pill);
 const expectCards = await page.evaluate(() => window.__ot ? 0 : 0);
 const nCards = (await page.$$('.ocard')).length;
-check('35 openings (16 classical + 19 gambits) + surprise card', nCards === 36, String(nCards));
+check('48 openings (16 classical + 32 gambits) + surprise card', nCards === 49, String(nCards));
 
 const OPEN = process.env.OPENING || 'italian';
 await page.click(`.ocard[data-id="${OPEN}"]`);
