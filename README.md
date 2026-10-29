@@ -1,4 +1,6 @@
-# Opening Trainer
+# Road to 1500
+
+*Learn the gambits that win games on the road to 1500.* A chess opening and gambit trainer for casual and improving players (rated under ~1500). The GitHub repo and the URL (`/chess-opening-trainer/`) keep their original name; only the app's brand changed.
 
 Play through chess openings yourself. Pick an opening and a side; the computer answers with a **random book line**, and every move you make is graded:
 
@@ -64,6 +66,12 @@ Openings with `gambit: true` show up under the **♟ Gambits** filter in the pic
 `src/gambits.js` is generated from verified base sequences (ECO names/moves from lichess-org/chess-openings, CC0) extended a few plies with Stockfish's top moves — see `tools/gen-gambits.mjs`. The generated lines are ordinary data: edit them by hand if you prefer other continuations.
 
 There are 32 gambits: 17 to play as White and 15 as Black (all 16 classical openings and 32 gambits = 48 openings). Besides the classics (Fried Liver, King's Gambit, Evans, Danish, Scotch Gambit, Smith-Morra, Budapest, Benko, Albin, Englund, Stafford, Vienna, QGA, Latvian, Blackmar-Diemer, Halloween, Jerome, Traxler) it now covers Schliemann, Marshall Attack, Icelandic-Palme, Elephant, Von Hennig-Schara, Rousseau, Fajarowicz and Blumenfeld for Black, and the Wing Gambit, Göring Gambit, Staunton Gambit, Muzio Gambit and Belgrade Gambit for White. Each has several branching lines, a rating range, a play-style tag, a Watch-it-first walkthrough and a Learn-more popup.
+
+## Branding and Add to Home Screen
+
+The app is called **Road to 1500**: a pawn on an upward road, with the wordmark "Road to **1500**" in the header. Branding lives in `index.html` (title, meta tags, header), `manifest.webmanifest` and `icons/` (`icon.svg` is the source; `favicon.svg`, `favicon-32/48.png`, `apple-touch-icon.png` (180), `icon-192/512.png` and `icon-maskable-512.png` are generated with `node tools/make-icons.mjs`).
+
+On iPhone: open the site in Safari, tap Share, then **Add to Home Screen**. It is named *Road to 1500*, gets the pawn-and-road icon, and opens standalone (no browser bars) via `apple-mobile-web-app-capable` and the manifest's `display: standalone`. `npm run test:brand` checks the title, wordmark, tagline, manifest, icon sizes and phone header layout.
 
 ## Piece lift (chess.com-style)
 

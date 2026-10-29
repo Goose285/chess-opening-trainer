@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Interactive chess opening trainer with Stockfish grading",
+  "description": "Road to 1500: interactive chess gambit and opening trainer for casual players, with Stockfish grading",
   "scripts": {
     "build": "esbuild src/main.js --bundle --minify --format=iife --target=es2020 --outfile=dist/app.js",
     "test:book": "node tools/check-book.mjs",
@@ -15,7 +15,8 @@
     "test:lore": "node tools/check-lore.mjs",
     "test:learn": "node tools/e2e-learn.mjs",
     "test:ratings": "node tools/e2e-ratings.mjs",
-    "test:style": "node tools/e2e-style.mjs"
+    "test:style": "node tools/e2e-style.mjs",
+    "test:brand": "node tools/e2e-brand.mjs"
   },
   "dependencies": {
     "chess.js": "^1.4.0",
