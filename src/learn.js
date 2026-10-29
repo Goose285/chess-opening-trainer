@@ -1,5 +1,6 @@
 // The "Learn more" popup: idea, plans for both sides, key squares / structure, traps and who plays the opening.
 import { LORE } from './lore-text.js';
+import { META, levelOf } from './meta.js';
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -22,9 +23,15 @@ export function openLearn(opening, opts = {}) {
   $('#learn-title').textContent = opening.name;
   const list = (a) => `<ul>${a.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`;
   const side = opening.side === 'white' ? ['Your plans as White', 'Black\'s plans'] : ['White\'s plans', 'Your plans as Black'];
+  const meta = META[opening.id];
+  const lv = meta ? levelOf(meta.lo) : null;
+  const rating = meta ? `<section class="ln-sec ln-rating"><p class="ln-desc">${esc(meta.desc)}</p>
+      <div class="ln-rrow"><span class="rtag r-${lv.key}"><i></i>${meta.lo}–${meta.hi}<em>${lv.label}</em></span>${meta.trappy ? '<span class="rtag r-fun"><i></i>Fun / trappy</span>' : ''}</div>
+      <p class="ln-why"><b>Recommended rating ${meta.lo}–${meta.hi}.</b> ${esc(meta.why)}${meta.trappy ? ' It is unsound against strong, prepared opponents (roughly above ' + meta.hi + ').' : ''}</p></section>` : '';
   const note = opts.note
     ? `<section class="ln-sec ln-now"><h3>📍 This position</h3><div class="ln-now-t">${esc(opts.note.title)}</div><p>${esc(opts.note.text)}</p>${opts.note.line ? `<p class="ln-line">Variation so far: <b>${esc(opts.note.line)}</b></p>` : ''}</section>` : '';
   $('#learn-body').innerHTML = `
+    ${rating}
     ${note}
     <section class="ln-sec"><h3>💡 The idea</h3><p>${esc(lore.idea)}</p></section>
     <section class="ln-sec ln-plans">

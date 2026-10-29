@@ -4,12 +4,23 @@ import { Chess } from 'chess.js';
 import { OPENINGS } from '../src/openings.js';
 import { WALK, MAIN_LINE } from '../src/lore.js';
 import { LORE } from '../src/lore-text.js';
+import { META, levelOf } from '../src/meta.js';
 
 let bad = 0;
 const fail = (m) => { bad++; console.log('FAIL', m); };
 const ids = OPENINGS.map((o) => o.id);
 
 for (const o of OPENINGS) {
+  const meta = META[o.id];
+  if (!meta) fail(`${o.id}: no META`);
+  else {
+    const words = meta.desc.trim().split(/\s+/).length;
+    if (words < 9 || words > 16) fail(`${o.id}: description is ${words} words`);
+    if (!(meta.lo >= 400 && meta.hi > meta.lo && meta.hi <= 2400)) fail(`${o.id}: odd rating range ${meta.lo}-${meta.hi}`);
+    if (meta.hi - meta.lo < 400) fail(`${o.id}: range too narrow`);
+    if (!meta.why || meta.why.length < 40) fail(`${o.id}: why missing`);
+    if (meta.trappy && meta.hi > 1400) fail(`${o.id}: trappy openings should top out by ~1400`);
+  }
   const walk = WALK[o.id];
   const lore = LORE[o.id];
   if (!walk) fail(`${o.id}: no WALK`);
@@ -41,6 +52,7 @@ for (const o of OPENINGS) {
   }
 }
 for (const k of Object.keys(WALK)) if (!ids.includes(k)) fail(`WALK has unknown id ${k}`);
+for (const k of Object.keys(META)) if (!ids.includes(k)) fail(`META has unknown id ${k}`);
 for (const k of Object.keys(LORE)) if (!ids.includes(k)) fail(`LORE has unknown id ${k}`);
 console.log(bad ? `${bad} problem(s)` : `lore OK: ${ids.length} openings, walkthroughs aligned, trap lines legal`);
 process.exit(bad ? 1 : 0);

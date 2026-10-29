@@ -8,6 +8,7 @@ import { openDemo, closeDemo, initDemo, demoState } from './demo.js';
 import { openLearn, initLearn } from './learn.js';
 import { positionNote } from './explain.js';
 import { LORE } from './lore-text.js';
+import { META, LEVELS, levelOf, levelKey, ratingText } from './meta.js';
 import { GRADES, centipawnLoss, gradeFromLoss, formatEval, uciToSan, summaryRating, capEval } from './grading.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -32,6 +33,7 @@ const savePrefs = () => { try { localStorage.setItem('ot-prefs', JSON.stringify(
 
 let selectedId = prefs.opening || null;
 let filter = prefs.filter || 'all';   // all | gambit | white | black
+let levelFilter = prefs.level || 'all'; // all | beginner | intermediate | advanced | expert
 let colorChoice = prefs.color || 'white';
 let session = null;   // current run
 let cg = null;        // chessground api
@@ -39,6 +41,11 @@ let detachLift = null;
 
 // ---------------------------------------------------------------- setup screen
 const grid = $('#opening-grid');
+function ratingPill(o) {
+  const x = META[o.id]; if (!x) return '';
+  const lv = levelOf(x.lo);
+  return `<div class="oc-tags"><span class="rtag r-${lv.key}" title="Recommended rating ${x.lo}–${x.hi} (${lv.label})${x.trappy ? ' · fun/trappy: unsound against strong play' : ''}"><i></i>${ratingText(o)}<em>${lv.label}</em></span></div>`;
+}
 function renderGrid() {
   grid.innerHTML = '';
   const pool = OPENINGS.filter(matchesFilter);
@@ -52,7 +59,7 @@ function renderGrid() {
     const extras = o.lines.length && LORE[o.id]
       ? `<span class="oc-btns"><button type="button" class="mini" data-act="watch" aria-label="Watch ${esc(o.name)} first">▶ Watch</button><button type="button" class="mini" data-act="learn" aria-label="Learn more about ${esc(o.name)}">📖 Learn more</button></span>` : '';
     c.innerHTML = `<div class="oc-top"><span class="oc-eco">${esc(o.eco || 'Random')}${o.gambit ? ' · <b class="gtag">Gambit</b>' : ''}</span>${sideIcon}</div>
-      <div class="oc-name">${esc(o.name)}</div><div class="oc-blurb">${esc(o.blurb)}</div>
+      <div class="oc-name">${esc(o.name)}</div><div class="oc-blurb">${esc(META[o.id] ? META[o.id].desc : o.blurb)}</div>${ratingPill(o)}
       <div class="oc-foot"><span>${o.lines.length ? o.lines.length + ' lines' : 'Any opening'}</span>${extras}</div>`;
     const choose = () => {
       selectedId = o.id; prefs.opening = selectedId;
@@ -88,6 +95,7 @@ function setColor(c) {
 $('#color-seg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setColor(b.dataset.color); });
 
 function matchesFilter(o) {
+  if (levelFilter !== 'all' && levelKey(o.id) !== levelFilter) return false;
   if (filter === 'gambit') return !!o.gambit;
   if (filter === 'white' || filter === 'black') return o.side === filter;
   return true;
@@ -96,6 +104,16 @@ $('#filter-seg').addEventListener('click', (e) => {
   const b = e.target.closest('button'); if (!b) return;
   filter = b.dataset.filter; prefs.filter = filter; savePrefs();
   $('#filter-seg').querySelectorAll('button').forEach((x) => { const on = x === b; x.classList.toggle('active', on); x.setAttribute('aria-checked', on); });
+  renderGrid();
+});
+const levelSeg = $('#level-seg');
+levelSeg.innerHTML = '<button data-level="all" role="radio">Any level</button>' + LEVELS.filter((l) => OPENINGS.some((o) => levelKey(o.id) === l.key)).map((l) => `<button data-level="${l.key}" role="radio" class="lv-${l.key}">${l.label}</button>`).join('');
+if (!levelSeg.querySelector(`[data-level="${levelFilter}"]`)) levelFilter = 'all';
+levelSeg.querySelectorAll('button').forEach((x) => { const on = x.dataset.level === levelFilter; x.classList.toggle('active', on); x.setAttribute('aria-checked', on); });
+levelSeg.addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  levelFilter = b.dataset.level; prefs.level = levelFilter; savePrefs();
+  levelSeg.querySelectorAll('button').forEach((x) => { const on = x === b; x.classList.toggle('active', on); x.setAttribute('aria-checked', on); });
   renderGrid();
 });
 $('#start-btn').addEventListener('click', () => startRun());

@@ -298,3 +298,27 @@ body.noscroll { overflow: hidden; }
   .demo-note { min-height: 0; }
 }
 @media (max-width: 640px) { .startbar-inner { flex-wrap: wrap; } .start-label { width: 100%; font-size: 13px; } .start-btns { width: 100%; } .start-btns .btn { flex: 1; } }
+
+/* ---------- description + rating tag on cards ---------- */
+.oc-blurb { flex: 0 1 auto; line-height: 1.4; }
+.oc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 0; }
+.rtag { --rc: #93a1b3; display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; letter-spacing: .3px; color: var(--rc); background: color-mix(in srgb, var(--rc) 14%, transparent); border: 1px solid color-mix(in srgb, var(--rc) 45%, transparent); border-radius: 999px; padding: 2px 9px 2px 7px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rtag i { width: 7px; height: 7px; border-radius: 50%; background: var(--rc); flex: none; }
+.rtag em { font-style: normal; font-weight: 600; opacity: .85; letter-spacing: 0; padding-left: 6px; border-left: 1px solid color-mix(in srgb, var(--rc) 45%, transparent); }
+.r-beginner { --rc: #4ade80; } .r-intermediate { --rc: #5aa9ff; } .r-advanced { --rc: #b794f6; } .r-expert { --rc: #f87171; } .r-fun { --rc: #ffb86b; }
+.oc-foot { margin-top: auto; }
+.level-row { margin-top: -2px; }
+.filter-label { font-size: 12px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); }
+#level-seg { flex-wrap: wrap; }
+#level-seg button.active.lv-beginner { box-shadow: inset 0 0 0 1px #4ade80; } #level-seg button.active.lv-intermediate { box-shadow: inset 0 0 0 1px #5aa9ff; }
+#level-seg button.active.lv-advanced { box-shadow: inset 0 0 0 1px #b794f6; } #level-seg button.active.lv-expert { box-shadow: inset 0 0 0 1px #f87171; }
+.ln-rating { padding-top: 10px; }
+.ln-desc { font-size: 15.5px !important; color: #e6edf5 !important; }
+.ln-rrow { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.ln-why { font-size: 13.5px !important; }
+.ln-why b { color: var(--text); }
+@media (max-width: 520px) {
+  #level-seg button { padding: 7px 9px; font-size: 13px; }
+  .filter-row { gap: 8px; }
+  .level-row .filter-label { width: 100%; }
+}

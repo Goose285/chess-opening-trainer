@@ -13,7 +13,8 @@
     "test:touch": "node tools/e2e-touch.mjs",
     "audit": "node tools/audit-book.mjs",
     "test:lore": "node tools/check-lore.mjs",
-    "test:learn": "node tools/e2e-learn.mjs"
+    "test:learn": "node tools/e2e-learn.mjs",
+    "test:ratings": "node tools/e2e-ratings.mjs"
   },
   "dependencies": {
     "chess.js": "^1.4.0",
