@@ -2,6 +2,7 @@ import { Chess } from 'chess.js';
 import { Chessground } from 'chessground';
 import { OPENINGS } from './openings.js';
 import { buildBook, bookMoves, pickBookMove, lineNameAt, posKey } from './book.js';
+import { attachLift } from './lift.js';
 import { EngineManager } from './engine.js';
 import { GRADES, centipawnLoss, gradeFromLoss, formatEval, uciToSan, summaryRating, capEval } from './grading.js';
 
@@ -26,23 +27,33 @@ const prefs = (() => { try { return JSON.parse(localStorage.getItem('ot-prefs') 
 const savePrefs = () => { try { localStorage.setItem('ot-prefs', JSON.stringify(prefs)); } catch {} };
 
 let selectedId = prefs.opening || null;
+let filter = prefs.filter || 'all';   // all | gambit | white | black
 let colorChoice = prefs.color || 'white';
 let session = null;   // current run
 let cg = null;        // chessground api
+let detachLift = null;
 
 // ---------------------------------------------------------------- setup screen
 const grid = $('#opening-grid');
 function renderGrid() {
   grid.innerHTML = '';
-  const cards = [...OPENINGS, { id: 'random', name: 'Surprise me', eco: '', side: '', blurb: 'A random opening from the library.', lines: [] }];
+  const pool = OPENINGS.filter(matchesFilter);
+  const cards = [...pool, { id: 'random', name: 'Surprise me', eco: '', side: '', blurb: filter === 'gambit' ? 'A random gambit.' : 'A random opening from the library.', lines: [] }];
+  $('#filter-count').textContent = `${pool.length} opening${pool.length === 1 ? '' : 's'} · ${pool.reduce((n, o) => n + o.lines.length, 0)} lines`;
   for (const o of cards) {
     const c = el('button', 'ocard' + (o.id === selectedId ? ' selected' : ''));
     c.dataset.id = o.id; c.setAttribute('role', 'option'); c.setAttribute('aria-selected', o.id === selectedId);
+    if (o.gambit) c.classList.add('gambit');
     const sideIcon = o.side === 'white' ? '<span class="chip w">White</span>' : o.side === 'black' ? '<span class="chip b">Black</span>' : '<span class="chip r">?</span>';
-    c.innerHTML = `<div class="oc-top"><span class="oc-eco">${esc(o.eco || 'Random')}</span>${sideIcon}</div>
+    c.innerHTML = `<div class="oc-top"><span class="oc-eco">${esc(o.eco || 'Random')}${o.gambit ? ' · <b class="gtag">Gambit</b>' : ''}</span>${sideIcon}</div>
       <div class="oc-name">${esc(o.name)}</div><div class="oc-blurb">${esc(o.blurb)}</div>
       <div class="oc-foot">${o.lines.length ? o.lines.length + ' lines' : 'Any opening'}</div>`;
-    c.addEventListener('click', () => { selectedId = o.id; prefs.opening = selectedId; savePrefs(); renderGrid(); updateStartBar(); });
+    c.addEventListener('click', () => {
+      selectedId = o.id; prefs.opening = selectedId;
+      // follow the opening's own side (unless "Random" is chosen) so e.g. the Englund trainer for Black starts as Black
+      if (o.side && colorChoice !== 'random' && colorChoice !== o.side) setColor(o.side);
+      savePrefs(); renderGrid(); updateStartBar();
+    });
     c.addEventListener('dblclick', () => { if (selectedId) startRun(); });
     grid.appendChild(c);
   }
@@ -54,11 +65,23 @@ function updateStartBar() {
   const sideTxt = colorChoice === 'random' ? 'a random side' : colorChoice === 'white' ? 'White' : 'Black';
   lab.innerHTML = selectedId ? `<b>${esc(o ? o.name : 'Surprise me')}</b> · as ${sideTxt}` : 'Choose an opening';
 }
-$('#color-seg').addEventListener('click', (e) => {
-  const b = e.target.closest('button'); if (!b) return;
-  colorChoice = b.dataset.color; prefs.color = colorChoice; savePrefs();
-  $('#color-seg').querySelectorAll('button').forEach((x) => { x.classList.toggle('active', x === b); x.setAttribute('aria-checked', x === b); });
+function setColor(c) {
+  colorChoice = c; prefs.color = colorChoice; savePrefs();
+  $('#color-seg').querySelectorAll('button').forEach((x) => { const on = x.dataset.color === c; x.classList.toggle('active', on); x.setAttribute('aria-checked', on); });
   updateStartBar();
+}
+$('#color-seg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setColor(b.dataset.color); });
+
+function matchesFilter(o) {
+  if (filter === 'gambit') return !!o.gambit;
+  if (filter === 'white' || filter === 'black') return o.side === filter;
+  return true;
+}
+$('#filter-seg').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  filter = b.dataset.filter; prefs.filter = filter; savePrefs();
+  $('#filter-seg').querySelectorAll('button').forEach((x) => { const on = x === b; x.classList.toggle('active', on); x.setAttribute('aria-checked', on); });
+  renderGrid();
 });
 $('#start-btn').addEventListener('click', () => startRun());
 
@@ -89,23 +112,25 @@ function boardConfig(g, extra = {}) {
 function syncBoard(extra = {}) { cg.set(boardConfig(session.game, extra)); }
 
 function initBoard() {
+  if (detachLift) { detachLift(); detachLift = null; }
   if (cg) cg.destroy();
   cg = Chessground($('#board'), {
     orientation: session.userColor,
     coordinates: true,
-    animation: { enabled: true, duration: 220 },
+    animation: { enabled: true, duration: 240 },
     highlight: { lastMove: true, check: true },
-    draggable: { showGhost: true, distance: 3 },
+    draggable: { showGhost: true, distance: 3, autoDistance: true },
     premovable: { enabled: false },
     drawable: { enabled: true, autoShapes: [] },
     selectable: { enabled: true },
   });
+  detachLift = attachLift($('#board'), cg);
 }
 window.addEventListener('resize', () => cg && cg.redrawAll());
 
 // ---------------------------------------------------------------- run lifecycle
 function pickOpening() {
-  if (selectedId === 'random') return OPENINGS[Math.floor(Math.random() * OPENINGS.length)];
+  if (selectedId === 'random') { const pool = OPENINGS.filter(matchesFilter); const p = pool.length ? pool : OPENINGS; return p[Math.floor(Math.random() * p.length)]; }
   return OPENINGS.find((o) => o.id === selectedId);
 }
 
@@ -236,7 +261,7 @@ async function handleUserMove(from, to) {
   ];
   if (!engine.isStockfish) chips.push(chip('Engine', 'basic (approx.)'));
   const showKeep = ['best', 'excellent', 'good'].includes(grade.key);
-  setFeedback(grade.key, grade.icon, `${grade.label} — but not book`, `<b>${esc(mv.san)}</b> is outside the line. ${tail}<br>Expected book move${bookSans.length > 1 ? 's' : ''}: <b>${esc(expected)}</b>.`, chips, [
+  setFeedback(grade.key, grade.icon, `${grade.label} — but not book`, `<b>${esc(mv.san)}</b> is outside the line. ${tail}<br>Expected book move${bookSans.length > 1 ? 's' : ''}: <b>${esc(expected)}</b>.${s.opening.gambit ? '<span class="gnote">Gambit line: book moves always count as Book, even when they give up material. Only moves outside the book are engine-graded.</span>' : ''}`, chips, [
     { label: '↺ Retry', cls: 'primary', fn: retry },
     { label: 'Show book move & continue', fn: () => continueWithBook() },
     ...(showKeep ? [{ label: 'Keep my move (leave book)', cls: 'ghost', fn: () => keepMyMove() }] : []),
@@ -418,6 +443,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('#summar
 // ---------------------------------------------------------------- boot
 $('#color-seg').querySelectorAll('button').forEach((x) => { x.classList.toggle('active', x.dataset.color === colorChoice); });
 if (selectedId && selectedId !== 'random' && !OPENINGS.find((o) => o.id === selectedId)) selectedId = null;
+$('#filter-seg').querySelectorAll('button').forEach((x) => { x.classList.toggle('active', x.dataset.filter === filter); });
 renderGrid(); updateStartBar();
 
 // test/debug hook

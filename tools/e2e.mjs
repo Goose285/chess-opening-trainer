@@ -14,7 +14,9 @@ const check = (name, ok, extra = '') => { results.push({ name, ok }); console.lo
 await page.waitForFunction(() => /ready|Basic/.test(document.querySelector('#engine-pill span').textContent), null, { timeout: 30000 });
 const pill = await page.textContent('#engine-pill span');
 check('engine initialised', /Stockfish 19 ready/.test(pill) || /file:/.test(URL_), pill);
-check('16 opening cards + surprise', (await page.$$('.ocard')).length === 17);
+const expectCards = await page.evaluate(() => window.__ot ? 0 : 0);
+const nCards = (await page.$$('.ocard')).length;
+check('35 openings (16 classical + 19 gambits) + surprise card', nCards === 36, String(nCards));
 
 const OPEN = process.env.OPENING || 'italian';
 await page.click(`.ocard[data-id="${OPEN}"]`);

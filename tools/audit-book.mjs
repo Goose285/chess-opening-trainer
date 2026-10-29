@@ -26,7 +26,10 @@ send('uci'); send('isready');
 const cache = new Map();
 const an = async fen => { const k = fen.split(' ').slice(0,4).join(' '); if (!cache.has(k)) cache.set(k, await analyze(fen)); return cache.get(k); };
 let flagged = 0, checked = 0;
+const ONLY = process.env.ONLY; // 'gambit' to audit only gambit openings
+const THRESH = +process.env.THRESH || 70;
 for (const o of OPENINGS) {
+  if (ONLY === 'gambit' && !o.gambit) continue;
   for (const l of o.lines) {
     const g = new Chess();
     for (const san of l.moves.split(' ')) {
@@ -35,7 +38,7 @@ for (const o of OPENINGS) {
       const after = await an(g.fen());
       const loss = before.cp - (-after.cp);
       checked++;
-      if (loss > 70) { flagged++; console.log(`${o.name} / ${l.name}: ${san} (ply ${g.history().length}) loss ${loss}cp (best ${before.best}, eval ${before.cp}→${-after.cp})`); }
+      if (loss > THRESH) { flagged++; console.log(`${o.name} / ${l.name}: ${san} (ply ${g.history().length}) loss ${loss}cp (best ${before.best}, eval ${before.cp}→${-after.cp})`); }
     }
     const f = await an(g.fen());
     const sideEval = g.turn() === 'w' ? f.cp : -f.cp;

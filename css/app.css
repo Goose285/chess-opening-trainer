@@ -174,3 +174,55 @@ cg-board square.oc.move-dest { background: radial-gradient(transparent 0%, trans
   .modal-card { padding: 16px; }
   .pill span { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
+
+/* ---------- piece lift (chess.com-style pickup) ----------
+   The piece artwork is drawn on ::before (see chessground.css, --pimg) so we can scale / raise /
+   shadow it without fighting chessground's inline translate() on the <piece> element. */
+.cg-board-host { touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; overflow: visible; --lift: -7%; --lift-scale: 1.22; }
+.cg-board-host.touch { --lift: -26%; --lift-scale: 1.4; }
+cg-board { border-radius: 8px; }
+.cg-wrap piece::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: var(--pimg); background-size: cover; background-repeat: no-repeat;
+  transform-origin: 50% 60%;
+  transition: transform .13s cubic-bezier(.2,.8,.3,1), filter .13s ease-out;
+  will-change: transform;
+}
+/* selected (tapped) piece: gentle hover */
+.cg-wrap piece.lifted:not(.dragging)::before {
+  transform: translateY(-5%) scale(1.1);
+  filter: drop-shadow(0 5px 4px rgba(0,0,0,.4));
+}
+.cg-wrap piece.lifted { z-index: 7; }
+/* piece in hand */
+.cg-wrap piece.dragging::before {
+  transform: translateY(var(--lift)) scale(var(--lift-scale));
+  filter: drop-shadow(0 12px 9px rgba(0,0,0,.5));
+}
+/* start of the snap-to-square animation: sit where the finger left it, then ease to the square */
+.cg-wrap piece.snapfrom::before {
+  transition: none;
+  transform: translate(var(--sx, 0px), var(--sy, 0px)) translateY(var(--lift)) scale(var(--lift-scale));
+  filter: drop-shadow(0 12px 9px rgba(0,0,0,.5));
+}
+.cg-wrap piece.snapping { z-index: 10; }
+.cg-wrap piece.snapping::before { transition: transform .17s cubic-bezier(.2,.9,.3,1.1), filter .17s ease-out; }
+/* selected square (stronger, chess.com-like) + drag target highlight */
+cg-board square.selected { background-color: rgba(255, 213, 79, .55); }
+.hover-sq { position: absolute; width: 12.5%; height: 12.5%; left: 0; top: 0; pointer-events: none; z-index: 1; box-shadow: inset 0 0 0 4px rgba(255,255,255,.65); background: rgba(255,255,255,.12); border-radius: 2px; display: none; }
+.hover-sq.on { display: block; }
+@media (prefers-reduced-motion: reduce) { .cg-wrap piece::before { transition: none !important; } }
+
+/* ---------- opening filter + gambit tag ---------- */
+.filter-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 12px; }
+.seg-sm button { padding: 7px 13px; font-size: 14px; }
+.filter-count { color: var(--muted); font-size: 12.5px; }
+.gtag { color: #ffb86b; font-weight: 700; letter-spacing: .4px; }
+.ocard.gambit { border-left: 3px solid #ffb86b; }
+.gnote { display: block; margin-top: 6px; color: #ffb86b; font-size: 12.5px; }
+
+/* The board host no longer clips (so lifted pieces may overhang the edge); clip the coordinate labels
+   exactly where the old overflow:hidden did, so the coordinates look unchanged and don't widen the page. */
+.cg-wrap coords.files { clip-path: inset(0 24px 4px 0); }
+.cg-wrap coords.ranks { clip-path: inset(20px 0 0 0); }
+#train.screen { overflow-x: clip; } /* a lifted piece may overhang the board; the page itself must never scroll sideways */

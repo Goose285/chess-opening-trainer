@@ -1,6 +1,8 @@
 // Built-in opening library. Each opening has several named lines (SAN, no move numbers).
 // Lines are merged into a position graph (by FEN), so branches and transpositions share book moves.
-export const OPENINGS = [
+import { GAMBITS } from './gambits.js';
+
+const CLASSICAL = [
   {
     id: 'italian', name: 'Italian Game', eco: 'C50–C54', side: 'white',
     blurb: 'Classical development aiming at f7: Giuoco Piano, Evans Gambit and the Two Knights.',
@@ -159,3 +161,6 @@ export const OPENINGS = [
     ],
   },
 ];
+
+// Classical openings first, then the gambit category (o.gambit === true).
+export const OPENINGS = [...CLASSICAL, ...GAMBITS];
