@@ -21,12 +21,16 @@
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="css/chessground.css">
+  <link rel="stylesheet" href="css/pieces.css">
   <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
   <header class="top">
     <div class="brand"><img class="logo" src="icons/favicon.svg" alt="" width="36" height="36"><span class="wordmark">Road to <b>1500</b></span></div>
-    <div id="engine-pill" class="pill pill-wait" title="Engine status"><i></i><span>Loading engine…</span></div>
+    <div class="top-right">
+      <div id="engine-pill" class="pill pill-wait" title="Engine status"><i></i><span>Loading engine…</span></div>
+      <button id="theme-btn" class="icon-btn" type="button" aria-label="Board and piece themes" aria-haspopup="dialog" title="Board &amp; piece themes">🎨</button>
+    </div>
   </header>
 
   <!-- ============ SETUP ============ -->
@@ -213,6 +217,24 @@
       <div class="modal-actions learn-actions">
         <button id="learn-watch" class="btn">▶ Watch it first</button>
         <button id="learn-close" class="btn primary">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ THEMES (board + piece picker) ============ -->
+  <div id="theme" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="theme-title">
+    <div class="modal-card learn-card theme-card">
+      <div class="learn-head">
+        <div>
+          <div class="eyebrow">Settings</div>
+          <h2 id="theme-title">Board &amp; pieces</h2>
+        </div>
+        <button id="theme-x" class="x-btn" aria-label="Close">✕</button>
+      </div>
+      <div id="theme-body" class="theme-body"></div>
+      <div class="modal-actions learn-actions">
+        <button id="theme-reset" class="btn">Reset to default</button>
+        <button id="theme-close" class="btn primary">Done</button>
       </div>
     </div>
   </div>

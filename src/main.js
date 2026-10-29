@@ -7,6 +7,7 @@ import { EngineManager } from './engine.js';
 import { openDemo, closeDemo, initDemo, demoState } from './demo.js';
 import { openLearn, initLearn } from './learn.js';
 import { positionNote } from './explain.js';
+import { initThemes, onThemeChange, getBrushes } from './themes.js';
 import { LORE } from './lore-text.js';
 import { META, LEVELS, levelOf, levelKey, ratingText, STYLES, styleOf, STYLE } from './meta.js';
 import { GRADES, centipawnLoss, gradeFromLoss, formatEval, uciToSan, summaryRating, capEval } from './grading.js';
@@ -188,12 +189,14 @@ function initBoard() {
     highlight: { lastMove: true, check: true },
     draggable: { showGhost: true, distance: 3, autoDistance: true },
     premovable: { enabled: false },
-    drawable: { enabled: true, autoShapes: [] },
+    drawable: { enabled: true, autoShapes: [], brushes: getBrushes() },
     selectable: { enabled: true },
   });
   detachLift = attachLift($('#board'), cg);
 }
 window.addEventListener('resize', () => cg && cg.redrawAll());
+onThemeChange(() => { if (cg) { cg.set({ drawable: { brushes: getBrushes() } }); cg.redrawAll(); } });
+initThemes();
 
 // ---------------------------------------------------------------- run lifecycle
 function pickOpening() {

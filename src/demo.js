@@ -3,6 +3,7 @@
 import { Chessground } from 'chessground';
 import { buildSteps, castleRook } from './explain.js';
 import { LORE } from './lore-text.js';
+import { onThemeChange, getBrushes } from './themes.js';
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -12,6 +13,7 @@ const DEFAULT_TITLE = document.title;
 let h = {};            // handlers from main.js: { practice(opening), learn(opening), back() }
 let opening = null, lineIdx = 0, steps = [], idx = 0;
 let cg = null, timer = null, playing = false, speed = 1;
+onThemeChange(() => { if (cg) { cg.set({ drawable: { brushes: getBrushes() } }); cg.redrawAll(); } });
 export const isDemoOpen = () => !$('#demo').classList.contains('hidden');
 export const demoState = () => ({ opening, lineIdx, idx, total: steps.length, playing });
 
@@ -102,7 +104,7 @@ export function openDemo(op, line = 0, autoplay = true) {
   cg = Chessground($('#demo-board'), {
     fen: START, orientation: op.side === 'black' ? 'black' : 'white', viewOnly: true, coordinates: true,
     animation: { enabled: true, duration: 320 }, highlight: { lastMove: true, check: true },
-    drawable: { enabled: true, visible: true, autoShapes: [] },
+    drawable: { enabled: true, visible: true, autoShapes: [], brushes: getBrushes() },
   });
   loadLine(line, autoplay);
 }
