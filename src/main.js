@@ -13,7 +13,7 @@ import { initThemes, onThemeChange, getBrushes } from './themes.js';
 import { LORE } from './lore-text.js';
 import { META, LEVELS, levelOf, levelKey, ratingText, STYLES, styleOf, STYLE, EASE, EASE_LEVELS, easeInfo } from './meta.js';
 import { haptic } from './haptics.js';
-import { initTactics, openTactics, startTactics } from './tactics-ui.js';
+import { initTactics, openTactics, startTactics, startTacticsFor } from './tactics-ui.js';
 import { thumbHtml } from './thumb.js';
 import { createStepper } from './stepper.js';
 import { renderHome } from './home.js';
@@ -111,7 +111,7 @@ function renderGrid() {
       const b = e.target.closest('button[data-act]');
       if (!b) return choose();
       choose();
-      if (b.dataset.act === 'watch') watchOpening(o); else openLearn(o, { onWatch: () => watchOpening(o) });
+      if (b.dataset.act === 'watch') watchOpening(o); else openLearn(o, { onWatch: () => watchOpening(o), onTactics: () => startTacticsFor(o.id) });
     });
     c.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target === c) { e.preventDefault(); choose(); const again = grid.querySelector(`.ocard[data-id="${o.id}"]`); if (again) again.focus({ preventScroll: true }); } });
     c.addEventListener('dblclick', (e) => { if (!e.target.closest('button') && selectedId) startRun(); });
@@ -193,7 +193,8 @@ function watchOpening(o) {
 }
 initDemo({
   practice: (o) => { selectedId = o.id; prefs.opening = o.id; savePrefs(); updateStartBar(); startRun(o); },
-  learn: (o) => openLearn(o),
+  learn: (o) => openLearn(o, { onTactics: () => startTacticsFor(o.id) }),
+  tactics: (o) => startTacticsFor(o.id),
   back: () => { closeDemo(); show(selectedId ? 'setup' : 'home'); renderGrid(); },
 });
 initLearn();
@@ -201,7 +202,7 @@ $('#demo-gback').addEventListener('click', () => $('#demo-back').click());
 $('#learn-btn').addEventListener('click', () => {
   const s = session; if (!s) return;
   const note = positionNote(s.opening, s.game.history(), lineNameAt(s.book, s.game.fen()));
-  openLearn(s.opening, { note });
+  openLearn(s.opening, { note, onTactics: () => startTacticsFor(s.opening.id) });
 });
 
 const SCREENS = ['home', 'setup', 'tactics', 'puzzle', 'train', 'demo'];

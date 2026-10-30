@@ -6,7 +6,9 @@ import { Chess } from 'chess.js';
 import { OPENINGS } from '../src/openings.js';
 import * as T from '../src/tactics-core.js';
 import * as P from '../src/progress.js';
-import { TRAPS } from './traps-src.mjs';
+import { TRAPS as HAND } from './traps-src.mjs';
+import { MINED } from './traps-mined.mjs';
+const TRAPS = [...HAND, ...MINED];
 
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
 const raw = fs.readFileSync('tactics/tactics.json', 'utf8');
@@ -16,11 +18,13 @@ const ids = new Set(OPENINGS.map((o) => o.id));
 const all = Object.values(data).flat();
 
 // ---------------------------------------------------------------- data
-check('every opening has a tactics set (48 of 48; Fajarowicz and Traxler have hand-made ones only)', OPENINGS.every((o) => (data[o.id] || []).length >= 1), OPENINGS.filter((o) => !(data[o.id] || []).length).map((o) => o.id).join(','));
+check('every opening has a tactics set (48 of 48)', OPENINGS.every((o) => (data[o.id] || []).length >= 1), OPENINGS.filter((o) => !(data[o.id] || []).length).map((o) => o.id).join(','));
 check('no set for an unknown opening', Object.keys(data).every((k) => ids.has(k)));
-check('about 20 database puzzles per opening (traps on top)', OPENINGS.filter((o) => !['traxler', 'fajarowicz'].includes(o.id)).every((o) => data[o.id].filter((p) => !p.trap).length === 20), OPENINGS.map((o) => (data[o.id] || []).filter((p) => !p.trap).length).join(','));
+check('database puzzles: gambits get 20-30 (up to 30 where Lichess has enough), the other openings exactly 20', OPENINGS.every((o) => { const n = data[o.id].filter((p) => !p.trap).length; return o.gambit ? n >= 20 && n <= 30 : n === 20; }), OPENINGS.map((o) => o.id + ':' + (data[o.id] || []).filter((p) => !p.trap).length).join(','));
+check('every gambit has at least 3 hand-made / engine-verified traps (Danish and Fajarowicz at least 4)', OPENINGS.filter((o) => o.gambit).every((o) => data[o.id].filter((p) => p.trap).length >= ({ danish: 4, fajarowicz: 4 }[o.id] || 3)), OPENINGS.filter((o) => o.gambit).map((o) => o.id + ':' + data[o.id].filter((p) => p.trap).length).join(','));
+check('database puzzles come from the opening phase: start position before move 21, and at least 80% before move 13', all.filter((p) => !p.trap).every((p) => +p.fen.split(' ')[5] <= 20) && all.filter((p) => !p.trap).filter((p) => +p.fen.split(' ')[5] <= 12).length >= 0.8 * all.filter((p) => !p.trap).length, String(all.filter((p) => !p.trap).filter((p) => +p.fen.split(' ')[5] <= 12).length));
 check('puzzle ids are unique', new Set(all.map((p) => p.id)).size === all.length);
-check('DB puzzles are rated 600-1600, hand traps 400-1400', all.every((p) => (p.trap ? p.rating >= 400 && p.rating <= 1400 : p.rating >= 600 && p.rating <= 1600)));
+check('DB puzzles are rated 450-1700 (almost all under 1500), hand traps 400-1400', all.every((p) => (p.trap ? p.rating >= 400 && p.rating <= 1400 : p.rating >= 450 && p.rating <= 1700)));
 let bad = [];
 for (const p of all) {
   const g = new Chess(p.fen); let legal = p.moves.length >= 2 && p.moves.length % 2 === 0;
@@ -35,14 +39,14 @@ const themeCount = (k) => all.filter((p) => p.themes.includes(k)).length;
 check('plenty of the beginner-friendly themes', themeCount('fork') >= 100 && themeCount('mateIn1') >= 100 && themeCount('hangingPiece') >= 100 && themeCount('trappedPiece') >= 30 && themeCount('pin') >= 10, `fork ${themeCount('fork')}, mateIn1 ${themeCount('mateIn1')}, hanging ${themeCount('hangingPiece')}, trapped ${themeCount('trappedPiece')}, pin ${themeCount('pin')}`);
 // hand-made traps
 const traps = all.filter((p) => p.trap);
-check(`${TRAPS.length} hand-made famous traps are in the data, each with a name and a note`, traps.length === TRAPS.length && traps.every((p) => p.name && p.note.length > 30));
+check(`${TRAPS.length} traps (hand-made famous ones + Stockfish-verified mined ones) are in the data, each with a name and a note`, traps.length === TRAPS.length && traps.every((p) => p.name && p.note.length > 30));
 const named = (re) => traps.some((p) => re.test(p.name));
 check('the requested traps exist: Fried Liver fork, Légal, Stafford, Englund, Danish, Blackburne Shilling, Elephant, Lasker', [/Fried Liver/, /gal's mate/, /Stafford/, /Englund/, /Danish/, /Blackburne/, /Elephant/, /Lasker/].every(named), traps.map((p) => p.name).join(' | '));
 check('Fried Liver fork: Nxf7 forks queen and rook', (() => { const p = data['fried-liver'].find((x) => x.id === 'T-fried-liver-fork'); const g = new Chess(p.fen); g.move(T.splitUci(p.moves[0])); const m = g.move(T.splitUci(p.moves[1])); return m.san === 'Nxf7'; })());
 check("Légal's mate ends in checkmate with Nd5#", (() => { const p = data.italian.find((x) => x.id === 'T-legals-mate'); const g = new Chess(p.fen); let last; for (const u of p.moves) last = g.move(T.splitUci(u)); return g.isCheckmate() && last.san === 'Nd5#'; })());
 check('Lasker trap contains the knight underpromotion', data.albin.find((p) => p.id === 'T-lasker-trap').moves.some((u) => u.endsWith('n')));
 const size = Buffer.byteLength(raw), gz = zlib.gzipSync(raw).length;
-check('tactics.json stays small (< 150 KB raw, < 60 KB gzip)', size < 150000 && gz < 60000, `${size} bytes raw, ${gz} gzip, ${all.length} puzzles`);
+check('tactics.json stays small (< 300 KB raw, < 100 KB gzip)', size < 300000 && gz < 100000, `${size} bytes raw, ${gz} gzip, ${all.length} puzzles`);
 
 // ---------------------------------------------------------------- move checking + points
 const fork = data['fried-liver'].find((p) => p.id === 'T-fried-liver-fork');

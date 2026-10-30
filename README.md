@@ -40,7 +40,7 @@ src/main.js           UI / game flow, tab routing, drill review
 src/home.js           Home screen (hero + rails)     src/thumb.js  position thumbnails     src/stepper.js  step-through controls
 src/tactics-core.js   Tactics: puzzle logic (move check, points, queues, themes) - pure
 src/tactics-ui.js     Tactics: home screen + puzzle player (lazy-loads tactics/tactics.json)
-tactics/tactics.json  933 puzzles: Lichess DB picks + 13 hand-made traps (built by tools/build-tactics.mjs)
+tactics/tactics.json  1385 puzzles: Lichess DB picks (up to 30 per gambit, opening phase only) + 105 verified traps (built by tools/build-tactics.mjs)
 vendor/stockfish/     stockfish-19-lite-single.{js,wasm}
 tools/                check-book (legality), audit-book (Stockfish audit of book lines), gen-gambits, e2e tests
 ```
@@ -147,7 +147,7 @@ Every opening has one of five fixed styles in `src/meta.js` (`STYLE`): 🔥 Aggr
 - Tests: `npm run test:progress-unit` (node) and `npm run test:progress` (browser). Run the browser suites with `COLOR` unset (npm sets `COLOR=0`, which `tools/e2e.mjs` reads): `env -u COLOR node tools/e2e.mjs`.
 
 ## Tactics (opening-linked puzzles)
-The **Tactics** tab (bottom bar). Each opening has its own puzzle set (about 20 real-game puzzles rated 600-1600 that start in that opening, favouring forks, pins, mates, free and trapped pieces, plus hand-made famous traps such as the Fried Liver fork, Légal's mate, the Blackburne Shilling, the Elephant and Lasker traps, and the Stafford, Englund, Budapest and Traxler tricks). Pick an opening, or **Mixed** (a round of 10 across openings, new ones first); filter by side, gambits or theme (mates, forks, pins, free pieces, trapped pieces, famous traps).
+The **Tactics** tab (bottom bar). Each opening has its own puzzle set (20 real-game puzzles, up to 30 for every gambit, rated 450-1700 that start in that opening within the first 20 moves, favouring forks, pins, mates, free and trapped pieces, plus hand-made famous traps such as the Fried Liver fork, Légal's mate, the Blackburne Shilling, the Elephant and Lasker traps, and the Stafford, Englund, Budapest and Traxler tricks). Pick an opening, or **Mixed** (a round of 10 across openings, new ones first); filter by side, gambits or theme (mates, forks, pins, free pieces, trapped pieces, famous traps).
 - Flow: the opponent's setup move is animated, you find the reply (multi-move solutions: the opponent answers between your moves). A wrong move is taken back with feedback and a retry; the theme and a one-line lesson show after a solve. Any checkmating move is accepted, like Lichess.
 - Points: 100 per move you find, 25 after a wrong attempt, a hint caps that move at 5 (same as the drills), 0 if you show the solution. XP = points on the first solve of a puzzle, 20% on re-solves. Streak = puzzles in a row on the first try with no hint (breaks on a miss, hint, skip or shown solution).
 - Mastery stars per opening tactics set, scaled to the set size (set of 20: bronze = 5 solved; silver = 12 solved, 6 first try; gold = all 20, 12 first try). 8 badges (Tactician, Eagle Eyes, Tactics Machine, Sharp Shot, Combo Streak, Trap Spotter, Well Rounded, Tactics Star).
@@ -164,3 +164,6 @@ The **Tactics** tab (bottom bar). Each opening has its own puzzle set (about 20 
 - **Review stepper**: after a drill finishes tap *Review board* (or *Step through it*). Buttons `|<  <  >  >|`, left/right/Home/End keys, swipe on the board and a clickable move list (current move highlighted). Each of your moves shows its grade, points and what the book move was; the last move is highlighted. The same stepper is available on a solved (or shown) puzzle in Tactics.
 - Design tokens (spacing 4/8/12/16/24/32, type 12/13.5/15/17/22/30, radius 18/24) are CSS variables at the top of `css/revamp.css`.
 - Tests: `node tools/e2e-nav.mjs` (shell, Home, hash routes, start bar vs tab bar, phone + desktop) and `node tools/e2e-stepper.mjs` (drill + puzzle stepper: buttons, keys, swipe, list, grades). All e2e tools open `#/openings`.
+
+### Gambit-linked tactics (v2)
+Every gambit has 3-5 **traps** (`T-…` ids, 🪤 on the card): famous hand-made ones in `tools/traps-src.mjs` plus traps found by Stockfish over our own book lines (`tools/mine-traps.mjs` → `tools/curate-traps.mjs` → `tools/traps-mined.mjs`): a natural-looking opponent move that a depth-4 search accepts but a depth-14 search refutes with a unique reply; each is re-verified move by move (`verifyTrap` in `tools/lib-engine.mjs`). The **Learn more** popup and the **Watch** screen of every opening have a **🧩 Practice tactics** button that opens that opening's puzzle set.

@@ -46,14 +46,16 @@ await page.waitForSelector('#tac-grid .tcard');
 check('Tactics tab shows; tactics.json fetched once, only now', page.reqs.filter((u) => u.includes('tactics.json')).length === 1 && (await page.isVisible('#tactics')) && !(await page.isVisible('#setup')));
 const cards = await page.$$('#tac-grid .tcard');
 check('a card for every opening (48) plus a Mixed button', cards.length === 48 && (await page.isVisible('#tac-mixed')), String(cards.length));
-check('header counts total puzzles', /48 openings · 933 puzzles · 0 solved/.test(await page.textContent('#tac-count')), await page.textContent('#tac-count'));
-check('cards show solved count, stars, and trap marks', /0 \/ 21 solved/.test(await page.textContent('.tcard[data-id="fried-liver"]')) && (await page.$$('.tcard[data-id="fried-liver"] .stars i')).length === 3 && /trap/.test(await page.textContent('.tcard[data-id="fried-liver"]')));
+const FILE = JSON.parse((await import('node:fs')).readFileSync(new URL('../tactics/tactics.json', import.meta.url), 'utf8')).sets; // expected counts come from the data file itself
+const TOTAL = Object.values(FILE).reduce((n, a) => n + a.length, 0), TRAPSETS = Object.values(FILE).filter((a) => a.some((p) => p[0].startsWith('T-'))).length, TRAPN = Object.values(FILE).flat().filter((p) => p[0].startsWith('T-')).length;
+check('header counts total puzzles', new RegExp(`48 openings · ${TOTAL} puzzles · 0 solved`).test(await page.textContent('#tac-count')), await page.textContent('#tac-count'));
+check('cards show solved count, stars, and trap marks', new RegExp(`0 \\/ ${FILE['fried-liver'].length} solved`).test(await page.textContent('.tcard[data-id="fried-liver"]')) && (await page.$$('.tcard[data-id="fried-liver"] .stars i')).length === 3 && /trap/.test(await page.textContent('.tcard[data-id="fried-liver"]')));
 // filters
 await page.click('#tac-kind-seg button[data-kind="gambit"]');
 const nG = (await page.$$('#tac-grid .tcard')).length;
 await page.click('#tac-kind-seg button[data-kind="all"]'); await page.click('#tac-theme-seg button[data-theme="trap"]');
 const nT = (await page.$$('#tac-grid .tcard')).length;
-check('filters: Gambits only, and the "Famous traps" theme narrows the list to openings that have one', nG > 20 && nG < 48 && nT >= 8 && nT <= 13 && /13 puzzles/.test(await page.textContent('#tac-count')), `gambits ${nG}, trap sets ${nT}, ${await page.textContent('#tac-count')}`);
+check('filters: Gambits only, and the "Famous traps" theme narrows the list to openings that have one', nG > 20 && nG < 48 && nT === TRAPSETS && new RegExp(`${TRAPN} puzzles`).test(await page.textContent('#tac-count')), `gambits ${nG}, trap sets ${nT}, ${await page.textContent('#tac-count')}`);
 await page.click('#tac-theme-seg button[data-theme="any"]');
 check('filter choice is remembered', await page.evaluate(() => JSON.parse(localStorage.getItem('ot-prefs')).tacTheme === 'any'));
 await page.click('#tac-theme-seg button[data-theme="fork"]'); check('Forks theme: every card has at least one fork puzzle', (await page.$$('#tac-grid .tcard')).length >= 40); await page.click('#tac-theme-seg button[data-theme="any"]');
@@ -96,7 +98,7 @@ check('"Tactician" badge unlocked by the first solve', !!st.ach['tac-first']);
 check('progress chip in the profile header is updated', /Lv/.test(await page.textContent('#profile-btn')));
 // flawless puzzle(s) -> streak
 await clickNext(page); await waitPhase(page, 'user');
-check('Next puzzle loads (2 / 21), setup move played again', /^2 \/ 21$/.test(await page.textContent('#pz-n')) && (await run(page)).hist === 1);
+check(`Next puzzle loads (2 / ${FILE['fried-liver'].length}), setup move played again`, new RegExp(`^2 / ${FILE['fried-liver'].length}$`).test(await page.textContent('#pz-n')) && (await run(page)).hist === 1);
 await solveCurrent(page); st = await state(page);
 check('first-try solve starts the puzzle streak (shown on screen)', st.tactics.streak === 1 && (await page.textContent('#pz-streak')) === '1' && /Solved — first try/.test(await page.textContent('#pz-fb-title')));
 await clickNext(page); await waitPhase(page, 'user'); await solveCurrent(page); st = await state(page);
@@ -115,9 +117,9 @@ await page.click('#pz-skip'); await waitPhase(page, 'user');
 check('Skip moves on without any XP', (await run(page)).id !== idBefore && (await state(page)).xp === st.xp);
 // leave and persistence
 await page.click('#pz-menu'); await page.waitForSelector('#tac-grid .tcard');
-check('back on the Tactics home, the card shows the solved count and a progress bar', /3 \/ 21 solved/.test(await page.textContent('.tcard[data-id="fried-liver"]')) || /\d \/ 21 solved/.test(await page.textContent('.tcard[data-id="fried-liver"]')), await page.textContent('.tcard[data-id="fried-liver"] .oc-foot'));
+check('back on the Tactics home, the card shows the solved count and a progress bar', new RegExp(`\\d \\/ ${FILE['fried-liver'].length} solved`).test(await page.textContent('.tcard[data-id="fried-liver"]')), await page.textContent('.tcard[data-id="fried-liver"] .oc-foot'));
 await page.reload(); await page.waitForSelector('#tac-grid .tcard');
-check('progress persists across a reload', /[1-9] \/ 21 solved/.test(await page.textContent('.tcard[data-id="fried-liver"] .oc-foot')) && /[1-9]\d* solved|[1-9] solved/.test(await page.textContent('#tac-stats')), await page.textContent('#tac-stats'));
+check('progress persists across a reload', new RegExp(`[1-9] \\/ ${FILE['fried-liver'].length} solved`).test(await page.textContent('.tcard[data-id="fried-liver"] .oc-foot')) && /[1-9]\d* solved|[1-9] solved/.test(await page.textContent('#tac-stats')), await page.textContent('#tac-stats'));
 // unsolved first on replay
 await page.click('.tcard[data-id="fried-liver"]'); await waitPhase(page, 'user');
 const sv = await page.evaluate(() => { const q = window.__tac.sess().queue; return q.map((p) => p.id); });
@@ -135,12 +137,15 @@ await page.context().close();
 
 // ---------------------------------------------------------------- 3. stars, badges and celebrations (overlay NOT hidden)
 page = await newPage({ celebrate: true });
-await openSet(page, 'traxler'); // 2 hand-made traps: one solve is a bronze star
-check('Traxler has hand-made traps only (2 puzzles)', (await page.evaluate(() => window.__tac.sess().queue.length)) === 2);
-await solveCurrent(page);
-await page.waitForSelector('#celebrate:not(.hidden)', { timeout: 6000 });
+await openSet(page, 'traxler'); // a big set now: bronze = 5 solved
+check('Traxler set: database puzzles + traps', (await page.evaluate(() => window.__tac.sess().queue.length)) === FILE.traxler.length && FILE.traxler.length >= 20);
 const seen = [];
-for (let i = 0; i < 8 && await page.isVisible('#celebrate'); i++) { seen.push(await page.textContent('#cel-title')); await page.click('#cel-next'); await page.waitForTimeout(120); }
+for (let k = 0; k < 5; k++) {
+  await solveCurrent(page);
+  await page.waitForSelector('#celebrate:not(.hidden)', { timeout: 6000 }).catch(() => {});
+  for (let i = 0; i < 8 && await page.isVisible('#celebrate'); i++) { seen.push(await page.textContent('#cel-title')); await page.click('#cel-next'); await page.waitForTimeout(120); }
+  if (k < 4) { await clickNext(page); await waitPhase(page, 'user'); }
+}
 check('celebrations: a bronze tactics star + badges (Tactician, Trap Spotter, Tactics Star)', seen.some((t) => /Bronze tactics star/.test(t)) && seen.includes('Tactician') && seen.includes('Trap Spotter') && seen.includes('Tactics Star'), seen.join(' | '));
 st = await state(page);
 check('star + badge XP are added (50 star + 40 + 60 + 75 badges) on top of the points', st.tactics.sets.traxler.tier === 'bronze' && st.tactics.stars === 1 && st.xp >= 50 + 40 + 60 + 75 + 100, String(st.xp));
@@ -182,6 +187,23 @@ for (const w of [390, 320]) {
   await page.touchscreen.tap(A.x, A.y); await page.touchscreen.tap(B.x, B.y);
   await page.waitForFunction((n) => window.__tac.run().points >= 100 || window.__tac.run().idx > n || window.__tac.run().phase === 'over', r2.idx, { timeout: 8000 });
   check(`${w}px phone: touch tap-tap move is accepted`, (await run(page)).points >= 100);
+  await page.context().close();
+}
+// ---- "Practice tactics" from an opening: Learn more popup and Watch screen jump straight into that opening's puzzle set
+{
+  const page = await newPage({ phone: true });
+  await page.click('.ocard[data-id="danish"] .mini[data-act="learn"]'); await page.waitForSelector('#learn:not(.hidden)');
+  check('Learn more popup has a "Practice tactics" button', await page.isVisible('#learn-tactics') && /Practice tactics/.test(await page.textContent('#learn-tactics')));
+  await page.click('#learn-tactics'); await page.waitForSelector('#puzzle:not(.hidden) #pz-board cg-board'); await page.waitForTimeout(400);
+  const r1 = await run(page);
+  check('Learn -> Practice tactics opens the Danish set (puzzle from that opening, set title)', r1.open === 'danish' && /Danish/.test(await page.textContent('#pz-title')), JSON.stringify({ o: r1.open, t: await page.textContent('#pz-title') }));
+  await page.click('#pz-menu'); await page.waitForSelector('#tactics:not(.hidden)');
+  await page.click('.tab[data-tab="openings"]'); await page.waitForSelector('.ocard');
+  await page.click('.ocard[data-id="fajarowicz"]'); await page.click('#watch-btn'); await page.waitForSelector('#demo-board cg-board');
+  check('Watch screen has a "Practice tactics" button', await page.isVisible('#demo-tactics'));
+  await page.click('#demo-tactics'); await page.waitForSelector('#puzzle:not(.hidden) #pz-board cg-board'); await page.waitForTimeout(400);
+  const r2 = await run(page);
+  check('Watch -> Practice tactics opens the Fajarowicz set', r2.open === 'fajarowicz' && /Fajarowicz/.test(await page.textContent('#pz-title')), JSON.stringify({ o: r2.open }));
   await page.context().close();
 }
 check('no page errors', errors.length === 0, errors.join('|'));

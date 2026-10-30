@@ -14,6 +14,7 @@ let lastFocus = null;
 let watchHandler = null;
 export const isLearnOpen = () => !$('#learn').classList.contains('hidden');
 
+let tacticsHandler = null;
 export function openLearn(opening, opts = {}) {
   const lore = LORE[opening.id];
   if (!lore) return;
@@ -47,7 +48,8 @@ export function openLearn(opening, opts = {}) {
       ${lore.traps.map((t) => `<div class="ln-trap"><b>${esc(t.name)}.</b> ${esc(t.text)}${t.moves ? `<code>${esc(numberedSan(t.moves))}</code>` : ''}</div>`).join('')}
     </section>
     <section class="ln-sec"><h3>👤 Who plays it</h3><p>${esc(lore.players)}</p></section>`;
-  watchHandler = opts.onWatch || null;
+  watchHandler = opts.onWatch || null; tacticsHandler = opts.onTactics || null;
+  $('#learn-tactics').classList.toggle('hidden', !tacticsHandler);
   $('#learn-watch').classList.toggle('hidden', !watchHandler);
   $('#learn').classList.remove('hidden');
   document.body.classList.add('noscroll');
@@ -60,7 +62,7 @@ export function closeLearn() {
   $('#learn').classList.add('hidden');
   document.body.classList.remove('noscroll');
   if (lastFocus && lastFocus.isConnected) lastFocus.focus({ preventScroll: true });
-  lastFocus = null; watchHandler = null;
+  lastFocus = null; watchHandler = null; tacticsHandler = null;
 }
 
 export function initLearn() {
@@ -68,6 +70,7 @@ export function initLearn() {
   $('#learn-close').addEventListener('click', closeLearn);
   $('#learn').addEventListener('click', (e) => { if (e.target.id === 'learn') closeLearn(); });
   $('#learn-watch').addEventListener('click', () => { const h = watchHandler; closeLearn(); if (h) h(); });
+  $('#learn-tactics').addEventListener('click', () => { const h = tacticsHandler; closeLearn(); if (h) h(); });
   document.addEventListener('keydown', (e) => {
     if (!isLearnOpen()) return;
     if (e.key === 'Escape') { e.stopImmediatePropagation(); closeLearn(); }

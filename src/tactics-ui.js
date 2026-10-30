@@ -100,6 +100,14 @@ export async function startTactics(key) {
   await startSet('mixed');
 }
 
+/** "Practice tactics" from an opening (Learn more popup / Watch screen): play that opening's puzzle set straight away. */
+export async function startTacticsFor(openingId) {
+  themeKey = 'any'; kind = 'all';
+  prefs.tacTheme = themeKey; prefs.tacKind = kind; savePrefs();
+  setSeg($('#tac-theme-seg'), 'theme', themeKey); setSeg($('#tac-kind-seg'), 'kind', kind);
+  await startSet(openingId);
+}
+
 export async function openTactics() {
   host.show('tactics');
   renderHome();

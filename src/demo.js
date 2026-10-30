@@ -131,6 +131,7 @@ export function initDemo(handlers) {
   });
   $('#demo-practice').addEventListener('click', () => { closeDemo(); h.practice(opening); });
   $('#demo-learn').addEventListener('click', () => h.learn(opening));
+  $('#demo-tactics').addEventListener('click', () => { closeDemo(); if (h.tactics) h.tactics(opening); });
   $('#demo-back').addEventListener('click', () => { closeDemo(); h.back(); });
   document.addEventListener('keydown', (e) => {
     if (!isDemoOpen() || e.ctrlKey || e.metaKey || e.altKey) return;

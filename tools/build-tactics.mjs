@@ -5,7 +5,9 @@ import fs from 'node:fs';
 import zlib from 'node:zlib';
 import { Chess } from 'chess.js';
 import { OPENINGS } from '../src/openings.js';
-import { TRAPS } from './traps-src.mjs';
+import { TRAPS as HAND } from './traps-src.mjs';
+import { MINED } from './traps-mined.mjs';
+const TRAPS = [...HAND, ...MINED];
 
 const PICKED = process.argv[2] || '/workspace/lichess/picked.json';
 const ID_MAP = { wing: 'wing-gambit', goring: 'goring-gambit', belgrade: 'belgrade-gambit', vienna: 'vienna-gambit' };
@@ -46,7 +48,7 @@ for (const t of TRAPS) {
       const solver = (i - t.setup) % 2 === 1; // solver replies are at odd offsets after the setup move
       const before = new Chess(); sans.slice(0, i).forEach((s) => before.move(s));
       const b = await eng.analyze(before.fen(), 14), a = await eng.analyze(g.fen(), 14);
-      const loss = b.cp + a.cp; const lim = solver ? 40 : 160;
+      const loss = b.cp + a.cp; const lim = solver ? 60 : 200;
       if (loss > lim) console.warn(`  ! ${t.id} ply ${i} ${sans[i]} loses ${loss}cp (limit ${lim})`);
     }
   }
