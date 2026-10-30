@@ -206,7 +206,7 @@ body[data-screen="train"] .top, body[data-screen="puzzle"] .top, body[data-scree
 .tag .dot { border-radius: 50%; }
 .board-row { gap: 0; flex-direction: column; }
 .board-row .board-wrap { width: 100%; }
-.evalbar { width: 100%; height: 8px; border: 0; border-radius: 0; flex-direction: row; justify-content: flex-start; background: #0b0e12; }
+.evalbar { width: calc(100% - var(--cgutter, 0px)); margin-left: var(--cgutter, 0px); height: 8px; border: 0; border-radius: 0; flex-direction: row; justify-content: flex-start; background: #0b0e12; }
 .evalbar .fill { width: var(--pct, 50%); height: 100% !important; transition: width .5s ease; }
 .evalbar.flip { justify-content: flex-end; }
 .evalbar .val { display: none; }
@@ -286,7 +286,7 @@ body[data-screen="train"] .top, body[data-screen="puzzle"] .top, body[data-scree
   .screen.game .side { padding: 0; }
   .tag { padding-left: 0; }
   .cg-board-host { border-radius: 14px; } cg-board { border-radius: 14px; }
-  .evalbar { width: 100%; }
+  .evalbar { width: calc(100% - var(--cgutter, 0px)); margin-left: var(--cgutter, 0px); }
   .rail-row, .chip-scroll, #tac-kind-seg, #tac-theme-seg { margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; }
 }
 @media (max-width: 960px) {

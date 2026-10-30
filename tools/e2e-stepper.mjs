@@ -86,7 +86,7 @@ await page.click('#rv-bar [data-s="last"]');
 check('at the last move there are next actions (New line / Openings)', /New line/.test(await page.textContent('#fb-actions')) && /Openings/.test(await page.textContent('#fb-actions')));
 // mobile layout: step bar sits between the board and the grade card, all above the fold
 const geo = await page.evaluate(() => { const r = (s) => document.querySelector(s).getBoundingClientRect(); return { board: r('#board'), bar: r('#rv-bar'), fb: r('#feedback'), vw: innerWidth, vh: innerHeight, sw: document.documentElement.scrollWidth }; });
-check('board is edge to edge on the phone', Math.abs(geo.board.width - geo.vw) <= 1 && geo.board.left <= 0.5, JSON.stringify(geo.board));
+check('board fills the phone width (minus the 14px rank gutter)', Math.abs(geo.board.width - (geo.vw - 14)) <= 1 && Math.abs(geo.board.left - 14) <= 0.5, JSON.stringify(geo.board));
 check('step bar is under the board and visible without scrolling', geo.bar.top >= geo.board.bottom - 1 && geo.bar.bottom <= geo.vh, `bar ${Math.round(geo.bar.top)}-${Math.round(geo.bar.bottom)} of ${geo.vh}`);
 check('tap targets are at least 44px', await page.$$eval('#rv-bar .rv-btn', (b) => b.every((x) => x.getBoundingClientRect().height >= 44 && x.getBoundingClientRect().width >= 44)));
 check('no sideways scroll', geo.sw <= geo.vw);

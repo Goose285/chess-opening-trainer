@@ -156,12 +156,16 @@ cg-board { background-color: var(--sq-light); background-image: var(--board-img,
 cg-board square.last-move { background-color: var(--hl-last); }
 cg-board square.move-dest { background: radial-gradient(var(--hl-dot) 20%, rgba(0,0,0,0) 22%); }
 cg-board square.oc.move-dest { background: radial-gradient(transparent 0%, transparent 78%, var(--hl-dot) 80%); }
-/* coordinate colours follow the board: text on light squares / on dark squares */
-.orientation-white .ranks :nth-child(odd), .orientation-white .files :nth-child(even), .orientation-black .ranks :nth-child(even), .orientation-black .files :nth-child(odd),
-coords.squares:nth-of-type(odd) :nth-child(even), coords.squares:nth-of-type(even) :nth-child(odd) { color: var(--coord-on-light); }
-.orientation-white .ranks :nth-child(even), .orientation-white .files :nth-child(odd), .orientation-black .ranks :nth-child(odd), .orientation-black .files :nth-child(even),
-coords.squares:nth-of-type(odd) :nth-child(odd), coords.squares:nth-of-type(even) :nth-child(even) { color: var(--coord-on-dark); }
-.cg-wrap coords { font-weight: 700; font-size: 11px; opacity: .75; }
+/* Board coordinates sit OUTSIDE the board: rank numbers in a thin left gutter, file letters in a strip underneath.
+   Chessground already orders them for the side you play (ranks 8..1 top-down + files h..a when you are Black), so
+   we only place and style them. Font: Inter 600, subset to a-h / 1-8 (SIL OFL, see fonts/OFL.txt). */
+@font-face { font-family: "Pawnado Coords"; src: url("../fonts/inter-coords-600.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+:root { --cgutter: 14px; --fstrip: 18px; --coord-out: #9fb0c3; }
+.board-wrap { padding: 0 0 var(--fstrip) var(--cgutter); box-sizing: border-box; }
+.cg-wrap coords, .cg-wrap coords.ranks, .cg-wrap coords.files { opacity: 1; font-family: "Pawnado Coords", Inter, ui-sans-serif, system-ui, sans-serif; font-weight: 600; font-size: 12px; line-height: 1; text-transform: none; text-align: center; color: var(--coord-out); }
+.cg-wrap coords coord, .cg-wrap coords.ranks coord, .cg-wrap coords.files coord { color: var(--coord-out); flex: 1 1 0; display: flex; align-items: center; justify-content: center; transform: none; }
+.cg-wrap coords.ranks { left: calc(var(--cgutter) * -1); top: 0; width: var(--cgutter); height: 100%; }
+.cg-wrap coords.files { left: 0; top: 100%; bottom: auto; width: 100%; height: var(--fstrip); }
 
 /* ---------- responsive ---------- */
 @media (max-width: 960px) {
@@ -233,10 +237,6 @@ cg-board square.selected { background-color: var(--hl-sel); }
 .ocard.gambit { border-left: 3px solid #ffb86b; }
 .gnote { display: block; margin-top: 6px; color: #ffb86b; font-size: 12.5px; }
 
-/* The board host no longer clips (so lifted pieces may overhang the edge); clip the coordinate labels
-   exactly where the old overflow:hidden did, so the coordinates look unchanged and don't widen the page. */
-.cg-wrap coords.files { clip-path: inset(0 24px 4px 0); }
-.cg-wrap coords.ranks { clip-path: inset(20px 0 0 0); }
 #train.screen { overflow-x: clip; } /* a lifted piece may overhang the board; the page itself must never scroll sideways */
 
 /* ---------- opening cards as containers (they hold Watch / Learn buttons) ---------- */

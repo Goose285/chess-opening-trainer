@@ -40,7 +40,7 @@ await page.click('#hero [data-hero="play"]'); await page.waitForSelector('#board
 check('drill is a full screen: tab bar and top bar hidden', (await vis(page, '#train')) && !(await vis(page, '#tabbar')) && !(await vis(page, '.top')));
 check('drill title bar shows the opening, a back button and the score', (await vis(page, '.gbar #menu-btn')) && (await page.textContent('#opening-title')).length > 2 && /You play/.test(await page.textContent('#gb-sub')) && (await vis(page, '#score-num')));
 const g = await page.evaluate(() => { const b = document.querySelector('#board').getBoundingClientRect(); return { w: b.width, l: b.left, vw: innerWidth }; });
-check('board is edge to edge on the phone', Math.abs(g.w - g.vw) <= 1 && g.l <= 0.5, JSON.stringify(g));
+check('board fills the phone width (minus the 14px rank gutter)', Math.abs(g.w - (g.vw - 14)) <= 1 && Math.abs(g.l - 14) <= 0.5, JSON.stringify(g));
 check('no sideways scroll in the drill', await noScroll(page));
 await page.click('#menu-btn');
 check('back goes to Openings with its tab highlighted', (await vis(page, '#setup')) && (await active(page)) === 'openings' && (await vis(page, '#tabbar')));
@@ -81,7 +81,7 @@ check('another tab closes the sheet and navigates', !(await vis(page, '#profile'
 await page.click('#home-rails [data-tac="mixed"]'); await page.waitForFunction(() => window.__tac && window.__tac.run() && window.__tac.run().phase === 'user');
 check('Tactics tile on Home starts a mixed round', (await vis(page, '#puzzle')) && /Mixed/.test(await page.textContent('#pz-title')) && !(await vis(page, '#tabbar')) && (await noScroll(page)));
 const pb = await page.evaluate(() => { const b = document.querySelector('#pz-board').getBoundingClientRect(); return { w: b.width, vw: innerWidth }; });
-check('puzzle board is edge to edge too', Math.abs(pb.w - pb.vw) <= 1, JSON.stringify(pb));
+check('puzzle board fills the phone width too (minus the gutter)', Math.abs(pb.w - (pb.vw - 14)) <= 1, JSON.stringify(pb));
 await page.click('#pz-menu'); await page.waitForSelector('#tac-grid .tcard');
 check('puzzle back returns to the Tactics tab', (await vis(page, '#tactics')) && (await active(page)) === 'tactics');
 // brand button

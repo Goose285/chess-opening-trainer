@@ -30,7 +30,8 @@
     "test:nav": "node tools/e2e-nav.mjs",
     "test:licenses": "node tools/check-licenses.mjs",
     "test:about": "node tools/e2e-about.mjs",
-    "test:feedback": "node tools/e2e-feedback.mjs"
+    "test:feedback": "node tools/e2e-feedback.mjs",
+    "test:coords": "node tools/e2e-coords.mjs"
   },
   "dependencies": {
     "chess.js": "^1.4.0",

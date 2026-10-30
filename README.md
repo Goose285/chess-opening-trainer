@@ -79,7 +79,7 @@ and the same freedoms. Everything we ship from other people is listed with its l
 | Piece set pixel | AGPLv3+ | yes, under AGPL (source public) |
 | Piece set kosal | CC BY 4.0 | yes, with attribution |
 | Lichess puzzles, opening names | CC0 | yes |
-| Fonts / sounds | none bundled | n/a |
+| Fonts / sounds | one tiny Inter subset for the board coordinates (`fonts/`, SIL OFL 1.1); no sounds | OFL 1.1 |
 
 The five piece sets that were only licensed for personal / non-commercial use (alpha, california, maestro, fresca, horsey) were **removed on
 2026-10-30**; details in [`THIRD_PARTY/PIECE-SET-CREDITS.md`](THIRD_PARTY/PIECE-SET-CREDITS.md). `npm run test:licenses` fails if a non-approved
