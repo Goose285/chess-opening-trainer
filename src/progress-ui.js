@@ -51,6 +51,14 @@ function updateChrome() {
     b.title = `Level ${info.level.n} · ${info.level.name} · ${fmt(state.xp)} XP`;
     b.setAttribute('aria-label', `Your progress: level ${info.level.n}, ${info.level.name}, ${fmt(state.xp)} XP`);
   }
+  const sc = $('#streak-chip');
+  if (sc) {
+    const t = dayKey(), y = dayKey(new Date(Date.now() - 864e5));
+    const n = state.days.last === t || state.days.last === y ? state.days.streak : 0;
+    sc.querySelector('b').textContent = n; sc.classList.toggle('off', n === 0);
+    sc.title = n ? `${n}-day training streak` : 'Train today to start a streak';
+    sc.setAttribute('aria-label', n ? `${n}-day training streak` : 'No training streak yet. Train today to start one');
+  }
   for (const s of document.querySelectorAll('.profile-strip')) {
     const stars = Object.values(state.openings).reduce((n, o) => n + starsOf(o.tier), 0);
     const badges = Object.keys(state.ach).length;
@@ -114,16 +122,17 @@ function renderProfile() {
   $('#pf-reset-no').addEventListener('click', () => { ask.classList.add('hidden'); rb.classList.remove('hidden'); });
   $('#pf-reset-yes').addEventListener('click', () => { state = freshState(); persist(); renderProfile(); });
 }
+export const getRecommendation = (n = 3) => recommend(state, openings, easeOf, n, hooks.isRisky);
 export function openProfile() {
   lastFocus = document.activeElement;
   renderProfile();
-  $('#profile').classList.remove('hidden'); document.body.classList.add('noscroll');
+  $('#profile').classList.remove('hidden'); document.body.classList.add('noscroll', 'sheet-profile');
   $('#profile .modal-card').scrollTop = 0; $('#profile-body').scrollTop = 0;
   $('#profile-close').focus({ preventScroll: true });
 }
 export function closeProfile() {
   if (!isProfileOpen()) return;
-  $('#profile').classList.add('hidden'); document.body.classList.remove('noscroll');
+  $('#profile').classList.add('hidden'); document.body.classList.remove('noscroll', 'sheet-profile');
   if (lastFocus && lastFocus.isConnected) lastFocus.focus({ preventScroll: true });
   lastFocus = null;
 }
@@ -265,6 +274,7 @@ export function initProgress(cfg) {
   state = loadState(localStorage);
   updateChrome();
   $('#profile-btn').addEventListener('click', openProfile);
+  const sc = $('#streak-chip'); if (sc) sc.addEventListener('click', openProfile);
   document.querySelectorAll('.profile-strip').forEach((b) => b.addEventListener('click', openProfile));
   $('#profile-x').addEventListener('click', closeProfile);
   $('#profile-close').addEventListener('click', closeProfile);

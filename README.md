@@ -26,7 +26,8 @@ No internet or build step needed — everything is bundled in this folder.
 
 ```
 index.html            app shell
-css/app.css           UI styles          css/chessground.css  board + cburnett pieces
+css/app.css           base UI styles     css/chessground.css  board + cburnett pieces
+css/revamp.css        app-like skin (tokens, tab bar, Home, cards, game screens, sheets) loaded after app.css
 dist/app.js           bundled app (chess.js + chessground + src/*)
 src/openings.js       classical opening library (16 openings, 61 lines) — add your own here
 src/themes.js         board/piece theme picker (data in themes-data.js); pieces/ = 9 SVG sets (see Licences)
@@ -35,7 +36,8 @@ src/lift.js           chess.com-style piece lift / touch drag / snap-to-square a
 src/book.js           position-graph book, weighted random replies
 src/engine.js         Stockfish worker wrapper + fallback engine
 src/grading.js        cp-loss → label rules and scoring
-src/main.js           UI / game flow
+src/main.js           UI / game flow, tab routing, drill review
+src/home.js           Home screen (hero + rails)     src/thumb.js  position thumbnails     src/stepper.js  step-through controls
 src/tactics-core.js   Tactics: puzzle logic (move check, points, queues, themes) - pure
 src/tactics-ui.js     Tactics: home screen + puzzle player (lazy-loads tactics/tactics.json)
 tactics/tactics.json  933 puzzles: Lichess DB picks + 13 hand-made traps (built by tools/build-tactics.mjs)
@@ -125,7 +127,7 @@ Every opening has one of five fixed styles in `src/meta.js` (`STYLE`): 🔥 Aggr
 - Tests: `npm run test:progress-unit` (node) and `npm run test:progress` (browser). Run the browser suites with `COLOR` unset (npm sets `COLOR=0`, which `tools/e2e.mjs` reads): `env -u COLOR node tools/e2e.mjs`.
 
 ## Tactics (opening-linked puzzles)
-A **Tactics** tab next to **Openings** on the home screen. Each opening has its own puzzle set (about 20 real-game puzzles rated 600-1600 that start in that opening, favouring forks, pins, mates, free and trapped pieces, plus hand-made famous traps such as the Fried Liver fork, Légal's mate, the Blackburne Shilling, the Elephant and Lasker traps, and the Stafford, Englund, Budapest and Traxler tricks). Pick an opening, or **Mixed** (a round of 10 across openings, new ones first); filter by side, gambits or theme (mates, forks, pins, free pieces, trapped pieces, famous traps).
+The **Tactics** tab (bottom bar). Each opening has its own puzzle set (about 20 real-game puzzles rated 600-1600 that start in that opening, favouring forks, pins, mates, free and trapped pieces, plus hand-made famous traps such as the Fried Liver fork, Légal's mate, the Blackburne Shilling, the Elephant and Lasker traps, and the Stafford, Englund, Budapest and Traxler tricks). Pick an opening, or **Mixed** (a round of 10 across openings, new ones first); filter by side, gambits or theme (mates, forks, pins, free pieces, trapped pieces, famous traps).
 - Flow: the opponent's setup move is animated, you find the reply (multi-move solutions: the opponent answers between your moves). A wrong move is taken back with feedback and a retry; the theme and a one-line lesson show after a solve. Any checkmating move is accepted, like Lichess.
 - Points: 100 per move you find, 25 after a wrong attempt, a hint caps that move at 5 (same as the drills), 0 if you show the solution. XP = points on the first solve of a puzzle, 20% on re-solves. Streak = puzzles in a row on the first try with no hint (breaks on a miss, hint, skip or shown solution).
 - Mastery stars per opening tactics set, scaled to the set size (set of 20: bronze = 5 solved; silver = 12 solved, 6 first try; gold = all 20, 12 first try). 8 badges (Tactician, Eagle Eyes, Tactics Machine, Sharp Shot, Combo Streak, Trap Spotter, Well Rounded, Tactics Star).
@@ -134,3 +136,11 @@ A **Tactics** tab next to **Openings** on the home screen. Each opening has its 
 
 ## Haptics
 `src/haptics.js`: a light tap after your move, a stronger double buzz when the computer takes one of your pieces, and (in Tactics) a short double blip for a wrong move. Android uses `navigator.vibrate`; iPhone Safari (iOS 18+) uses a hidden `<input type="checkbox" switch>` label click. On/off switch in the board & pieces panel (key `rt1500-haptics`). Test: `node tools/e2e-haptics.mjs`.
+
+## App shell, Home and the review stepper
+- **Tab bar** (Home / Openings / Tactics / Profile): a floating pill at the bottom. Routes are `#/home`, `#/openings`, `#/tactics` (reload keeps your tab). The drill, puzzle and Watch screens go full screen (top bar and tab bar hidden, edge-to-edge board on phones, back button + score in a title bar). Safe-area insets (`env(safe-area-inset-*)`, `viewport-fit=cover`) are respected top and bottom.
+- **Home**: hero card (*Continue* with the last opening you drilled, otherwise a real suggested start from the recommender) and horizontally scrolling rails: Beginner friendly, Gambits for White, Gambits for Black, Tactics. Everything shown is real: your streak chip counts consecutive training days, nothing is invented.
+- **Openings**: cards with a position thumbnail (drawn with the piece set you picked), a style-colour accent bar, mastery stars and the key tags; the long description lives in *Learn more*. Difficulty / rating / style filters sit behind the **Filters** button. The start bar floats above the tab bar.
+- **Review stepper**: after a drill finishes tap *Review board* (or *Step through it*). Buttons `|<  <  >  >|`, left/right/Home/End keys, swipe on the board and a clickable move list (current move highlighted). Each of your moves shows its grade, points and what the book move was; the last move is highlighted. The same stepper is available on a solved (or shown) puzzle in Tactics.
+- Design tokens (spacing 4/8/12/16/24/32, type 12/13.5/15/17/22/30, radius 18/24) are CSS variables at the top of `css/revamp.css`.
+- Tests: `node tools/e2e-nav.mjs` (shell, Home, hash routes, start bar vs tab bar, phone + desktop) and `node tools/e2e-stepper.mjs` (drill + puzzle stepper: buttons, keys, swipe, list, grades). All e2e tools open `#/openings`.

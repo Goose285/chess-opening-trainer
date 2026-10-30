@@ -6,6 +6,8 @@ import { OPENINGS } from './openings.js';
 import { attachLift } from './lift.js';
 import { getBrushes, onThemeChange } from './themes.js';
 import { haptic } from './haptics.js';
+import { thumbHtml } from './thumb.js';
+import { createStepper } from './stepper.js';
 import {
   parseData, buildQueue, THEME_FILTERS, themeFilter, themesOf, solverColor, solverMoveCount, maxPoints, movePoints, judgeMove, splitUci, HINT_POINTS,
 } from './tactics-core.js';
@@ -76,10 +78,11 @@ function renderHome() {
     const c = el('button', 'ocard tcard' + (o.gambit ? ' gambit' : ''));
     c.type = 'button'; c.dataset.id = o.id; c.setAttribute('aria-label', `${o.name}: ${pool.length} puzzles, ${done} solved. Play.`);
     const sideIcon = o.side === 'white' ? '<span class="chip w">White</span>' : '<span class="chip b">Black</span>';
-    c.innerHTML = `<div class="oc-top"><span class="oc-eco">${esc(o.eco || '')}${o.gambit ? ' · <b class="gtag">Gambit</b>' : ''}</span>${sideIcon}</div>
+    c.innerHTML = `<div class="oc-thumb">${thumbHtml(o)}</div><div class="oc-main"><div class="oc-top"><span class="oc-eco">${esc(o.eco || '')}${o.gambit ? ' · <b class="gtag">Gambit</b>' : ''}</span>${sideIcon}</div>
       <div class="oc-namerow"><div class="oc-name">${esc(o.name)}</div>${tacticStarsHtml(o.id, full)}</div>
       <div class="tc-prog" role="progressbar" aria-valuemin="0" aria-valuemax="${pool.length}" aria-valuenow="${done}"><i style="width:${Math.round((done / pool.length) * 100)}%"></i></div>
-      <div class="oc-foot"><span><b>${done}</b> / ${pool.length} solved${traps ? ` · <span class="trapmark" title="Includes famous traps">🪤 ${traps} trap${traps === 1 ? '' : 's'}</span>` : ''}</span><span class="tc-go">Play ▶</span></div>`;
+      <div class="oc-foot"><span><b>${done}</b> / ${pool.length} solved${traps ? ` · <span class="trapmark" title="Includes famous traps">🪤 ${traps} trap${traps === 1 ? '' : 's'}</span>` : ''}</span><span class="tc-go">Play ▶</span></div></div>`;
+    c.style.setProperty('--sc', o.gambit ? '#f59e0b' : '#5ad19a');
     c.addEventListener('click', () => startSet(o.id));
     grid.appendChild(c);
   }
@@ -87,6 +90,14 @@ function renderHome() {
 }
 function refreshChrome() {
   const f = $('#tac-stats'); if (f) f.innerHTML = statsHtml();
+}
+
+/** Start a mixed round straight from the Home screen: key is 'mixed' or one of the theme filters (mate, fork, pin, ...). */
+export async function startTactics(key) {
+  themeKey = key === 'mixed' || !THEME_FILTERS.some((f) => f.key === key) ? 'any' : key; kind = 'all';
+  prefs.tacTheme = themeKey; prefs.tacKind = kind; savePrefs();
+  setSeg($('#tac-theme-seg'), 'theme', themeKey); setSeg($('#tac-kind-seg'), 'kind', kind);
+  await startSet('mixed');
 }
 
 export async function openTactics() {
@@ -143,7 +154,8 @@ async function loadPuzzle() {
   const p = sess.queue[sess.index];
   const token = Math.random();
   run = { p, token, color: solverColor(p), game: new Chess(p.fen), idx: 0, phase: 'busy', points: 0, wrongs: 0, hints: 0, cur: { wrong: false, hint: false }, revealed: false, finished: false, moveTries: 0 };
-  window.__tac = { run: () => run, sess: () => sess, data: () => data };
+  window.__tac = { run: () => run, sess: () => sess, data: () => data, cg: () => cg };
+  closeReview();
   const o = openingOf(p.openingId);
   $('#pz-eyebrow').textContent = sess.mode === 'mixed' ? 'Tactics · Mixed' : 'Tactics';
   $('#pz-title').textContent = sess.mode === 'mixed' ? 'Mixed puzzles' : (o ? o.name : 'Puzzle');
@@ -276,6 +288,7 @@ async function showSolution() {
   updateStats();
   setFeedback('mistake', '👁', 'Solution shown', `The line was <b>${esc(sans.join(' '))}</b>.${lessonHtml(p)}<br>No points for this one${res.streak === 0 ? ', and your puzzle streak starts over' : ''}. You can try it again later.`, null, nextActions());
   setButtons();
+  openReview();
 }
 function skipPuzzle() {
   const r = run; if (!r || r.finished) return;
@@ -312,6 +325,7 @@ function finishSolved(lastMv) {
   updateStats();
   setButtons();
   const o = openingOf(p.openingId);
+  openReview();
   setTimeout(() => celebratePuzzle(res, { setSize, openingName: o ? o.name : '' }), 1100);
 }
 const nextActions = () => [{ label: sess.index + 1 < sess.queue.length ? 'Next puzzle ▶' : 'Finish ▶', cls: 'primary', fn: () => advance() }];
@@ -322,6 +336,7 @@ function advance() {
   loadPuzzle();
 }
 function roundOver() {
+  closeReview();
   run.token = Math.random(); run.phase = 'over';
   const n = sess.queue.length;
   const mixed = sess.mode === 'mixed';
@@ -335,10 +350,31 @@ function roundOver() {
   cg.set({ movable: { color: undefined, dests: new Map() }, drawable: { autoShapes: [] } });
 }
 function leave() {
+  closeReview();
   if (run) run.token = Math.random();
   run = null;
   openTactics();
 }
+
+// ------------------------------------------------------------------ review: step back through the finished puzzle
+let rvMoves = [], rvFens = [];
+const stepper = createStepper({
+  bar: $('#pz-rv'), swipe: $('#pz-board'),
+  onStep: (i) => {
+    if (!run) return;
+    const chess = new Chess(rvFens[i]); const mv = i > 0 ? rvMoves[i - 1] : null;
+    cg.set({ fen: rvFens[i], turnColor: colorName(chess.turn()), check: chess.isCheck(), lastMove: mv ? [mv.from, mv.to] : undefined, movable: { color: undefined, dests: new Map() }, drawable: { autoShapes: [] } });
+  },
+  label: (i, n) => (i > 0 && rvMoves[i - 1] ? `${i} / ${n} · ${rvMoves[i - 1].san}` : `${i} / ${n}`),
+});
+function openReview() {
+  if (!run) return;
+  rvMoves = run.game.history({ verbose: true });
+  const g = new Chess(run.p.fen); rvFens = [g.fen()];
+  for (const m of rvMoves) { g.move(m.san); rvFens.push(g.fen()); }
+  stepper.open(rvMoves.length, rvMoves.length);
+}
+function closeReview() { stepper.close(); }
 
 // ------------------------------------------------------------------ panel UI
 function setFeedback(state, badge, title, textHtml, chips, actions) {
@@ -373,6 +409,4 @@ export function initTactics(h) {
   $('#tac-kind-seg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; kind = b.dataset.kind; prefs.tacKind = kind; savePrefs(); setSeg($('#tac-kind-seg'), 'kind', kind); renderHome(); });
   $('#tac-mixed').addEventListener('click', () => { if (!data && loadError) { openTactics(); return; } startSet('mixed'); });
   onProgressChange(() => { if (!$('#tactics').classList.contains('hidden')) renderHome(); });
-  // mode switch (Openings / Tactics) shared by both home screens
-  document.querySelectorAll('.modebar button').forEach((b) => b.addEventListener('click', () => { if (b.dataset.mode === 'tactics') openTactics(); else host.openOpenings(); }));
 }

@@ -1,6 +1,6 @@
 // "Watch it first" demo + "Learn more" popup, desktop and phone-size. Usage: node tools/e2e-learn.mjs [url]
 import { chromium } from 'playwright-core';
-const URL_ = process.argv[2] || 'http://localhost:8099/index.html';
+const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/openings';
 const errors = [];
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
@@ -18,7 +18,7 @@ await page.goto(URL_); await ready(page);
 await page.click('#filter-seg button[data-filter="all"]');
 const ids = await page.$$eval('.ocard', (c) => c.map((x) => x.dataset.id).filter((x) => x !== 'random'));
 check('48 openings have Watch + Learn buttons', ids.length === 48 && (await page.$$('.ocard .mini[data-act="watch"]')).length === 48 && (await page.$$('.ocard .mini[data-act="learn"]')).length === 48);
-check('start bar has "Watch it first" (disabled until an opening is picked)', await page.$eval('#watch-btn', (b) => b.disabled && /Watch it first/.test(b.textContent)));
+check('start bar has a Watch button (disabled until an opening is picked)', await page.$eval('#watch-btn', (b) => b.disabled && /Watch/.test(b.textContent)));
 
 // every opening: Learn-more popup content
 let learnBad = [];

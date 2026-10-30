@@ -1,6 +1,6 @@
 // Branding: title, wordmark, tagline, favicon, manifest and Add-to-Home-Screen icons. Usage: node tools/e2e-brand.mjs [url]
 import { chromium } from 'playwright-core';
-const URL_ = process.argv[2] || 'http://localhost:8099/index.html';
+const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/openings';
 const SHOT = process.env.SHOT || '/workspace/road-to-1500-header-phone.png';
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };

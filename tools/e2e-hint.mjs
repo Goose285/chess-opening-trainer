@@ -1,6 +1,6 @@
 // Hint scoring: any move after a hint scores at most 5 points (book move = exactly 5), labels kept, "(hint)" shown. Usage: node tools/e2e-hint.mjs [url]
 import { chromium } from 'playwright-core';
-const URL_ = process.argv[2] || 'http://localhost:8099/index.html';
+const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/openings';
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
 const page = await browser.newPage({ viewport: { width: 1100, height: 850 } });

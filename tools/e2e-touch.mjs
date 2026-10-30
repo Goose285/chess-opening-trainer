@@ -1,6 +1,6 @@
 // Touch + piece-lift test (emulated iPhone viewport, real touch events via CDP). Usage: node tools/e2e-touch.mjs [url]
 import { chromium } from 'playwright-core';
-const URL_ = process.argv[2] || 'http://localhost:8099/index.html';
+const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/openings';
 const errors = [];
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, hasTouch: true, isMobile: true });

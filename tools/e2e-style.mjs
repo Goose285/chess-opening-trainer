@@ -1,6 +1,6 @@
 // Play-style pills, Style filter and the style line in "Learn more". Usage: node tools/e2e-style.mjs [url]
 import { chromium } from 'playwright-core';
-const URL_ = process.argv[2] || 'http://localhost:8099/index.html';
+const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/openings';
 const errors = [];
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
@@ -17,6 +17,8 @@ const cardsOf = (page) => page.$$eval('.ocard:not([data-id="random"])', (cs) => 
 }));
 
 const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
+await page.addInitScript(() => document.addEventListener('DOMContentLoaded', () => { const d = document.getElementById('more-filters'); if (d) d.open = true; }));
+
 page.on('pageerror', (e) => errors.push(e.message)); page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 await page.goto(URL_); await page.evaluate(() => localStorage.clear()); await page.reload();
 const cards = await cardsOf(page); const by = Object.fromEntries(cards.map((c) => [c.id, c]));
@@ -64,6 +66,8 @@ check('Learn more shows the style pill + a one-sentence "what to expect" for all
 // phone
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
 const m = await ctx.newPage(); m.on('pageerror', (e) => errors.push(e.message));
+await m.addInitScript(() => document.addEventListener('DOMContentLoaded', () => { const d = document.getElementById('more-filters'); if (d) d.open = true; }));
+
 await m.goto(URL_); await m.evaluate(() => localStorage.clear()); await m.reload();
 check('phone: style pills fit in cards', (await cardsOf(m)).every((c) => c.fits));
 check('phone: no sideways scroll', await m.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));

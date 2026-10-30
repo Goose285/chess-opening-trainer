@@ -1,12 +1,13 @@
 // Browser test: beginner-friendly badges + filter/sort, "Start here", XP / levels / stars / badges, celebration, profile panel,
 // persistence and phone layout. Usage: node tools/e2e-progress.mjs [url]
 import { chromium } from 'playwright-core';
-const URL_ = process.argv[2] || 'http://localhost:8099/index.html';
+const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/openings';
 const errors = [];
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: false });
 const page = await ctx.newPage();
+await page.addInitScript(() => document.addEventListener('DOMContentLoaded', () => { const d = document.getElementById('more-filters'); if (d) d.open = true; }));
 page.on('pageerror', (e) => errors.push(e.message)); page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 await page.goto(URL_); await page.evaluate(() => localStorage.clear()); await page.reload();
 await page.waitForFunction(() => /ready|Basic/.test(document.querySelector('#engine-pill span').textContent), null, { timeout: 30000 });
@@ -21,12 +22,15 @@ const easy = cs.filter((c) => c.easy);
 check('beginner-friendly badge on the easy cards only (14)', easy.length === 14 && easy.every((c) => /Beginner friendly/.test(c.badge)) && cs.filter((c) => !c.easy).every((c) => c.dots), easy.map((c) => c.id).join());
 check('badges and pills fit inside every card on a 390px phone', cs.every((c) => c.fits));
 check('no sideways scroll on the opening list', (await overflowX()) <= 0);
-check('Start-here strip shown by default with 3 picks', (await page.$$('#start-here .sh-chip')).length === 3 && !(await page.$eval('#start-here', (e) => e.classList.contains('hidden'))));
+await page.evaluate(() => window.__ot.goTab('home'));
+check('Home hero suggests a real beginner-friendly start by default', !!(await page.getAttribute('#hero', 'data-id')) && /Start here/.test(await page.textContent('#hero .hero-eyebrow')));
+check('Home has a Beginner friendly rail of easy openings', (await page.$$('#home-rails .rail:first-child .tile')).length >= 10);
+check('profile strip on Home shows level 1 Pawn Pusher', /Level 1 · Pawn Pusher/.test(await page.textContent('#profile-strip')));
+await page.evaluate(() => window.__ot.goTab('openings'));
 await page.click('#ease-seg button[data-ease="easy"]');
 cs = await cards();
 check('"Beginner friendly" filter shows only the 14 easy openings', cs.length === 14 && cs.every((c) => c.easy));
 check('…and lists them easiest first (London before Italian)', cs[0].id === 'scandi' || cs[0].id === 'london', cs.map((c) => c.id).slice(0, 4).join());
-check('Start-here strip hides while filtering', await page.$eval('#start-here', (e) => e.classList.contains('hidden')));
 await page.click('#filter-seg button[data-filter="gambit"]');
 cs = await cards();
 check('easy + Gambits combine (gambit-only, all easy)', cs.length >= 5 && cs.every((c) => c.easy && c.gambit), String(cs.length));
@@ -48,7 +52,6 @@ await page.click('#learn-x');
 
 // ---------------------------------------------------------------- profile panel (fresh)
 check('header shows Lv 1 and the header fits on one line', (await page.textContent('#profile-btn .pb-lv')) === 'Lv 1' && (await overflowX()) <= 0 && await page.evaluate(() => { const t = document.querySelector('.top'); return t.scrollHeight <= 70; }));
-check('profile strip on the list shows level 1 Pawn Pusher', /Level 1 · Pawn Pusher/.test(await page.textContent('#profile-strip')));
 await page.click('#profile-btn');
 await page.waitForSelector('#profile:not(.hidden)');
 check('profile panel: 11-step road, 29 badges all locked, 4 stats', (await page.$$('.road li')).length === 11 && (await page.$$('.bdg')).length === 29 && (await page.$$('.bdg.got')).length === 0 && (await page.$$('.pf-stats div')).length === 4);

@@ -25,7 +25,9 @@
     "test:hint": "node tools/e2e-hint.mjs",
     "build:tactics": "node tools/build-tactics.mjs",
     "test:tactics-unit": "node tools/test-tactics.mjs",
-    "test:tactics": "node tools/e2e-tactics.mjs"
+    "test:tactics": "node tools/e2e-tactics.mjs",
+    "test:stepper": "node tools/e2e-stepper.mjs",
+    "test:nav": "node tools/e2e-nav.mjs"
   },
   "dependencies": {
     "chess.js": "^1.4.0",

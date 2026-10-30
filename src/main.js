@@ -11,8 +11,12 @@ import { initThemes, onThemeChange, getBrushes } from './themes.js';
 import { LORE } from './lore-text.js';
 import { META, LEVELS, levelOf, levelKey, ratingText, STYLES, styleOf, STYLE, EASE, EASE_LEVELS, easeInfo } from './meta.js';
 import { haptic } from './haptics.js';
-import { initTactics } from './tactics-ui.js';
-import { initProgress, recordRun, recordWatch, showRewards, celebrate, starsHtml, renderStartHere, onProgressChange, getProgress } from './progress-ui.js';
+import { initTactics, openTactics, startTactics } from './tactics-ui.js';
+import { thumbHtml } from './thumb.js';
+import { createStepper } from './stepper.js';
+import { renderHome } from './home.js';
+import { TIER_LABEL } from './progress.js';
+import { initProgress, recordRun, recordWatch, showRewards, celebrate, starsHtml, onProgressChange, getProgress, getRecommendation, openProfile, closeProfile, tierFor } from './progress-ui.js';
 import { GRADES, HINT_POINTS, hintCap, centipawnLoss, gradeFromLoss, formatEval, uciToSan, summaryRating, capEval } from './grading.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -33,7 +37,7 @@ const engineReady = engine.init().then((e) => {
 
 // ---------------------------------------------------------------- state
 const prefs = (() => { try { return JSON.parse(localStorage.getItem('ot-prefs') || '{}'); } catch { return {}; } })();
-const savePrefs = () => { try { localStorage.setItem('ot-prefs', JSON.stringify(prefs)); } catch {} };
+const savePrefs = () => { try { const cur = JSON.parse(localStorage.getItem('ot-prefs') || '{}'); const mine = {}; for (const k of Object.keys(prefs)) if (!k.startsWith('tac')) mine[k] = prefs[k]; localStorage.setItem('ot-prefs', JSON.stringify({ ...cur, ...mine })); } catch {} };
 
 let selectedId = prefs.opening || null;
 let filter = prefs.filter || 'all';   // all | gambit | white | black
@@ -65,13 +69,13 @@ function easeDots(o) {
   const e = easeInfo(o.id); if (!e || e.key === 'easy') return '';
   return ` · <span class="edots e-${e.key}" title="${e.label}: ${esc(e.why)}"><i class="on"></i><i class="${e.dots >= 2 ? 'on' : ''}"></i><i class="${e.dots >= 3 ? 'on' : ''}"></i> ${e.short}</span>`;
 }
+const STYLE_COLOR = { aggressive: '#fb7185', sharp: '#facc15', balanced: '#2dd4bf', positional: '#f0abfc', solid: '#94a3b8' };
 function renderGrid() {
   grid.innerHTML = '';
   const pool = OPENINGS.filter(matchesFilter);
   if (sortEasy || easeFilter === 'easy') pool.sort((a, b) => EASE[a.id].score - EASE[b.id].score);
-  const noFilters = filter === 'all' && styleFilter === 'all' && levelFilter === 'all' && easeFilter === 'all' && !sortEasy;
-  renderStartHere($('#start-here'), { active: noFilters, onPick: (id) => { const o = OPENINGS.find((x) => x.id === id); if (!o) return; setEase('all', false); selectedId = id; prefs.opening = id; if (colorChoice !== 'random' && colorChoice !== o.side) setColor(o.side); savePrefs(); renderGrid(); updateStartBar(); const c = grid.querySelector(`.ocard[data-id="${id}"]`); if (c) c.scrollIntoView({ block: 'center', behavior: 'smooth' }); } });
   const cards = [...pool, { id: 'random', name: 'Surprise me', eco: '', side: '', blurb: filter === 'gambit' ? 'A random gambit.' : 'A random opening from the library.', lines: [] }];
+  { const n = [easeFilter !== 'all', levelFilter !== 'all', styleFilter !== 'all', sortEasy].filter(Boolean).length; const mb = $('#more-btn'); if (mb) { mb.dataset.count = n; mb.classList.toggle('on', n > 0); } }
   $('#filter-count').textContent = `${pool.length} opening${pool.length === 1 ? '' : 's'} · ${pool.reduce((n, o) => n + o.lines.length, 0)} lines`;
   for (const o of cards) {
     const c = el('div', 'ocard' + (o.id === selectedId ? ' selected' : ''));
@@ -80,10 +84,21 @@ function renderGrid() {
     if (EASE[o.id] && EASE[o.id].ease === 'easy') c.classList.add('is-easy');
     const sideIcon = o.side === 'white' ? '<span class="chip w">White</span>' : o.side === 'black' ? '<span class="chip b">Black</span>' : '<span class="chip r">?</span>';
     const extras = o.lines.length && LORE[o.id]
-      ? `<span class="oc-btns"><button type="button" class="mini" data-act="watch" aria-label="Watch ${esc(o.name)} first">▶ Watch</button><button type="button" class="mini" data-act="learn" aria-label="Learn more about ${esc(o.name)}">📖 Learn more</button></span>` : '';
-    c.innerHTML = `<div class="oc-top"><span class="oc-eco">${esc(o.eco || 'Random')}${o.gambit ? ' · <b class="gtag">Gambit</b>' : ''}</span>${sideIcon}</div>
-      <div class="oc-namerow"><div class="oc-name">${esc(o.name)}</div>${o.lines.length ? starsHtml(o.id) : ''}</div>${easeBadge(o)}<div class="oc-blurb">${esc(META[o.id] ? META[o.id].desc : o.blurb)}</div>${ratingPill(o)}
-      <div class="oc-foot"><span>${o.lines.length ? o.lines.length + ' lines' + easeDots(o) : 'Any opening'}</span>${extras}</div>`;
+      ? `<span class="oc-btns"><button type="button" class="mini" data-act="watch" aria-label="Watch ${esc(o.name)} first">▶ Watch</button><button type="button" class="mini" data-act="learn" aria-label="Learn more about ${esc(o.name)}">Learn more</button></span>` : '';
+    const y = styleOf(o.id); c.style.setProperty('--sc', y ? STYLE_COLOR[y.key] : '#5ad19a');
+    const isEasy = EASE[o.id] && EASE[o.id].ease === 'easy';
+    const tier = tierFor(o.id);
+    if (o.lines.length) {
+      c.innerHTML = `<div class="oc-thumb">${thumbHtml(o)}${isEasy ? '<i class="sprout" aria-hidden="true">🌱</i>' : ''}</div>
+      <div class="oc-main"><div class="oc-top"><span class="oc-eco">${esc(o.eco || '')}${o.gambit ? ' · <b class="gtag">Gambit</b>' : ''}</span>${sideIcon}</div>
+      <div class="oc-namerow"><div class="oc-name">${esc(o.name)}</div></div>
+      <div class="oc-starrow">${starsHtml(o.id)}${tier !== 'none' ? `<span class="oc-tier t-${tier}">${TIER_LABEL[tier]}</span>` : ''}</div>${easeBadge(o)}
+      <div class="oc-blurb">${esc(META[o.id] ? META[o.id].desc : o.blurb)}</div>${ratingPill(o)}
+      <div class="oc-foot"><span class="oc-lines">${o.lines.length} lines${easeDots(o)}</span>${extras}</div></div>`;
+    } else {
+      c.classList.add('surprise');
+      c.innerHTML = `<div class="oc-thumb"><span class="dice" aria-hidden="true">🎲</span></div><div class="oc-main"><div class="oc-namerow"><div class="oc-name">${esc(o.name)}</div></div><div class="oc-blurb">${esc(o.blurb)}</div></div>`;
+    }
     const choose = () => {
       selectedId = o.id; prefs.opening = selectedId;
       // follow the opening's own side (unless "Random" is chosen) so e.g. the Englund trainer for Black starts as Black
@@ -105,10 +120,11 @@ function updateStartBar() {
   const btn = $('#start-btn'), lab = $('#start-label');
   const o = OPENINGS.find((x) => x.id === selectedId);
   btn.disabled = !selectedId;
+  $('#startbar').classList.toggle('empty', !selectedId);
   $('#watch-btn').disabled = !selectedId || selectedId === 'random';
   $('#watch-btn').title = selectedId === 'random' ? 'Pick a specific opening to watch it first' : 'Watch the opening played out with explanations before you drill it';
   const sideTxt = colorChoice === 'random' ? 'a random side' : colorChoice === 'white' ? 'White' : 'Black';
-  lab.innerHTML = selectedId ? `<b>${esc(o ? o.name : 'Surprise me')}</b> · as ${sideTxt}` : 'Choose an opening';
+  lab.innerHTML = selectedId ? `<b>${esc(o ? o.name : 'Surprise me')}</b><span class="sl-as"> · as ${sideTxt}</span>` : 'Choose an opening';
 }
 function setColor(c) {
   colorChoice = c; prefs.color = colorChoice; savePrefs();
@@ -163,6 +179,7 @@ styleSeg.addEventListener('click', (e) => {
   styleSeg.querySelectorAll('button').forEach((x) => { const on = x === b; x.classList.toggle('active', on); x.setAttribute('aria-checked', on); });
   renderGrid();
 });
+$('#more-btn').addEventListener('click', () => { const d = $('#more-filters'); d.open = !d.open; $('#more-btn').setAttribute('aria-expanded', d.open); });
 $('#start-btn').addEventListener('click', () => startRun());
 $('#watch-btn').addEventListener('click', () => { const o = OPENINGS.find((x) => x.id === selectedId); if (o) watchOpening(o); });
 
@@ -175,18 +192,60 @@ function watchOpening(o) {
 initDemo({
   practice: (o) => { selectedId = o.id; prefs.opening = o.id; savePrefs(); updateStartBar(); startRun(o); },
   learn: (o) => openLearn(o),
-  back: () => { closeDemo(); show('setup'); renderGrid(); },
+  back: () => { closeDemo(); show(selectedId ? 'setup' : 'home'); renderGrid(); },
 });
 initLearn();
+$('#demo-gback').addEventListener('click', () => $('#demo-back').click());
 $('#learn-btn').addEventListener('click', () => {
   const s = session; if (!s) return;
   const note = positionNote(s.opening, s.game.history(), lineNameAt(s.book, s.game.fen()));
   openLearn(s.opening, { note });
 });
 
+const SCREENS = ['home', 'setup', 'tactics', 'puzzle', 'train', 'demo'];
+const TAB_OF = { home: 'home', setup: 'openings', tactics: 'tactics' };
 function show(id) {
-  for (const s of ['setup', 'tactics', 'puzzle', 'train', 'demo']) $('#' + s).classList.toggle('hidden', s !== id);
+  for (const s of SCREENS) $('#' + s).classList.toggle('hidden', s !== id);
+  document.body.dataset.screen = id;
+  const tab = TAB_OF[id];
+  document.querySelectorAll('#tabbar .tab').forEach((t) => { const on = t.dataset.tab === tab; t.classList.toggle('active', on); if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
+  if (tab) { try { history.replaceState(null, '', '#/' + tab); } catch {} }
+  if (id === 'home') paintHome();
   window.scrollTo(0, 0);
+}
+function goTab(tab) {
+  closeProfile();
+  if (tab === 'profile') return openProfile();
+  if (tab === 'home') return show('home');
+  if (tab === 'tactics') return openTactics();
+  show('setup'); renderGrid(); updateStartBar();
+}
+$('#tabbar').addEventListener('click', (e) => { const t = e.target.closest('.tab'); if (t) goTab(t.dataset.tab); });
+$('#brand-home').addEventListener('click', () => goTab('home'));
+
+// filters -> UI (used when the Home screen jumps into the Openings list)
+function syncSeg(seg, attr, val) { seg.querySelectorAll('button').forEach((x) => { const on = x.dataset[attr] === val; x.classList.toggle('active', on); x.setAttribute('aria-checked', on); }); }
+function applyFilters({ kind = 'all', ease = 'all', sort = false } = {}) {
+  filter = kind; styleFilter = 'all'; levelFilter = 'all'; easeFilter = ease; sortEasy = sort;
+  Object.assign(prefs, { filter, style: styleFilter, level: levelFilter, ease: easeFilter, sortEasy }); savePrefs();
+  syncSeg($('#filter-seg'), 'filter', filter); syncSeg(levelSeg, 'level', 'all'); syncSeg(styleSeg, 'style', 'all'); syncEaseUi();
+}
+function focusOpening(id) {
+  const o = OPENINGS.find((x) => x.id === id); if (!o) return;
+  applyFilters();
+  selectedId = id; prefs.opening = id; if (colorChoice !== 'random' && colorChoice !== o.side) setColor(o.side);
+  savePrefs(); show('setup'); renderGrid(); updateStartBar();
+  const c = grid.querySelector(`.ocard[data-id="${id}"]`); if (c) c.scrollIntoView({ block: 'center' });
+}
+function paintHome() {
+  renderHome({
+    lastId: prefs.lastPlayed,
+    onStart: (id) => { const o = OPENINGS.find((x) => x.id === id); if (!o) return; selectedId = id; prefs.opening = id; if (colorChoice !== 'random') setColor(o.side); savePrefs(); updateStartBar(); startRun(o); },
+    onWatch: (id) => { const o = OPENINGS.find((x) => x.id === id); if (o) { selectedId = id; watchOpening(o); } },
+    onOpen: focusOpening,
+    onSeeAll: (what) => { if (what === 'beginner') applyFilters({ ease: 'easy', sort: true }); else if (what === 'gambit-white') applyFilters({ kind: 'gambit' }); else applyFilters({ kind: 'gambit' }); show('setup'); renderGrid(); updateStartBar(); },
+    onTactic: (key) => startTactics(key),
+  });
 }
 
 // ---------------------------------------------------------------- board helpers
@@ -230,7 +289,7 @@ onThemeChange(() => { if (cg) { cg.set({ drawable: { brushes: getBrushes() } });
 initThemes();
 initProgress({ openings: OPENINGS, easeOf: (id) => EASE[id], hooks: { isRisky: (id) => !!(META[id] && META[id].trappy && META[id].hi <= 1200) } });
 
-initTactics({ show, openOpenings: () => { show('setup'); renderGrid(); } });
+initTactics({ show });
 
 // ---------------------------------------------------------------- run lifecycle
 function pickOpening() {
@@ -249,9 +308,12 @@ async function startRun(reuseOpening) {
     attempt: 0, pending: null, over: false, lastMove: null, history: [], token: Math.random(),
   };
   window.__trainer = session;
+  exitReview();
+  prefs.lastPlayed = opening.id; savePrefs();
   show('train');
   $('#summary').classList.add('hidden');
   $('#opening-title').textContent = opening.name;
+  $('#gb-sub').textContent = `You play ${userColor === 'white' ? 'White' : 'Black'}`;
   setTags();
   $('#movelist').innerHTML = '';
   updateStats();
@@ -454,7 +516,7 @@ $('#hint-btn').addEventListener('click', () => {
   $('#hint-btn').disabled = true;
 });
 $('#restart-btn').addEventListener('click', () => { if (session) startRun(selectedId === 'random' ? undefined : session.opening); });
-$('#menu-btn').addEventListener('click', () => { if (session) session.token = Math.random(); show('setup'); });
+$('#menu-btn').addEventListener('click', () => { if (session) session.token = Math.random(); exitReview(); show('setup'); renderGrid(); updateStartBar(); });
 
 // ---------------------------------------------------------------- side panel UI
 function setFeedback(state, badge, title, textHtml, chips, actions) {
@@ -479,7 +541,7 @@ function addMoveToList(mv, who, grade) {
   if (white) { row = el('div', 'mrow'); row.appendChild(el('span', 'mnum', num + '.')); list.appendChild(row); }
   else { row = list.lastElementChild; if (!row || row.querySelector('.m.black')) { row = el('div', 'mrow'); row.appendChild(el('span', 'mnum', num + '…')); row.appendChild(el('span', 'm white empty', '…')); list.appendChild(row); } }
   const cell = el('span', 'm ' + (white ? 'white' : 'black') + (who === 'user' ? ' you' : ''));
-  cell.textContent = mv.san;
+  cell.textContent = mv.san; cell.dataset.ply = ply;
   if (grade) { const d = el('i', 'gd g-' + grade.key); d.title = grade.label; cell.appendChild(d); }
   if (!white) { const empty = row.querySelector('.m.empty'); if (empty) empty.replaceWith(cell); else row.appendChild(cell); } else row.appendChild(cell);
   list.scrollTop = list.scrollHeight;
@@ -497,12 +559,12 @@ function updateStats() {
 
 function setEvalBar(whiteCp) {
   const bar = $('#evalbar'); const fill = bar.querySelector('.fill'); const val = bar.querySelector('.val');
-  if (whiteCp == null) { fill.style.height = '50%'; val.textContent = '0.0'; return; }
+  if (whiteCp == null) { fill.style.height = '50%'; fill.style.setProperty('--pct', '50%'); val.textContent = '0.0'; return; }
   const c = capEval(whiteCp);
   const pct = 50 + 50 * (2 / (1 + Math.exp(-0.004 * c)) - 1);
   const flip = session && session.userColor === 'black';
   bar.classList.toggle('flip', !!flip);
-  fill.style.height = pct.toFixed(1) + '%';
+  fill.style.height = pct.toFixed(1) + '%'; fill.style.setProperty('--pct', pct.toFixed(1) + '%');
   val.textContent = Math.abs(whiteCp) >= 9000 ? formatEval(whiteCp) : (whiteCp / 100 > 0 ? '+' : '') + (whiteCp / 100).toFixed(1);
 }
 
@@ -550,20 +612,74 @@ function finishRun(reason) {
     if (result.counted) setTimeout(() => celebrate(result, run), 900);
     renderGrid();
   } catch (e) { console.error('progress', e); }
-  setFeedback('done', '🏁', reason === 'left-book' ? 'Out of book' : 'Line complete', `Score <b>${s.points}</b> / ${max} (${pct}%).`);
+  setFeedback('done', '🏁', reason === 'left-book' ? 'Out of book' : 'Line complete', `Score <b>${s.points}</b> / ${max} (${pct}%).`, null, [
+    { label: '⏮ Step through it', cls: 'primary', fn: () => enterReview() },
+    { label: 'New line', fn: () => startRun(selectedId === 'random' ? undefined : s.opening) },
+  ]);
   setTimeout(() => $('#summary').classList.remove('hidden'), 350);
 }
-onProgressChange(() => { if (!$('#setup').classList.contains('hidden')) renderGrid(); });
+onProgressChange(() => { if (!$('#setup').classList.contains('hidden')) renderGrid(); if (!$('#home').classList.contains('hidden')) paintHome(); });
 $('#sum-again').addEventListener('click', () => startRun(selectedId === 'random' ? undefined : session.opening));
-$('#sum-review').addEventListener('click', () => $('#summary').classList.add('hidden'));
-$('#sum-menu').addEventListener('click', () => { $('#summary').classList.add('hidden'); show('setup'); });
+$('#sum-review').addEventListener('click', () => { $('#summary').classList.add('hidden'); enterReview(); });
+$('#sum-menu').addEventListener('click', () => { $('#summary').classList.add('hidden'); exitReview(); show('setup'); renderGrid(); updateStartBar(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('#summary').classList.add('hidden'); });
+
+
+// ---------------------------------------------------------------- review: step back and forward through the finished line
+let stepper = null;
+const ensureStepper = () => stepper || (stepper = createStepper({
+  bar: $('#rv-bar'), swipe: $('#board'), onStep: (i) => reviewStep(i),
+  label: (i, n) => { const rv = session && session.review; const m = rv && i > 0 ? rv.moves[i - 1] : null; return m ? `${i} / ${n} · ${m.san}` : `${i} / ${n}`; },
+}));
+function enterReview() {
+  const s = session; if (!s || !s.over) return;
+  const moves = s.game.history({ verbose: true });
+  const g = new Chess(); const fens = [g.fen()];
+  for (const m of moves) { g.move(m.san); fens.push(g.fen()); }
+  s.review = { fens, moves, byPly: new Map(s.records.map((r) => [r.ply, r])) };
+  $('#train').classList.add('reviewing');
+  ensureStepper().open(moves.length, moves.length);
+  const f = $('#rv-bar'); if (f.scrollIntoView && window.innerWidth < 900) f.scrollIntoView({ block: 'nearest' });
+}
+function exitReview() {
+  if (stepper) stepper.close();
+  $('#train').classList.remove('reviewing');
+  if (session) session.review = null;
+}
+function reviewStep(i) {
+  const s = session, rv = s && s.review; if (!rv) return;
+  const chess = new Chess(rv.fens[i]); const mv = i > 0 ? rv.moves[i - 1] : null;
+  cg.set({ fen: rv.fens[i], turnColor: colorName(chess.turn()), check: chess.isCheck(), lastMove: mv ? [mv.from, mv.to] : undefined, movable: { color: undefined, dests: new Map() }, drawable: { autoShapes: [] } });
+  const list = $('#movelist');
+  list.querySelectorAll('.m.cur').forEach((c) => c.classList.remove('cur'));
+  const cur = mv ? list.querySelector(`.m[data-ply="${i}"]`) : null;
+  if (cur) { cur.classList.add('cur'); const cr = cur.getBoundingClientRect(), lr = list.getBoundingClientRect(); list.scrollTop += (cr.top - lr.top) - (list.clientHeight - cr.height) / 2; }
+  const n = Math.ceil(i / 2), dots = i % 2 ? '.' : '…';
+  if (!mv) { setFeedback('idle', '⏮', 'Start position', 'Step forward with the arrows, swipe the board, or tap any move in the list.', null, reviewActions()); return; }
+  const r = rv.byPly.get(i);
+  if (r) {
+    const bits = [];
+    if (r.firstMove) bits.push(`your first try was <b>${esc(r.firstMove)}</b>`);
+    if (r.revealed) bits.push('the book move was shown');
+    if (r.leftBook) bits.push('you left the book here');
+    if (r.hint) bits.push('hint used');
+    const text = `<b>${n}${dots} ${esc(r.san)}</b> · ${r.points} pts${bits.length ? ' · ' + bits.join(' · ') : ''}`;
+    const chips = [chip('Grade', r.grade.label), chip('Points', String(r.points))];
+    if (r.expected && r.grade.key !== 'book' && r.expected.length) chips.push(chip('Book', r.expected.join(', ')));
+    setFeedback(r.grade.key, r.grade.icon, `${r.grade.label}`, text, chips, i === rv.moves.length ? reviewActions() : null);
+  } else {
+    setFeedback('idle', '♟', `${n}${dots} ${mv.san}`, 'The computer’s book reply.', null, i === rv.moves.length ? reviewActions() : null);
+  }
+}
+const reviewActions = () => [{ label: 'New line', cls: 'primary', fn: () => startRun(selectedId === 'random' ? undefined : session.opening) }, { label: 'Openings', fn: () => $('#menu-btn').click() }];
+$('#movelist').addEventListener('click', (e) => { const c = e.target.closest('.m[data-ply]'); if (c && stepper && stepper.active) stepper.set(+c.dataset.ply); });
 
 // ---------------------------------------------------------------- boot
 $('#color-seg').querySelectorAll('button').forEach((x) => { x.classList.toggle('active', x.dataset.color === colorChoice); });
 if (selectedId && selectedId !== 'random' && !OPENINGS.find((o) => o.id === selectedId)) selectedId = null;
 $('#filter-seg').querySelectorAll('button').forEach((x) => { x.classList.toggle('active', x.dataset.filter === filter); });
 renderGrid(); updateStartBar();
+{ const h = location.hash.replace(/^#\/?/, ''); goTab(['home', 'openings', 'tactics'].includes(h) ? h : 'home'); }
 
 // test/debug hook
-window.__ot = { demoState, Chess, bookMoves, posKey, engine, getSession: () => session, getCg: () => cg };
+window.__ot = { demoState, Chess, bookMoves, posKey, engine, getSession: () => session, getCg: () => cg, goTab };

@@ -1,6 +1,6 @@
 // Card descriptions, rating pills, rating filter and the rating info in "Learn more". Usage: node tools/e2e-ratings.mjs [url]
 import { chromium } from 'playwright-core';
-const URL_ = process.argv[2] || 'http://localhost:8099/index.html';
+const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/openings';
 const errors = [];
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
@@ -11,6 +11,8 @@ const cardsOf = (page) => page.$$eval('.ocard:not([data-id="random"])', (cs) => 
 }));
 
 const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
+await page.addInitScript(() => document.addEventListener('DOMContentLoaded', () => { const d = document.getElementById('more-filters'); if (d) d.open = true; }));
+
 page.on('pageerror', (e) => errors.push(e.message)); page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 await page.goto(URL_);
 await page.evaluate(() => localStorage.clear()); await page.reload();
@@ -59,6 +61,8 @@ await page.click('#learn-x');
 // phone
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
 const m = await ctx.newPage(); m.on('pageerror', (e) => errors.push(e.message));
+await m.addInitScript(() => document.addEventListener('DOMContentLoaded', () => { const d = document.getElementById('more-filters'); if (d) d.open = true; }));
+
 await m.goto(URL_);
 const mc = await cardsOf(m);
 check('phone: pills fit in cards', mc.every((c) => c.fits));

@@ -2,7 +2,7 @@
 // hint cap, show solution, skip, points / XP / streak / stars / badges, haptics, persistence, phone layout.
 // Usage: node tools/e2e-tactics.mjs [url]   (serve the folder first: python3 -m http.server 8099)
 import { chromium } from 'playwright-core';
-const URL_ = process.argv[2] || 'http://localhost:8099/index.html';
+const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/openings';
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
 const errors = [];
@@ -35,13 +35,13 @@ async function solveCurrent(page) {
 }
 const clickNext = async (page) => { await page.click('#pz-fb-actions button.primary'); };
 const state = (page) => page.evaluate(() => JSON.parse(localStorage.getItem('rt1500-progress')));
-const openSet = async (page, id) => { await page.click('#setup .modebar button[data-mode="tactics"]').catch(() => {}); await page.waitForSelector('#tac-grid .tcard'); await page.click(`.tcard[data-id="${id}"]`); await waitPhase(page, 'user'); };
+const openSet = async (page, id) => { await page.evaluate(() => window.__ot.goTab('tactics')); await page.waitForSelector('#tac-grid .tcard'); await page.click(`.tcard[data-id="${id}"]`); await waitPhase(page, 'user'); };
 
 // ---------------------------------------------------------------- 1. entry, lazy loading, home
 let page = await newPage();
 check('puzzle data is NOT downloaded on the opening screen (lazy)', !page.reqs.some((u) => u.includes('tactics.json')));
-check('home screen has a mode switch (Openings active) with a Tactics tab', (await page.$$eval('#setup .modebar button', (b) => b.map((x) => x.textContent.trim() + (x.classList.contains('active') ? '*' : '')))).join('|').includes('Tactics') && (await page.textContent('#setup .modebar .active')).includes('Openings'));
-await page.click('#setup .modebar button[data-mode="tactics"]');
+check('bottom tab bar has Openings and Tactics tabs (Openings active on the list)', (await page.$$eval('#tabbar .tab', (b) => b.map((x) => x.dataset.tab + (x.classList.contains('active') ? '*' : '')))).join() === 'home,openings*,tactics,profile');
+await page.click('.tab[data-tab="tactics"]');
 await page.waitForSelector('#tac-grid .tcard');
 check('Tactics tab shows; tactics.json fetched once, only now', page.reqs.filter((u) => u.includes('tactics.json')).length === 1 && (await page.isVisible('#tactics')) && !(await page.isVisible('#setup')));
 const cards = await page.$$('#tac-grid .tcard');
@@ -116,7 +116,7 @@ check('Skip moves on without any XP', (await run(page)).id !== idBefore && (awai
 // leave and persistence
 await page.click('#pz-menu'); await page.waitForSelector('#tac-grid .tcard');
 check('back on the Tactics home, the card shows the solved count and a progress bar', /3 \/ 21 solved/.test(await page.textContent('.tcard[data-id="fried-liver"]')) || /\d \/ 21 solved/.test(await page.textContent('.tcard[data-id="fried-liver"]')), await page.textContent('.tcard[data-id="fried-liver"] .oc-foot'));
-await page.reload(); await page.waitForSelector('.ocard'); await page.click('#setup .modebar button[data-mode="tactics"]'); await page.waitForSelector('#tac-grid .tcard');
+await page.reload(); await page.waitForSelector('#tac-grid .tcard');
 check('progress persists across a reload', /[1-9] \/ 21 solved/.test(await page.textContent('.tcard[data-id="fried-liver"] .oc-foot')) && /[1-9]\d* solved|[1-9] solved/.test(await page.textContent('#tac-stats')), await page.textContent('#tac-stats'));
 // unsolved first on replay
 await page.click('.tcard[data-id="fried-liver"]'); await waitPhase(page, 'user');
@@ -146,14 +146,14 @@ st = await state(page);
 check('star + badge XP are added (50 star + 40 + 60 + 75 badges) on top of the points', st.tactics.sets.traxler.tier === 'bronze' && st.tactics.stars === 1 && st.xp >= 50 + 40 + 60 + 75 + 100, String(st.xp));
 check('the set card shows one filled star', await (async () => { await page.click('#pz-menu'); await page.waitForSelector('#tac-grid .tcard'); return (await page.$$('.tcard[data-id="traxler"] .stars i.on')).length === 1; })());
 // profile
-await page.click('#tac-profile-strip'); await page.waitForSelector('#profile:not(.hidden)');
+await page.click('#profile-btn'); await page.waitForSelector('#profile:not(.hidden)');
 check('profile panel has a Tactics section and the 8 new badges (29 total)', /Tactics/.test(await page.textContent('#profile-body')) && (await page.$$('.bdg')).length === 29 && /puzzles solved/.test(await page.textContent('.pf-tacstats')) && (await page.$$('.bdg.got')).length >= 3);
 await page.click('#profile-close');
 await page.context().close();
 
 // ---------------------------------------------------------------- 4. a long multi-move solution with replies, promotion safety
 page = await newPage();
-await page.click('#setup .modebar button[data-mode="tactics"]'); await page.waitForSelector('#tac-grid .tcard');
+await page.click('.tab[data-tab="tactics"]'); await page.waitForSelector('#tac-grid .tcard');
 await page.click('.tcard[data-id="italian"]'); await waitPhase(page, 'user');
 // find a puzzle with 3 solver moves: use the Légal's mate trap by skipping to it
 for (let i = 0; i < 25; i++) { const x = await run(page); if (x.id === 'T-legals-mate') break; await page.click('#pz-skip'); await waitPhase(page, 'user'); }
@@ -170,7 +170,7 @@ await page.context().close();
 // ---------------------------------------------------------------- 5. phone layout
 for (const w of [390, 320]) {
   page = await newPage({ phone: true, w });
-  await page.click('#setup .modebar button[data-mode="tactics"]'); await page.waitForSelector('#tac-grid .tcard');
+  await page.click('.tab[data-tab="tactics"]'); await page.waitForSelector('#tac-grid .tcard');
   const o1 = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }));
   await page.click('.tcard[data-id="budapest"]'); await waitPhase(page, 'user');
   const o2 = await page.evaluate(() => { const fb = document.querySelector('#pz-feedback').getBoundingClientRect(), bd = document.querySelector('#pz-board').getBoundingClientRect(); return { sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth, fbTop: fb.top, boardBottom: bd.bottom, vh: innerHeight, boardW: bd.width }; });

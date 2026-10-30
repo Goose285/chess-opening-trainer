@@ -143,6 +143,7 @@ export function closeThemes() {
 
 export function initThemes() {
   $('#theme-btn').addEventListener('click', openThemes);
+  document.querySelectorAll('[data-open-theme]').forEach((b) => b.addEventListener('click', openThemes)); // the 🎨 button in the full-screen game bars
   $('#theme-x').addEventListener('click', closeThemes);
   $('#theme-close').addEventListener('click', closeThemes);
   $('#theme').addEventListener('click', (e) => { if (e.target.id === 'theme') closeThemes(); });

@@ -23,71 +23,73 @@
   <link rel="stylesheet" href="css/chessground.css">
   <link rel="stylesheet" href="css/pieces.css">
   <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/revamp.css">
 </head>
 <body>
   <header class="top">
-    <div class="brand"><img class="logo" src="icons/favicon.svg" alt="" width="36" height="36"><span class="wordmark">Road to <b>1500</b></span></div>
+    <button class="brand" id="brand-home" type="button" aria-label="Road to 1500, home"><img class="logo" src="icons/favicon.svg" alt="" width="32" height="32"><span class="wordmark"><span class="wm-pre">Road to </span><b>1500</b></span></button>
     <div class="top-right">
       <div id="engine-pill" class="pill pill-wait" title="Engine status"><i></i><span>Loading engine…</span></div>
+      <button id="streak-chip" class="chip-btn streak off" type="button" aria-label="Day streak: 0" title="Your day streak"><span aria-hidden="true">🔥</span><b>0</b></button>
       <button id="profile-btn" class="profile-btn" type="button" aria-haspopup="dialog" title="Your progress"><span class="pb-ico" aria-hidden="true">🏅</span><span class="pb-lv">Lv 1</span><span class="pb-bar" aria-hidden="true"><i class="pb-fill"></i></span></button>
       <button id="theme-btn" class="icon-btn" type="button" aria-label="Board and piece themes" aria-haspopup="dialog" title="Board &amp; piece themes">🎨</button>
     </div>
   </header>
 
-  <!-- ============ SETUP ============ -->
-  <main id="setup" class="screen">
-    <nav class="modebar" aria-label="Mode">
-      <button type="button" data-mode="openings" class="active"><span aria-hidden="true">♟</span> Openings</button>
-      <button type="button" data-mode="tactics" class=""><span aria-hidden="true">⚔️</span> Tactics</button>
-    </nav>
-    <div class="intro">
-      <h1>Learn the gambits that win games on the road to 1500</h1>
-      <p>Pick an opening and a side. You make every move yourself; the computer answers with a random book line, and Stockfish grades each of your moves.</p>
-    </div>
-
+  <!-- ============ HOME ============ -->
+  <main id="home" class="screen hidden" aria-label="Home">
+    <div class="intro sr-only"><h1>Learn the gambits that win games on the road to 1500</h1></div>
+    <section id="hero" class="hero" aria-label="Suggested opening"></section>
     <button id="profile-strip" class="profile-strip" type="button" aria-label="Open your progress"></button>
+    <div id="home-rails"></div>
+  </main>
 
-    <div id="start-here" class="start-here hidden"></div>
+  <!-- ============ OPENINGS ============ -->
+  <main id="setup" class="screen hidden" aria-label="Openings">
+    <div class="page-head"><div><h1>Openings</h1><span id="filter-count" class="filter-count"></span></div><button id="more-btn" class="more-btn" type="button" aria-expanded="false" aria-controls="more-filters" data-count="0">⚙ Filters</button></div>
 
-    <div class="setup-controls">
-      <div class="seg" id="color-seg" role="radiogroup" aria-label="Play as">
-        <button data-color="white" role="radio" class="active">♔ White</button>
-        <button data-color="black" role="radio">♚ Black</button>
-        <button data-color="random" role="radio">⚄ Random</button>
-      </div>
-    </div>
-
-    <div class="filter-row">
+    <div class="chip-scroll">
       <div class="seg seg-sm" id="filter-seg" role="radiogroup" aria-label="Filter openings">
         <button data-filter="all" role="radio" class="active">All</button>
         <button data-filter="gambit" role="radio">♟ Gambits</button>
         <button data-filter="white" role="radio">White</button>
         <button data-filter="black" role="radio">Black</button>
       </div>
-      <span id="filter-count" class="filter-count"></span>
-    </div>
-    <div class="filter-row level-row">
-      <span class="filter-label" id="ease-label">Difficulty</span>
-      <div class="seg seg-sm" id="ease-seg" role="radiogroup" aria-labelledby="ease-label"></div>
-      <button id="sort-btn" class="sort-btn" type="button" aria-pressed="false" title="Show the easiest openings first">↕ Easiest first</button>
-    </div>
-    <div class="filter-row level-row">
-      <span class="filter-label" id="level-label">Rating</span>
-      <div class="seg seg-sm" id="level-seg" role="radiogroup" aria-labelledby="level-label"></div>
     </div>
 
-    <div class="filter-row level-row">
-      <span class="filter-label" id="style-label">Style</span>
-      <div class="seg seg-sm" id="style-seg" role="radiogroup" aria-labelledby="style-label"></div>
+    <div class="play-as">
+      <span class="filter-label">Play as</span>
+      <div class="seg seg-sm" id="color-seg" role="radiogroup" aria-label="Play as">
+        <button data-color="white" role="radio" class="active">♔ White</button>
+        <button data-color="black" role="radio">♚ Black</button>
+        <button data-color="random" role="radio">⚄ Random</button>
+      </div>
     </div>
+
+    <details id="more-filters" class="more-filters">
+      <summary class="sr-only">More filters</summary>
+      <div class="filter-row level-row">
+        <span class="filter-label" id="ease-label">Difficulty</span>
+        <div class="seg seg-sm" id="ease-seg" role="radiogroup" aria-labelledby="ease-label"></div>
+        <button id="sort-btn" class="sort-btn" type="button" aria-pressed="false" title="Show the easiest openings first">↕ Easiest first</button>
+      </div>
+      <div class="filter-row level-row">
+        <span class="filter-label" id="level-label">Rating</span>
+        <div class="seg seg-sm" id="level-seg" role="radiogroup" aria-labelledby="level-label"></div>
+      </div>
+      <div class="filter-row level-row">
+        <span class="filter-label" id="style-label">Style</span>
+        <div class="seg seg-sm" id="style-seg" role="radiogroup" aria-labelledby="style-label"></div>
+      </div>
+    </details>
 
     <div id="opening-grid" class="grid" role="listbox" aria-label="Openings"></div>
 
-    <div class="startbar">
+    <div class="startbar" id="startbar">
       <div class="startbar-inner">
         <div id="start-label" class="start-label">Choose an opening</div>
         <div class="start-btns">
-          <button id="watch-btn" class="btn" disabled title="Watch the opening played out with explanations before you drill it">▶ Watch it first</button>
+          <button id="watch-btn" class="btn" disabled title="Watch the opening played out with explanations before you drill it">▶ Watch</button>
           <button id="start-btn" class="btn primary" disabled>Start training</button>
         </div>
       </div>
@@ -96,15 +98,8 @@
 
   <!-- ============ TACTICS (home) ============ -->
   <main id="tactics" class="screen hidden" aria-label="Tactics">
-    <nav class="modebar" aria-label="Mode">
-      <button type="button" data-mode="openings" class=""><span aria-hidden="true">♟</span> Openings</button>
-      <button type="button" data-mode="tactics" class="active"><span aria-hidden="true">⚔️</span> Tactics</button>
-    </nav>
-    <div class="intro">
-      <h1>Tactics: spot the shot</h1>
-      <p>Short puzzles from real games that start in <b>your openings</b>, plus the famous traps. The opponent makes a move, then you find the best reply.</p>
-    </div>
-    <button id="tac-profile-strip" class="profile-strip" type="button" aria-label="Open your progress"></button>
+    <div class="page-head"><h1>Tactics</h1><span id="tac-count" class="filter-count"></span></div>
+    <p class="page-sub">Short puzzles from real games that start in <b>your openings</b>, plus the famous traps. The opponent moves, then you find the best reply.</p>
     <div id="tac-stats" class="tac-stats"></div>
     <button id="tac-mixed" class="tac-mixed" type="button"></button>
     <div class="filter-row level-row">
@@ -115,7 +110,6 @@
         <button data-kind="white" role="radio">White</button>
         <button data-kind="black" role="radio">Black</button>
       </div>
-      <span id="tac-count" class="filter-count"></span>
     </div>
     <div class="filter-row level-row">
       <span class="filter-label" id="tac-theme-label">Theme</span>
@@ -126,34 +120,25 @@
   </main>
 
   <!-- ============ PUZZLE ============ -->
-  <main id="puzzle" class="screen hidden" aria-label="Puzzle">
+  <main id="puzzle" class="screen game hidden" aria-label="Puzzle">
+    <div class="gbar">
+      <button id="pz-menu" class="gb-back" type="button" aria-label="Back to tactics"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div class="gb-title"><h2 id="pz-title">Puzzle</h2><span class="gb-sub"><span id="pz-eyebrow">Tactics</span><span class="pz-stars" id="pz-stars"></span></span></div>
+      <button class="gb-icon" type="button" data-open-theme aria-label="Board and piece themes" aria-haspopup="dialog" title="Board &amp; piece themes">🎨</button>
+      <div class="score-box" title="Points for this puzzle (100 per move you find)">
+        <div class="score-num" id="pz-score">0</div>
+        <div class="score-sub" id="pz-score-sub">pts</div>
+      </div>
+    </div>
     <div class="layout">
       <section class="board-col">
         <div class="tag" id="pz-tag-top"><span class="dot"></span><span class="tag-name"></span></div>
         <div class="board-row"><div class="board-wrap"><div id="pz-board" class="cg-board-host"></div></div></div>
         <div class="tag" id="pz-tag-bottom"><span class="dot"></span><span class="tag-name"></span></div>
+        <div id="pz-rv" class="rv-bar hidden" role="group" aria-label="Step through the solution"></div>
       </section>
 
       <aside class="side">
-        <div class="card head" id="pz-head">
-          <div class="head-top">
-            <div>
-              <div class="eyebrow" id="pz-eyebrow">Tactics</div>
-              <h2 id="pz-title">Puzzle</h2>
-              <div class="pz-stars" id="pz-stars"></div>
-            </div>
-            <div class="score-box" title="Points for this puzzle (100 per move you find)">
-              <div class="score-num" id="pz-score">0</div>
-              <div class="score-sub" id="pz-score-sub">pts</div>
-            </div>
-          </div>
-          <div class="stats">
-            <div><b id="pz-n">1 / 1</b><span>puzzle</span></div>
-            <div><b id="pz-solved">0</b><span>solved here</span></div>
-            <div><b id="pz-streak">0</b><span>streak</span></div>
-          </div>
-        </div>
-
         <div id="pz-feedback" class="card feedback state-idle" aria-live="polite">
           <div class="fb-badge" id="pz-fb-badge">…</div>
           <div class="fb-body">
@@ -164,18 +149,32 @@
           </div>
         </div>
 
+        <div class="stats" id="pz-head">
+          <div><b id="pz-n">1 / 1</b><span>puzzle</span></div>
+          <div><b id="pz-solved">0</b><span>solved here</span></div>
+          <div><b id="pz-streak">0</b><span>streak</span></div>
+        </div>
+
         <div class="actions pz-actions">
           <button id="pz-hint" class="btn">💡 Hint <small>(5 pts)</small></button>
-          <button id="pz-solution" class="btn">👁 Show solution</button>
+          <button id="pz-solution" class="btn">👁 Solution</button>
           <button id="pz-skip" class="btn">⏭ Skip</button>
-          <button id="pz-menu" class="btn ghost">☰ Tactics</button>
         </div>
       </aside>
     </div>
   </main>
 
   <!-- ============ TRAINING ============ -->
-  <main id="train" class="screen hidden">
+  <main id="train" class="screen game hidden">
+    <div class="gbar">
+      <button id="menu-btn" class="gb-back" type="button" aria-label="Back to openings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div class="gb-title"><h2 id="opening-title">Opening</h2><span class="gb-sub" id="gb-sub"></span></div>
+      <button class="gb-icon" type="button" data-open-theme aria-label="Board and piece themes" aria-haspopup="dialog" title="Board &amp; piece themes">🎨</button>
+      <div class="score-box" title="Run score (points per move; 100 max)">
+        <div class="score-num" id="score-num">0</div>
+        <div class="score-sub" id="score-sub">pts</div>
+      </div>
+    </div>
     <div class="layout">
       <section class="board-col">
         <div class="tag" id="tag-top"><span class="dot"></span><span class="tag-name"></span></div>
@@ -184,27 +183,10 @@
           <div class="board-wrap"><div id="board" class="cg-board-host"></div></div>
         </div>
         <div class="tag" id="tag-bottom"><span class="dot"></span><span class="tag-name"></span></div>
+        <div id="rv-bar" class="rv-bar hidden" role="group" aria-label="Step through the line"></div>
       </section>
 
       <aside class="side">
-        <div class="card head">
-          <div class="head-top">
-            <div>
-              <div class="eyebrow">Training</div>
-              <h2 id="opening-title">Opening</h2>
-            </div>
-            <div class="score-box" title="Run score (points per move; 100 max)">
-              <div class="score-num" id="score-num">0</div>
-              <div class="score-sub" id="score-sub">pts</div>
-            </div>
-          </div>
-          <div class="stats">
-            <div><b id="st-moves">0</b><span>your moves</span></div>
-            <div><b id="st-first">0</b><span>first-try ok</span></div>
-            <div><b id="st-streak">0</b><span>streak</span></div>
-          </div>
-        </div>
-
         <div id="feedback" class="card feedback state-idle" aria-live="polite">
           <div class="fb-badge" id="fb-badge">…</div>
           <div class="fb-body">
@@ -215,23 +197,32 @@
           </div>
         </div>
 
-        <div class="card moves-card">
-          <div class="eyebrow">Moves</div>
-          <div id="movelist" class="movelist"></div>
+        <div class="stats">
+          <div><b id="st-moves">0</b><span>your moves</span></div>
+          <div><b id="st-first">0</b><span>first-try ok</span></div>
+          <div><b id="st-streak">0</b><span>streak</span></div>
         </div>
 
         <div class="actions">
           <button id="hint-btn" class="btn">💡 Hint <small>(5 pts)</small></button>
           <button id="learn-btn" class="btn">📖 Learn more</button>
           <button id="restart-btn" class="btn">↻ New line</button>
-          <button id="menu-btn" class="btn ghost">☰ Openings</button>
+        </div>
+
+        <div class="card moves-card">
+          <div class="eyebrow">Moves</div>
+          <div id="movelist" class="movelist"></div>
         </div>
       </aside>
     </div>
   </main>
 
   <!-- ============ WATCH IT FIRST (demo) ============ -->
-  <main id="demo" class="screen hidden" aria-label="Watch the opening">
+  <main id="demo" class="screen game hidden" aria-label="Watch the opening">
+    <div class="gbar">
+      <button id="demo-gback" class="gb-back" type="button" aria-label="Back to openings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div class="gb-title"><h2>Watch it first</h2><span class="gb-sub">Step through the opening with notes</span></div>
+    </div>
     <div class="layout">
       <section class="board-col">
         <div class="board-wrap"><div id="demo-board" class="cg-board-host"></div></div>
@@ -366,6 +357,13 @@
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"><span class="t-ico" id="toast-ico" aria-hidden="true"></span><div><b id="toast-title"></b><span id="toast-sub"></span></div></div>
+
+  <nav id="tabbar" class="tabbar" aria-label="Main">
+    <button type="button" class="tab" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 4.5l8 7V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/></svg><span>Home</span></button>
+    <button type="button" class="tab" data-tab="openings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 21h10M9 21v-3.2c0-1.4-.7-2.2-1.6-3.2C6.3 13.4 6 11.7 7 10l2.2-3.7L8 4.5l3.2.5 1.3-1.5L14.8 5l1.6 3c.9 1.7.8 4.4-.6 6.2-.9 1.2-1.5 2-1.5 3.6V21"/></svg><span>Openings</span></button>
+    <button type="button" class="tab" data-tab="tactics"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 2.8 5 13.2h6.2L10.4 21.2 19 10.4h-6.3z"/></svg><span>Tactics</span></button>
+    <button type="button" class="tab" data-tab="profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.2" r="3.7"/><path d="M4.5 20.5c.6-3.8 3.7-6 7.5-6s6.9 2.2 7.5 6"/></svg><span>Profile</span></button>
+  </nav>
 
   <noscript><p style="padding:2rem;color:#fff">This trainer needs JavaScript.</p></noscript>
   <script src="dist/app.js"></script>

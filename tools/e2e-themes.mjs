@@ -2,7 +2,7 @@
 // asset files, phone layout. Usage: node tools/e2e-themes.mjs [url]   (SHOT=/path.png for the phone screenshot)
 import { chromium } from 'playwright-core';
 import { BOARDS, PIECE_SETS } from '../src/themes-data.js';
-const URL_ = process.argv[2] || 'http://localhost:8099/index.html';
+const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/openings';
 const SHOT = process.env.SHOT || '/workspace/road-to-1500-theme-picker-phone.png';
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
@@ -61,7 +61,7 @@ check('square highlights/selection follow the board theme', await page.evaluate(
 const co = await page.evaluate(() => [...document.querySelectorAll('#board coords coord')].map((c) => getComputedStyle(c).color));
 check('coordinate colours follow the board', co.length >= 16 && co.some((c) => c === 'rgb(106, 130, 144)') && co.some((c) => c === 'rgb(242, 245, 247)'), [...new Set(co)].join('|'));
 // live change while a board is on screen
-await page.click('#theme-btn'); await page.click('#board-opts [data-board="neon"]'); await page.click('#piece-opts [data-pieces="kosal"]');
+await page.click('#train [data-open-theme]'); await page.click('#board-opts [data-board="neon"]'); await page.click('#piece-opts [data-pieces="kosal"]');
 check('changing theme updates the open drill board live', (await boardCss()) === hex('#3a4660') && /pieces\/kosal\/wP\.svg/.test(await pieceImg('#board piece.pawn.white')));
 const glow = await page.evaluate(() => ({ b: getComputedStyle(document.querySelector('#board piece.black'), '::before').filter, w: getComputedStyle(document.querySelector('#board piece.white'), '::before').filter }));
 check('Midnight Neon: dark pieces get a light halo, white pieces are untouched', /drop-shadow/.test(glow.b) && glow.w === 'none', JSON.stringify(glow));
