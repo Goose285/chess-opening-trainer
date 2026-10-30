@@ -16,7 +16,7 @@ function render() {
       <div class="ab-links"><a href="${esc(c.url)}" target="_blank" rel="noopener">Source</a> · <a href="${esc(c.licenseUrl)}" target="_blank" rel="noopener">Licence text</a></div></article>`;
   }).join('');
   $('#about-body').innerHTML = `
-    <p class="ab-lead">Gambiteer is free software released under the <b>GNU General Public License v3 or later</b>. You can read, copy, change and share it under that licence. It comes with <b>no warranty</b>.</p>
+    <p class="ab-lead">Pawnado is free software released under the <b>GNU General Public License v3 or later</b>. You can read, copy, change and share it under that licence. It comes with <b>no warranty</b>.</p>
     <p class="ab-src"><a class="btn primary" href="${esc(REPO_URL)}" target="_blank" rel="noopener" id="about-source">Get the complete source code</a>
     <a class="btn" href="${esc(REPO_URL)}/blob/main/LICENSE" target="_blank" rel="noopener">Read the GPL</a></p>
     ${rows}

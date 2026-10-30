@@ -1,19 +1,19 @@
 // Branding: title, wordmark, tagline, favicon, manifest and Add-to-Home-Screen icons. Usage: node tools/e2e-brand.mjs [url]
 import { chromium } from 'playwright-core';
 const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/openings';
-const SHOT = process.env.SHOT || '/workspace/gambiteer-header-phone.png';
+const SHOT = process.env.SHOT || '/workspace/pawnado-header-phone.png';
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
 const errors = [];
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
 const page = await ctx.newPage(); page.on('pageerror', (e) => errors.push(e.message));
 await page.goto(URL_); await page.waitForSelector('.ocard');
-check('page title is Gambiteer — Your road to 1500', (await page.title()) === 'Gambiteer — Your road to 1500', await page.title());
-check('header wordmark reads "Gambiteer"', (await page.textContent('.brand .wordmark')).replace(/\s+/g, ' ').trim() === 'Gambiteer');
-check('tagline "Your road to 1500" is in the header (desktop) and the page heading', (await page.textContent('.brand .tagline')).trim() === 'Your road to 1500' && /Gambiteer: your road to 1500/i.test(await page.textContent('.intro h1')));
+check('page title is Pawnado — Your road to 1500', (await page.title()) === 'Pawnado — Your road to 1500', await page.title());
+check('header wordmark reads "Pawnado"', (await page.textContent('.brand .wordmark')).replace(/\s+/g, ' ').trim() === 'Pawnado');
+check('tagline "Your road to 1500" is in the header (desktop) and the page heading', (await page.textContent('.brand .tagline')).trim() === 'Your road to 1500' && /Pawnado: your road to 1500/i.test(await page.textContent('.intro h1')));
 check('old names are gone from the page', !/Opening Trainer/i.test(await page.content()) && !/Road to 1500/.test(await page.evaluate(() => document.body.innerText)));
-check('wordmark is fully visible on the phone', await page.evaluate(() => { const w = document.querySelector('.brand .wordmark'); const r = w.getBoundingClientRect(); const pre = w.querySelector('.wm-pre'); return r.width > 80 && getComputedStyle(pre).display !== 'none'; }));
-check('profile sheet and About use the new name', await (async () => { await page.click('#profile-btn'); await page.waitForSelector('#profile:not(.hidden)'); const t = await page.textContent('#profile-title'); await page.click('#profile-close'); return t.trim() === 'Gambiteer'; })());
+check('wordmark is fully visible on the phone', await page.evaluate(() => { const w = document.querySelector('.brand .wordmark'); const r = w.getBoundingClientRect(); const pre = w.querySelector('.wm-pre'); return r.width > 60 && getComputedStyle(pre).display !== 'none'; }));
+check('profile sheet and About use the new name', await (async () => { await page.click('#profile-btn'); await page.waitForSelector('#profile:not(.hidden)'); const t = await page.textContent('#profile-title'); await page.click('#profile-close'); return t.trim() === 'Pawnado'; })());
 const head = await page.evaluate(() => ({
   manifest: document.querySelector('link[rel=manifest]')?.href,
   touch: document.querySelector('link[rel=apple-touch-icon]')?.href,
@@ -22,11 +22,11 @@ const head = await page.evaluate(() => ({
   capable: document.querySelector('meta[name="apple-mobile-web-app-capable"]')?.content,
   logoOk: (() => { const i = document.querySelector('.brand img.logo'); return i && i.complete && i.naturalWidth > 0; })(),
 }));
-check('apple-mobile-web-app-title + capable', head.appTitle === 'Gambiteer' && head.capable === 'yes');
+check('apple-mobile-web-app-title + capable', head.appTitle === 'Pawnado' && head.capable === 'yes');
 check('header logo image loads', head.logoOk);
 const get = async (u) => { const r = await ctx.request.get(u); return { ok: r.ok(), type: r.headers()['content-type'] || '', buf: await r.body() }; };
 const man = await get(head.manifest); const mj = JSON.parse(man.buf.toString());
-check('manifest loads and names the app', man.ok && mj.name === 'Gambiteer' && mj.short_name === 'Gambiteer' && /road to 1500/i.test(mj.description));
+check('manifest loads and names the app', man.ok && mj.name === 'Pawnado' && mj.short_name === 'Pawnado' && /road to 1500/i.test(mj.description));
 check('manifest is standalone with start_url/scope inside the app', mj.display === 'standalone' && !!mj.start_url && !!mj.scope);
 let iconsOk = mj.icons.length >= 3;
 for (const ic of mj.icons) { const r = await get(new URL(ic.src, head.manifest).href); const w = r.buf.readUInt32BE(16); iconsOk = iconsOk && r.ok && /png/.test(r.type) && `${w}x${w}` === ic.sizes; }

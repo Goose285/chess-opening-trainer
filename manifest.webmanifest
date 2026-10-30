@@ -1,7 +1,7 @@
 {
-  "name": "Gambiteer",
-  "short_name": "Gambiteer",
-  "description": "Gambiteer: your road to 1500. Learn the gambits that win games.",
+  "name": "Pawnado",
+  "short_name": "Pawnado",
+  "description": "Pawnado: your road to 1500. Learn the gambits that win games.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

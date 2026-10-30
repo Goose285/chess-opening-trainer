@@ -1,6 +1,6 @@
 # Lichess puzzle database (tactics puzzles)
 
-The Tactics section of Gambiteer uses puzzles selected from the **Lichess open puzzle database**
+The Tactics section of Pawnado uses puzzles selected from the **Lichess open puzzle database**
 (<https://database.lichess.org/#puzzles>, `lichess_db_puzzle.csv.zst`, downloaded 2026-10-29).
 
 - **Licence:** [Creative Commons CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (public domain dedication). No attribution is required, but credit is given here and in the app: *"Puzzles: Lichess open database (CC0)"*.

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Gambiteer (your road to 1500): interactive chess gambit and opening trainer for casual players, with Stockfish grading",
+  "description": "Pawnado (your road to 1500): interactive chess gambit and opening trainer for casual players, with Stockfish grading",
   "scripts": {
     "build": "esbuild src/main.js --bundle --minify --format=iife --target=es2020 --outfile=dist/app.js",
     "test:book": "node tools/check-book.mjs",

@@ -41,7 +41,7 @@ await popup.waitForLoadState().catch(() => {}); const u = new URL(gh[gh.length -
 check('opens github.com/Goose285/chess-opening-trainer/issues/new', u.hostname === 'github.com' && u.pathname === '/Goose285/chess-opening-trainer/issues/new', u.href.slice(0, 90));
 check('issue title has the type and start of the message', /^\[Opening request\] Please add the Latvian Gambit/.test(u.searchParams.get('title')), u.searchParams.get('title'));
 const body = u.searchParams.get('body');
-check('issue body has message, rating, contact, version, device', body.includes('Latvian Gambit') && body.includes('Rating: 5/5') && body.includes('Contact: me@example.com') && /App: Gambiteer \d+\.\d+\.\d+/.test(body) && /Device: .*Mozilla/.test(body), body.slice(0, 40));
+check('issue body has message, rating, contact, version, device', body.includes('Latvian Gambit') && body.includes('Rating: 5/5') && body.includes('Contact: me@example.com') && /App: Pawnado \d+\.\d+\.\d+/.test(body) && /Device: .*Mozilla/.test(body), body.slice(0, 40));
 check('labels are feedback + enhancement', u.searchParams.get('labels') === 'feedback,enhancement');
 await popup.close();
 check('friendly confirmation shown', /Opened GitHub/.test(await page.innerText('#fb-status')));
@@ -84,7 +84,7 @@ mode = 'fail'; await page.click('#fb-submit'); await page.waitForSelector('#fb-s
 check('server error: message kept, friendly retry + fallback offered', (await page.inputValue('#fb-msg')) === 'The board flips on rotate' && /did not go through/.test(await page.innerText('#fb-status')) && await page.isVisible('#fb-fallback'));
 mode = 'ok'; await page.click('#fb-submit'); await page.waitForSelector('#fb-done:not([hidden])');
 const post = posts[posts.length - 1], j = JSON.parse(post.body);
-check('POSTs JSON with the Formspree-style fields', /application\/json/.test(post.headers['content-type']) && j.type === 'bug' && j.message === 'The board flips on rotate' && j.contact === 'a@b.co' && j.email === 'a@b.co' && j._subject.includes('Bug') && /Gambiteer/.test(j.app) && !!j.device);
+check('POSTs JSON with the Formspree-style fields', /application\/json/.test(post.headers['content-type']) && j.type === 'bug' && j.message === 'The board flips on rotate' && j.contact === 'a@b.co' && j.email === 'a@b.co' && j._subject.includes('Bug') && /Pawnado/.test(j.app) && !!j.device);
 check('thank-you state shown', /Thank you/.test(await page.innerText('#fb-done')) && await page.isHidden('#fb-form'));
 await page.click('#fb-another'); check('"Send another" resets the form', (await page.inputValue('#fb-msg')) === '' && await page.isVisible('#fb-form'));
 check('no JS errors', errors.length === 0, errors.slice(0, 3).join(' | '));

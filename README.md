@@ -1,6 +1,6 @@
-# Gambiteer
+# Pawnado
 
-*Your road to 1500.* Learn the gambits that win games. A chess opening and gambit trainer for casual and improving players (rated under ~1500). The GitHub repo and the URL (`/chess-opening-trainer/`) keep their original name (`chess-opening-trainer`); the app was previously called "Road to 1500" and was renamed Gambiteer. Saved progress, theme and vibration settings live in localStorage keys that still start with `rt1500-` on purpose, so nobody loses their progress.
+*Your road to 1500.* Learn the gambits that win games. A chess opening and gambit trainer for casual and improving players (rated under ~1500). The GitHub repo and the URL (`/chess-opening-trainer/`) keep their original name (`chess-opening-trainer`); the app was previously called "Road to 1500" and is now Pawnado. Saved progress, theme and vibration settings live in localStorage keys that still start with `rt1500-` on purpose, so nobody loses their progress.
 
 Play through chess openings yourself. Pick an opening and a side; the computer answers with a **random book line**, and every move you make is graded:
 
@@ -64,7 +64,7 @@ To add a line, append `{ name, moves: 'e4 e5 Nf3 ...' }` (SAN, no move numbers) 
 
 Copyright (C) 2026 Seth Moynahan. See [`NOTICE`](NOTICE).
 
-**Gambiteer is free software: GPL-3.0-or-later** (full text in [`LICENSE`](LICENSE)). It has to be, because it bundles
+**Pawnado is free software: GPL-3.0-or-later** (full text in [`LICENSE`](LICENSE)). It has to be, because it bundles
 chessground (GPL-3.0+) and Stockfish.js (GPL-3.0). You may sell copies of a GPL program; what the GPL requires is that everyone who gets a copy also gets the licence and the source
 and the same freedoms. Everything we ship from other people is listed with its licence, copyright and what we do about it in
 [`THIRD_PARTY/NOTICES.md`](THIRD_PARTY/NOTICES.md), and the same list is in the app under **Home / Profile -> About & licenses**.
@@ -112,9 +112,9 @@ There are 32 gambits: 17 to play as White and 15 as Black (all 16 classical open
 
 ## Branding and Add to Home Screen
 
-The app is called **Gambiteer** (tagline: *Your road to 1500*): a pawn on an upward road, with the wordmark "Gambit**eer**" and the tagline in the header. Branding lives in `index.html` (title, meta tags, header), `manifest.webmanifest` and `icons/` (`icon.svg` is the source; `favicon.svg`, `favicon-32/48.png`, `apple-touch-icon.png` (180), `icon-192/512.png` and `icon-maskable-512.png` are generated with `node tools/make-icons.mjs`).
+The app is called **Pawnado** (tagline: *Your road to 1500*): a pawn on an upward road, with the wordmark "Pawn**ado**" and the tagline in the header. Branding lives in `index.html` (title, meta tags, header), `manifest.webmanifest` and `icons/` (`icon.svg` is the source; `favicon.svg`, `favicon-32/48.png`, `apple-touch-icon.png` (180), `icon-192/512.png` and `icon-maskable-512.png` are generated with `node tools/make-icons.mjs`).
 
-On iPhone: open the site in Safari, tap Share, then **Add to Home Screen**. It is named *Gambiteer*, gets the pawn-and-road icon, and opens standalone (no browser bars) via `apple-mobile-web-app-capable` and the manifest's `display: standalone`. `npm run test:brand` checks the title, wordmark, tagline, manifest, icon sizes and phone header layout.
+On iPhone: open the site in Safari, tap Share, then **Add to Home Screen**. It is named *Pawnado*, gets the pawn-and-road icon, and opens standalone (no browser bars) via `apple-mobile-web-app-capable` and the manifest's `display: standalone`. `npm run test:brand` checks the title, wordmark, tagline, manifest, icon sizes and phone header layout.
 
 ## Board & piece themes
 

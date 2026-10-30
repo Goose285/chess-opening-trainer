@@ -5,7 +5,7 @@ export const REPO_URL = 'https://github.com/Goose285/chess-opening-trainer';
 export const APP_COPYRIGHT = 'Copyright © 2026 Seth Moynahan';
 
 export const COMPONENTS = [
-  { group: 'App', name: 'Gambiteer (this app: code, opening notes, graphics, logo)', license: 'GPL-3.0-or-later', notice: APP_COPYRIGHT, url: REPO_URL, licenseUrl: `${REPO_URL}/blob/main/LICENSE`, note: 'Free software: you may copy, change and redistribute it under the GPL. No warranty.' },
+  { group: 'App', name: 'Pawnado (this app: code, opening notes, graphics, logo)', license: 'GPL-3.0-or-later', notice: APP_COPYRIGHT, url: REPO_URL, licenseUrl: `${REPO_URL}/blob/main/LICENSE`, note: 'Free software: you may copy, change and redistribute it under the GPL. No warranty.' },
   { group: 'Engine', name: 'Stockfish.js 19 (Stockfish chess engine, WebAssembly build)', license: 'GPL-3.0', notice: 'Stockfish.js 19 © 2026 Chess.com, LLC (Nathan Rugg). Based on Stockfish © 2004–2026 T. Romstad, M. Costalba, J. Kiiski, G. Linscott and the other Stockfish developers', url: 'https://github.com/nmrugg/stockfish.js', licenseUrl: 'https://github.com/nmrugg/stockfish.js/blob/master/Copying.txt', note: 'Complete engine source: github.com/official-stockfish/Stockfish and the stockfish.js repository (src/). The exact files we ship are in vendor/stockfish/ of our repository.' },
   { group: 'Engine', name: 'Stockfish NNUE network nn-61e7af4bb97d (inside the engine file)', license: 'CC0 1.0', notice: 'Network by Chris Bao (sscg13), via the Stockfish fishtest project; trained with data from the Leela Chess Zero project (ODbL)', url: 'https://tests.stockfishchess.org/nns', licenseUrl: 'https://creativecommons.org/publicdomain/zero/1.0/', note: 'Public-domain dedication; credit is given as a courtesy.' },
   { group: 'Library', name: 'Chessground 9.2.1 (board UI)', license: 'GPL-3.0-or-later', notice: 'Copyright © Thibault Duplessis and the lichess.org contributors', url: 'https://github.com/lichess-org/chessground', licenseUrl: 'https://github.com/lichess-org/chessground/blob/master/LICENSE', note: 'This is why the whole app is GPL.' },
@@ -20,6 +20,6 @@ export const COMPONENTS = [
 
 export const STATEMENTS = [
   'Fonts: none are bundled; the app uses your device’s own fonts and emoji. Sounds: none. Board colours, icons and the logo are original to this app.',
-  'Stockfish, Lichess, Chess.com and other names are trademarks of their owners. Gambiteer is an independent app and is not affiliated with or endorsed by them.',
+  'Stockfish, Lichess, Chess.com and other names are trademarks of their owners. Pawnado is an independent app and is not affiliated with or endorsed by them.',
   'Source code: every build of this app, including any app-store build, comes with its complete corresponding source at the link above, and you may request it from the same place. Nothing in this screen limits your rights under the GPL.',
 ];

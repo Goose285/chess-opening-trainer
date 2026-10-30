@@ -1,6 +1,6 @@
 # Piece set credits and licences
 
-Gambiteer ships **four** piece sets. The SVG files in `pieces/<set>/` are **unmodified copies** of the files in
+Pawnado ships **four** piece sets. The SVG files in `pieces/<set>/` are **unmodified copies** of the files in
 [lichess-org/lila](https://github.com/lichess-org/lila) `public/piece/<set>/` (downloaded 2026-10-29; byte-compared with each set's own
 upstream on 2026-10-30). Licences are taken from lila's
 [COPYING.md](https://github.com/lichess-org/lila/blob/master/COPYING.md) and each set's own repository. All four allow commercial use.

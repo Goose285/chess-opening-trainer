@@ -1,12 +1,12 @@
-# Third-party notices for Gambiteer
+# Third-party notices for Pawnado
 
-Gambiteer is free software: **GPL-3.0-or-later** (see [`../LICENSE`](../LICENSE)). Copyright © 2026 Seth Moynahan.
+Pawnado is free software: **GPL-3.0-or-later** (see [`../LICENSE`](../LICENSE)). Copyright © 2026 Seth Moynahan.
 This file lists everything we ship that someone else wrote, the licence it comes under, and what we do to comply. It is mirrored in the app
 (Home → "About & licenses") from `src/licenses.js`. Last verified against the upstream sources on 2026-10-30.
 
 | Component (shipped file) | Copyright / author | Licence | Commercial use | Our compliance |
 |---|---|---|---|---|
-| Gambiteer code, opening notes, logo, icons (`src/`, `css/`, `index.html`, `icons/`...) | Seth Moynahan | GPL-3.0-or-later | yes | [`LICENSE`](../LICENSE); source public at <https://github.com/Goose285/chess-opening-trainer> |
+| Pawnado code, opening notes, logo, icons (`src/`, `css/`, `index.html`, `icons/`...) | Seth Moynahan | GPL-3.0-or-later | yes | [`LICENSE`](../LICENSE); source public at <https://github.com/Goose285/chess-opening-trainer> |
 | Stockfish.js 19.0.1, "lite single" WebAssembly build (`vendor/stockfish/stockfish-19-lite-single.{js,wasm}`) | Stockfish.js © 2026 Chess.com, LLC (Nathan Rugg); Stockfish © 2004-2026 T. Romstad, M. Costalba, J. Kiiski, G. Linscott and the Stockfish developers | GPL-3.0 ([`licenses/Stockfish.js-Copying-GPL-3.0.txt`](licenses/Stockfish.js-Copying-GPL-3.0.txt)) | yes | Licence shipped in `vendor/stockfish/`; source below; the engine runs as a separate Web Worker, unmodified, and is not renamed or relabelled |
 | Stockfish NNUE network `nn-61e7af4bb97d` (embedded in the engine file) | Chris Bao (sscg13), via Stockfish fishtest | CC0 1.0 | yes | none required; credit given. Trained with data from Leela Chess Zero (ODbL) |
 | chessground 9.2.1 (bundled in `dist/app.js`) | Thibault Duplessis and lichess.org contributors | GPL-3.0-or-later | yes | Our app is GPL-3.0-or-later as a result; source public |
@@ -45,5 +45,5 @@ Charging for the app is allowed. The GPL only requires that the people who recei
 
 ## Trademarks
 
-"Stockfish", "Lichess", "Chess.com" and other names are the property of their owners and are used only to say what we use. Gambiteer is not
+"Stockfish", "Lichess", "Chess.com" and other names are the property of their owners and are used only to say what we use. Pawnado is not
 affiliated with or endorsed by them.

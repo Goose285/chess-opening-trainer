@@ -9,5 +9,5 @@
 export const FEEDBACK_ENDPOINT = '';
 
 export const FEEDBACK_REPO = 'Goose285/chess-opening-trainer'; // GitHub "owner/repo" that receives fallback issues
-export const APP_NAME = 'Gambiteer';
+export const APP_NAME = 'Pawnado';
 export const APP_VERSION = '1.3.0'; // shown in the feedback form and attached to reports; bump on release

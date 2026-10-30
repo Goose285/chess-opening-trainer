@@ -351,7 +351,7 @@ body[data-screen="train"] .top, body[data-screen="puzzle"] .top, body[data-scree
 .fb-done-ico { font-size: 44px; } .fb-done h3 { margin: var(--s2) 0; font-size: var(--t-xl); } .fb-done p { color: var(--muted); margin: 0 0 var(--s4); }
 .home-foot { line-height: 1.9; }
 
-/* ---------- Gambiteer wordmark + tagline ---------- */
+/* ---------- Pawnado wordmark + tagline ---------- */
 .brand .tagline { display: none; margin-left: 10px; padding-left: 10px; border-left: 1px solid var(--line); font-size: var(--t-xs); color: var(--muted); font-weight: 600; letter-spacing: .1px; white-space: nowrap; }
 @media (min-width: 700px) { .brand .tagline { display: inline; } }
 @media (max-width: 350px) { .brand .wordmark { font-size: 15px; letter-spacing: -.5px; } .brand .logo { width: 26px; height: 26px; } .top-right { gap: 3px; } .icon-btn, #engine-pill { width: 32px; } .profile-btn { padding: 0 6px 3px; } }
