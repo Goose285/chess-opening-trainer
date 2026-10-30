@@ -11,6 +11,8 @@ const cdp = await ctx.newCDPSession(page);
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
 const touch = (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y, id: 1 }] });
 
+// The progression celebrations are a full-screen overlay; this suite plays many full lines in a row, so hide it here (tools/e2e-progress.mjs covers it).
+await page.addInitScript(() => document.addEventListener('DOMContentLoaded', () => { const s = document.createElement('style'); s.textContent = '#celebrate,#toast{display:none!important}'; document.head.appendChild(s); }));
 await page.goto(URL_);
 await page.waitForFunction(() => /ready|Basic/.test(document.querySelector('#engine-pill span').textContent), null, { timeout: 30000 });
 await page.tap('.ocard[data-id="fried-liver"]');

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#14181f">
   <title>Road to 1500 — learn the gambits that win games</title>
-  <meta name="description" content="Road to 1500: learn the gambits that win games on the road to 1500. Practise 48 openings move by move, graded by Stockfish.">
+  <meta name="description" content="Road to 1500: learn the gambits that win games on the road to 1500. Practise 48 openings move by move, earn XP and climb the ranks, graded by Stockfish.">
   <meta name="application-name" content="Road to 1500">
   <meta name="apple-mobile-web-app-title" content="Road to 1500">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -29,6 +29,7 @@
     <div class="brand"><img class="logo" src="icons/favicon.svg" alt="" width="36" height="36"><span class="wordmark">Road to <b>1500</b></span></div>
     <div class="top-right">
       <div id="engine-pill" class="pill pill-wait" title="Engine status"><i></i><span>Loading engine…</span></div>
+      <button id="profile-btn" class="profile-btn" type="button" aria-haspopup="dialog" title="Your progress"><span class="pb-ico" aria-hidden="true">🏅</span><span class="pb-lv">Lv 1</span><span class="pb-bar" aria-hidden="true"><i class="pb-fill"></i></span></button>
       <button id="theme-btn" class="icon-btn" type="button" aria-label="Board and piece themes" aria-haspopup="dialog" title="Board &amp; piece themes">🎨</button>
     </div>
   </header>
@@ -39,6 +40,10 @@
       <h1>Learn the gambits that win games on the road to 1500</h1>
       <p>Pick an opening and a side. You make every move yourself; the computer answers with a random book line, and Stockfish grades each of your moves.</p>
     </div>
+
+    <button id="profile-strip" class="profile-strip" type="button" aria-label="Open your progress"></button>
+
+    <div id="start-here" class="start-here hidden"></div>
 
     <div class="setup-controls">
       <div class="seg" id="color-seg" role="radiogroup" aria-label="Play as">
@@ -56,6 +61,11 @@
         <button data-filter="black" role="radio">Black</button>
       </div>
       <span id="filter-count" class="filter-count"></span>
+    </div>
+    <div class="filter-row level-row">
+      <span class="filter-label" id="ease-label">Difficulty</span>
+      <div class="seg seg-sm" id="ease-seg" role="radiogroup" aria-labelledby="ease-label"></div>
+      <button id="sort-btn" class="sort-btn" type="button" aria-pressed="false" title="Show the easiest openings first">↕ Easiest first</button>
     </div>
     <div class="filter-row level-row">
       <span class="filter-label" id="level-label">Rating</span>
@@ -193,6 +203,7 @@
           <div class="sum-rating" id="sum-rating"></div>
         </div>
       </div>
+      <div class="sum-rewards hidden" id="sum-rewards" aria-live="polite"></div>
       <div class="grade-grid" id="sum-grades"></div>
       <div class="sum-moves" id="sum-moves"></div>
       <div class="modal-actions">
@@ -238,6 +249,39 @@
       </div>
     </div>
   </div>
+
+  <!-- ============ PROFILE / PROGRESS ============ -->
+  <div id="profile" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+    <div class="modal-card learn-card theme-card profile-card">
+      <div class="learn-head">
+        <div>
+          <div class="eyebrow">Your progress</div>
+          <h2 id="profile-title">Road to 1500</h2>
+        </div>
+        <button id="profile-x" class="x-btn" aria-label="Close">✕</button>
+      </div>
+      <div id="profile-body" class="learn-body profile-body"></div>
+      <div class="modal-actions learn-actions">
+        <button id="profile-close" class="btn primary">Keep climbing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CELEBRATION (level up / badge / star) ============ -->
+  <div id="celebrate" class="celebrate hidden" role="alertdialog" aria-modal="true" aria-labelledby="cel-title">
+    <div id="cel-confetti" class="cel-confetti" aria-hidden="true"></div>
+    <div class="cel-card">
+      <div class="cel-rays" aria-hidden="true"></div>
+      <div class="cel-ico" id="cel-ico" aria-hidden="true">🏅</div>
+      <div class="cel-kicker" id="cel-kicker"></div>
+      <div class="cel-title" id="cel-title"></div>
+      <div class="cel-sub" id="cel-sub"></div>
+      <div class="cel-xp" id="cel-xp"></div>
+      <button id="cel-next" class="btn primary cel-btn" type="button">Continue</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"><span class="t-ico" id="toast-ico" aria-hidden="true"></span><div><b id="toast-title"></b><span id="toast-sub"></span></div></div>
 
   <noscript><p style="padding:2rem;color:#fff">This trainer needs JavaScript.</p></noscript>
   <script src="dist/app.js"></script>

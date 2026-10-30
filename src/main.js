@@ -9,7 +9,8 @@ import { openLearn, initLearn } from './learn.js';
 import { positionNote } from './explain.js';
 import { initThemes, onThemeChange, getBrushes } from './themes.js';
 import { LORE } from './lore-text.js';
-import { META, LEVELS, levelOf, levelKey, ratingText, STYLES, styleOf, STYLE } from './meta.js';
+import { META, LEVELS, levelOf, levelKey, ratingText, STYLES, styleOf, STYLE, EASE, EASE_LEVELS, easeInfo } from './meta.js';
+import { initProgress, recordRun, recordWatch, showRewards, celebrate, starsHtml, renderStartHere, onProgressChange, getProgress } from './progress-ui.js';
 import { GRADES, centipawnLoss, gradeFromLoss, formatEval, uciToSan, summaryRating, capEval } from './grading.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -36,6 +37,8 @@ let selectedId = prefs.opening || null;
 let filter = prefs.filter || 'all';   // all | gambit | white | black
 let styleFilter = prefs.style || 'all'; // all | aggressive | sharp | balanced | positional | solid
 let levelFilter = prefs.level || 'all'; // all | beginner | intermediate | advanced | expert
+let easeFilter = prefs.ease || 'all';   // all | easy | medium | hard
+let sortEasy = !!prefs.sortEasy;        // list the easiest openings first
 let colorChoice = prefs.color || 'white';
 let session = null;   // current run
 let cg = null;        // chessground api
@@ -52,21 +55,33 @@ function ratingPill(o) {
   const lv = levelOf(x.lo);
   return `<div class="oc-tags"><span class="rtag r-${lv.key}" title="Recommended rating ${x.lo}–${x.hi} (${lv.label})${x.trappy ? ' · fun/trappy: unsound against strong play' : ''}"><i></i>${ratingText(o)}<em>${lv.label}</em></span>${stylePill(o)}</div>`;
 }
+function easeBadge(o) {
+  const e = easeInfo(o.id); if (!e) return '';
+  return e.key === 'easy' ? `<div class="oc-ease"><span class="etag e-easy" title="Beginner friendly: ${esc(e.why)}">🌱 Beginner friendly</span></div>` : '';
+}
+function easeDots(o) {
+  const e = easeInfo(o.id); if (!e || e.key === 'easy') return '';
+  return ` · <span class="edots e-${e.key}" title="${e.label}: ${esc(e.why)}"><i class="on"></i><i class="${e.dots >= 2 ? 'on' : ''}"></i><i class="${e.dots >= 3 ? 'on' : ''}"></i> ${e.short}</span>`;
+}
 function renderGrid() {
   grid.innerHTML = '';
   const pool = OPENINGS.filter(matchesFilter);
+  if (sortEasy || easeFilter === 'easy') pool.sort((a, b) => EASE[a.id].score - EASE[b.id].score);
+  const noFilters = filter === 'all' && styleFilter === 'all' && levelFilter === 'all' && easeFilter === 'all' && !sortEasy;
+  renderStartHere($('#start-here'), { active: noFilters, onPick: (id) => { const o = OPENINGS.find((x) => x.id === id); if (!o) return; setEase('all', false); selectedId = id; prefs.opening = id; if (colorChoice !== 'random' && colorChoice !== o.side) setColor(o.side); savePrefs(); renderGrid(); updateStartBar(); const c = grid.querySelector(`.ocard[data-id="${id}"]`); if (c) c.scrollIntoView({ block: 'center', behavior: 'smooth' }); } });
   const cards = [...pool, { id: 'random', name: 'Surprise me', eco: '', side: '', blurb: filter === 'gambit' ? 'A random gambit.' : 'A random opening from the library.', lines: [] }];
   $('#filter-count').textContent = `${pool.length} opening${pool.length === 1 ? '' : 's'} · ${pool.reduce((n, o) => n + o.lines.length, 0)} lines`;
   for (const o of cards) {
     const c = el('div', 'ocard' + (o.id === selectedId ? ' selected' : ''));
     c.dataset.id = o.id; c.setAttribute('role', 'option'); c.setAttribute('aria-selected', o.id === selectedId); c.tabIndex = 0;
     if (o.gambit) c.classList.add('gambit');
+    if (EASE[o.id] && EASE[o.id].ease === 'easy') c.classList.add('is-easy');
     const sideIcon = o.side === 'white' ? '<span class="chip w">White</span>' : o.side === 'black' ? '<span class="chip b">Black</span>' : '<span class="chip r">?</span>';
     const extras = o.lines.length && LORE[o.id]
       ? `<span class="oc-btns"><button type="button" class="mini" data-act="watch" aria-label="Watch ${esc(o.name)} first">▶ Watch</button><button type="button" class="mini" data-act="learn" aria-label="Learn more about ${esc(o.name)}">📖 Learn more</button></span>` : '';
     c.innerHTML = `<div class="oc-top"><span class="oc-eco">${esc(o.eco || 'Random')}${o.gambit ? ' · <b class="gtag">Gambit</b>' : ''}</span>${sideIcon}</div>
-      <div class="oc-name">${esc(o.name)}</div><div class="oc-blurb">${esc(META[o.id] ? META[o.id].desc : o.blurb)}</div>${ratingPill(o)}
-      <div class="oc-foot"><span>${o.lines.length ? o.lines.length + ' lines' : 'Any opening'}</span>${extras}</div>`;
+      <div class="oc-namerow"><div class="oc-name">${esc(o.name)}</div>${o.lines.length ? starsHtml(o.id) : ''}</div>${easeBadge(o)}<div class="oc-blurb">${esc(META[o.id] ? META[o.id].desc : o.blurb)}</div>${ratingPill(o)}
+      <div class="oc-foot"><span>${o.lines.length ? o.lines.length + ' lines' + easeDots(o) : 'Any opening'}</span>${extras}</div>`;
     const choose = () => {
       selectedId = o.id; prefs.opening = selectedId;
       // follow the opening's own side (unless "Random" is chosen) so e.g. the Englund trainer for Black starts as Black
@@ -101,6 +116,7 @@ function setColor(c) {
 $('#color-seg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setColor(b.dataset.color); });
 
 function matchesFilter(o) {
+  if (easeFilter !== 'all' && (EASE[o.id] || {}).ease !== easeFilter) return false;
   if (levelFilter !== 'all' && levelKey(o.id) !== levelFilter) return false;
   if (styleFilter !== 'all' && (STYLE[o.id] || {}).style !== styleFilter) return false;
   if (filter === 'gambit') return !!o.gambit;
@@ -113,6 +129,18 @@ $('#filter-seg').addEventListener('click', (e) => {
   $('#filter-seg').querySelectorAll('button').forEach((x) => { const on = x === b; x.classList.toggle('active', on); x.setAttribute('aria-checked', on); });
   renderGrid();
 });
+const easeSeg = $('#ease-seg');
+const EASE_BTN = { easy: '🌱 Beginner friendly', medium: 'Medium', hard: 'Hard' };
+easeSeg.innerHTML = '<button data-ease="all" role="radio">Any</button>' + EASE_LEVELS.map((e) => `<button data-ease="${e.key}" role="radio" class="ez-${e.key}">${EASE_BTN[e.key]}</button>`).join('');
+if (!easeSeg.querySelector(`[data-ease="${easeFilter}"]`)) easeFilter = 'all';
+function syncEaseUi() {
+  easeSeg.querySelectorAll('button').forEach((x) => { const on = x.dataset.ease === easeFilter; x.classList.toggle('active', on); x.setAttribute('aria-checked', on); });
+  const sb = $('#sort-btn'); sb.classList.toggle('active', sortEasy); sb.setAttribute('aria-pressed', sortEasy);
+}
+function setEase(v, render = true) { easeFilter = v; prefs.ease = v; if (v !== 'all') { /* easiest first is the natural order for a difficulty pick */ } savePrefs(); syncEaseUi(); if (render) renderGrid(); }
+easeSeg.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setEase(b.dataset.ease); });
+$('#sort-btn').addEventListener('click', () => { sortEasy = !sortEasy; prefs.sortEasy = sortEasy; savePrefs(); syncEaseUi(); renderGrid(); });
+syncEaseUi();
 const levelSeg = $('#level-seg');
 levelSeg.innerHTML = '<button data-level="all" role="radio">Any level</button>' + LEVELS.filter((l) => OPENINGS.some((o) => levelKey(o.id) === l.key)).map((l) => `<button data-level="${l.key}" role="radio" class="lv-${l.key}">${l.label}</button>`).join('');
 if (!levelSeg.querySelector(`[data-level="${levelFilter}"]`)) levelFilter = 'all';
@@ -140,6 +168,7 @@ $('#watch-btn').addEventListener('click', () => { const o = OPENINGS.find((x) =>
 function watchOpening(o) {
   show('demo');
   openDemo(o, 0, true);
+  if (o && o.id !== 'random') recordWatch(o.id);
 }
 initDemo({
   practice: (o) => { selectedId = o.id; prefs.opening = o.id; savePrefs(); updateStartBar(); startRun(o); },
@@ -197,6 +226,7 @@ function initBoard() {
 window.addEventListener('resize', () => cg && cg.redrawAll());
 onThemeChange(() => { if (cg) { cg.set({ drawable: { brushes: getBrushes() } }); cg.redrawAll(); } });
 initThemes();
+initProgress({ openings: OPENINGS, easeOf: (id) => EASE[id], hooks: { isRisky: (id) => !!(META[id] && META[id].trappy && META[id].hi <= 1200) } });
 
 // ---------------------------------------------------------------- run lifecycle
 function pickOpening() {
@@ -211,7 +241,7 @@ async function startRun(reuseOpening) {
   const userColor = colorChoice === 'random' ? (Math.random() < 0.5 ? 'white' : 'black') : colorChoice;
   session = {
     opening, book: buildBook(opening), userColor, game: new Chess(), phase: 'busy',
-    records: [], points: 0, streak: 0, firstTry: 0, hintUsed: false, retries: 0,
+    records: [], points: 0, streak: 0, maxStreak: 0, firstTry: 0, hintUsed: false, retries: 0,
     attempt: 0, pending: null, over: false, lastMove: null, history: [], token: Math.random(),
   };
   window.__trainer = session;
@@ -385,7 +415,7 @@ async function commitUserMove(mv, info) {
   if (info.hint) pts = Math.min(pts, 50);
   s.points += pts;
   const clean = ['book', 'best', 'excellent', 'good'].includes(info.grade.key) && !info.retried && !info.hint;
-  if (clean) { s.firstTry++; s.streak++; } else s.streak = 0;
+  if (clean) { s.firstTry++; s.streak++; s.maxStreak = Math.max(s.maxStreak, s.streak); } else s.streak = 0;
   s.records.push({ san: made.san, ply: g.history().length, grade: info.grade, loss: info.loss, points: pts, retried: info.retried, firstMove: info.firstMove, hint: info.hint, revealed: info.revealed, leftBook: info.leftBook, expected: info.expected });
   s.pending = null;
   syncBoard({ lastMove: [made.from, made.to], drawable: { autoShapes: [] } });
@@ -503,9 +533,21 @@ function finishRun(reason) {
     return `<div class="srow"><span class="sn">${num}</span><span class="ss">${esc(r.san)}</span><span class="sg g-${r.grade.key}">${r.grade.label}</span><span class="sp">${r.points}</span><span class="sx">${note}</span></div>`;
   }).join('');
   $('#sum-moves').innerHTML = `<div class="sm-head">Your moves <span>${retries} retr${retries === 1 ? 'y' : 'ies'} · ${hints} hint${hints === 1 ? '' : 's'}</span></div>` + rows;
+  // progression: points become XP, mastery stars / badges update (the grading above is unchanged)
+  try {
+    const completed = reason === 'book-end';
+    const hintsUsed = s.records.filter((r) => r.hint).length;
+    const perfect = completed && n > 0 && pct === 100 && hintsUsed === 0 && retries === 0 && s.records.every((r) => !r.retried);
+    const run = { openingId: s.opening.id, openingName: s.opening.name, gambit: !!s.opening.gambit, lineCount: s.opening.lines.length, side: s.userColor, moves: n, points: s.points, pct, hints: hintsUsed, retries, perfect, maxStreak: s.maxStreak, variation: lineName || s.opening.name, completed };
+    const result = recordRun(run);
+    showRewards(result, run);
+    if (result.counted) setTimeout(() => celebrate(result, run), 900);
+    renderGrid();
+  } catch (e) { console.error('progress', e); }
   setFeedback('done', '🏁', reason === 'left-book' ? 'Out of book' : 'Line complete', `Score <b>${s.points}</b> / ${max} (${pct}%).`);
   setTimeout(() => $('#summary').classList.remove('hidden'), 350);
 }
+onProgressChange(() => { if (!$('#setup').classList.contains('hidden')) renderGrid(); });
 $('#sum-again').addEventListener('click', () => startRun(selectedId === 'random' ? undefined : session.opening));
 $('#sum-review').addEventListener('click', () => $('#summary').classList.add('hidden'));
 $('#sum-menu').addEventListener('click', () => { $('#summary').classList.add('hidden'); show('setup'); });

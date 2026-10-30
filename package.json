@@ -17,7 +17,10 @@
     "test:ratings": "node tools/e2e-ratings.mjs",
     "test:style": "node tools/e2e-style.mjs",
     "test:brand": "node tools/e2e-brand.mjs",
-    "test:themes": "node tools/e2e-themes.mjs"
+    "test:themes": "node tools/e2e-themes.mjs",
+    "test:progress-unit": "node tools/test-progress.mjs",
+    "test:progress": "node tools/e2e-progress.mjs",
+    "gen:ease": "node tools/gen-ease.mjs"
   },
   "dependencies": {
     "chess.js": "^1.4.0",

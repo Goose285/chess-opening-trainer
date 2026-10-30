@@ -113,3 +113,8 @@ Each board also sets its own square highlights, legal-move dots, coordinate colo
 ## Play style
 
 Every opening has one of five fixed styles in `src/meta.js` (`STYLE`): 🔥 Aggressive (attacking, sacrifices), ⚡ Sharp (tactical, double-edged), ⚖️ Balanced (classical, flexible), 🧭 Positional (slow manoeuvring), 🛡️ Solid (safe, defensive). It shows as a pill on the card next to the rating pill, as a one-sentence "what to expect" in the Learn-more popup, and as a **Style** filter in the picker (combines with side / gambit / rating filters and is remembered). `npm run test:lore` checks every opening has a valid style and a one-sentence note; `npm run test:style` is the browser test.
+
+## Progression (XP, levels, stars, badges)
+- `src/difficulty.js` scores how easy each opening is to learn; `node tools/gen-ease.mjs` writes `src/ease-data.js` (Easy = "Beginner friendly", Medium, Hard).
+- `src/progress.js` is the pure logic: XP from run points (+bonuses), 11 levels ("Pawn Pusher" 400 to "1500 Club" 1500), bronze/silver/gold mastery per opening and 21 badges. `src/progress-ui.js` is the UI. State lives in `localStorage` key `rt1500-progress`.
+- Tests: `npm run test:progress-unit` (node) and `npm run test:progress` (browser). Run the browser suites with `COLOR` unset (npm sets `COLOR=0`, which `tools/e2e.mjs` reads): `env -u COLOR node tools/e2e.mjs`.

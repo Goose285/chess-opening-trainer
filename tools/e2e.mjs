@@ -6,6 +6,8 @@ const browser = await chromium.launch({ executablePath: process.env.CHROME || '/
 const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console.error: ' + m.text()); });
+// The progression celebrations are a full-screen overlay; this suite plays many full lines in a row, so hide it here (tools/e2e-progress.mjs covers it).
+await page.addInitScript(() => document.addEventListener('DOMContentLoaded', () => { const s = document.createElement('style'); s.textContent = '#celebrate,#toast{display:none!important}'; document.head.appendChild(s); }));
 await page.goto(URL_);
 const results = [];
 const check = (name, ok, extra = '') => { results.push({ name, ok }); console.log((ok ? 'PASS' : 'FAIL') + ' ' + name + (extra ? ' — ' + extra : '')); };
