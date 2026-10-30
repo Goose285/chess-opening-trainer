@@ -1,5 +1,6 @@
 // Progression UI: header level chip, profile strip on the opening list, profile / progress panel, run rewards in the
 // summary and the level-up / badge / star celebrations. All numbers come from progress.js; nothing here grades moves.
+import { haptic } from './haptics.js';
 import {
   LEVELS, levelInfo, levelFor, ACHIEVEMENTS, achievementById, TIER_LABEL, TIER_RULE, STAR_BONUS, applyRun, applyWatch,
   loadState, saveState, freshState, tierOf, starsOf, recommend, dayKey,
@@ -183,7 +184,7 @@ function showNext() {
   $('#cel-xp').classList.toggle('hidden', !item.xp);
   $('#cel-next').textContent = queue.length ? 'Next ▶' : 'Continue';
   confetti($('#cel-confetti'));
-  if (navigator.vibrate) { try { navigator.vibrate(item.kind === 'level' ? [30, 40, 60] : 25); } catch {} }
+  haptic(item.kind === 'level' ? 'celebrate' : 'move');
   setTimeout(() => $('#cel-next').focus({ preventScroll: true }), 50);
 }
 export function celebrate(result, run) {

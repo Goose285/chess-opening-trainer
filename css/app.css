@@ -552,3 +552,12 @@ body.noscroll { overflow: hidden; }
 .toast.show { transform: translate(-50%, 0); opacity: 1; }
 .toast .t-ico { font-size: 26px; } .toast b { display: block; font-size: 14px; } .toast span { font-size: 12.5px; color: #b4c3d3; }
 @media (prefers-reduced-motion: reduce) { .toast { transition: opacity .2s; transform: translate(-50%, 0); } }
+
+/* ---------- vibration setting ---------- */
+.vib-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 6px 0; }
+.vib-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; } .vib-txt b { font-size: 14.5px; } .vib-txt span { font-size: 12.5px; color: var(--muted); }
+.switch { flex: none; width: 54px; height: 32px; border-radius: 999px; border: 1px solid #364252; background: #2b3541; position: relative; padding: 0; transition: background .2s; }
+.switch i { position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #cfd8e3; transition: transform .2s; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+.switch.on { background: var(--accent); border-color: var(--accent); } .switch.on i { transform: translateX(22px); background: #fff; }
+.switch:focus-visible { outline: 2px solid #8fd0ff; outline-offset: 2px; }
+.vib-test { justify-content: flex-start; padding-top: 2px; } .vib-test .btn { padding: 8px 14px; min-height: 40px; } .vib-note { font-size: 12px; color: var(--muted); }

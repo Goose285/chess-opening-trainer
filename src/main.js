@@ -10,6 +10,7 @@ import { positionNote } from './explain.js';
 import { initThemes, onThemeChange, getBrushes } from './themes.js';
 import { LORE } from './lore-text.js';
 import { META, LEVELS, levelOf, levelKey, ratingText, STYLES, styleOf, STYLE, EASE, EASE_LEVELS, easeInfo } from './meta.js';
+import { haptic } from './haptics.js';
 import { initProgress, recordRun, recordWatch, showRewards, celebrate, starsHtml, renderStartHere, onProgressChange, getProgress } from './progress-ui.js';
 import { GRADES, centipawnLoss, gradeFromLoss, formatEval, uciToSan, summaryRating, capEval } from './grading.js';
 
@@ -292,6 +293,7 @@ async function computerMove() {
   const san = pickBookMove(s.book, s.game.fen());
   if (!san) return finishRun('book-end');
   const mv = s.game.move(san);
+  if (mv.captured) haptic('capture'); // the computer just took one of your pieces
   pushHistory(mv, 'computer');
   syncBoard({ lastMove: [mv.from, mv.to] });
   s.lastMove = [mv.from, mv.to];
@@ -303,6 +305,7 @@ async function computerMove() {
 // ---------------------------------------------------------------- user moves
 function onUserDrop(orig, dest) {
   const s = session; if (!s || s.phase !== 'user') return;
+  haptic('move'); // light tap the moment you let go (inside your touch, so iOS allows it)
   s.phase = 'busy';
   handleUserMove(orig, dest);
 }

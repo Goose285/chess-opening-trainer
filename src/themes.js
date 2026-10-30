@@ -1,5 +1,6 @@
 // Board + piece themes: applies the saved choice (CSS variables / data attributes), draws the picker with live
 // mini-board previews, and tells the boards which arrow colours to use. Choice persists in localStorage.
+import { haptic, hapticMode, hapticsOn, setHaptics } from './haptics.js';
 import { BOARDS, PIECE_SETS, DEFAULT_BOARD, DEFAULT_PIECES } from './themes-data.js';
 
 const $ = (s) => document.querySelector(s);
@@ -83,6 +84,12 @@ function miniBoard(b) {
   return `<span class="bo-mini" style="background-color:${b.light};background-image:${boardImage(b)}"><i class="bo-lm" style="background:${b.last}"></i><i class="bo-sel" style="background:${b.sel}"></i><i class="bo-dot" style="background:radial-gradient(${b.dot} 22%, transparent 24%)"></i></span>`;
 }
 
+function vibNote() {
+  const m = hapticMode();
+  if (m === 'vibrate') return 'Tap, then (1 s later) the capture double buzz.';
+  if (m === 'ios') return 'iPhone: needs iOS 18 or newer. Tap, then (1 s later) the capture buzz, to test it outside a touch.';
+  return 'This device has no vibration motor. It works on phones.';
+}
 const SAMPLE = ['wK', 'wQ', 'wN', 'bK', 'bQ', 'bN'];
 function renderPicker() {
   const b = boardById(state.board), ps = setById(state.pieces);
@@ -100,6 +107,12 @@ function renderPicker() {
       </div>
     </div>
     <div class="theme-scroll">
+      <h3 class="theme-h">Vibration</h3>
+      <div class="vib-row">
+        <div class="vib-txt"><b>Haptic feedback</b><span>A light tap after your move and a double buzz when the computer takes one of your pieces.</span></div>
+        <button type="button" id="vib-switch" class="switch${hapticsOn() ? ' on' : ''}" role="switch" aria-checked="${hapticsOn()}" aria-label="Vibration"><i></i></button>
+      </div>
+      <div class="vib-row vib-test"><button type="button" id="vib-try" class="btn">Try it</button><span id="vib-note" class="vib-note">${esc(vibNote())}</span></div>
       <h3 class="theme-h">Board</h3>
       <div class="theme-grid boards" role="radiogroup" aria-label="Board colours" id="board-opts">
         ${BOARDS.map((x) => `<button type="button" role="radio" aria-checked="${x.id === b.id}" class="topt${x.id === b.id ? ' on' : ''}" data-board="${x.id}">${miniBoard(x)}<span class="topt-name">${esc(x.name)}</span></button>`).join('')}
@@ -135,6 +148,9 @@ export function initThemes() {
   $('#theme').addEventListener('click', (e) => { if (e.target.id === 'theme') closeThemes(); });
   $('#theme-reset').addEventListener('click', () => setTheme({ board: DEFAULT_BOARD, pieces: DEFAULT_PIECES }));
   $('#theme-body').addEventListener('click', (e) => {
+    const sw = e.target.closest('#vib-switch');
+    if (sw) { const v = !hapticsOn(); setHaptics(v); sw.classList.toggle('on', v); sw.setAttribute('aria-checked', v); if (v) haptic('move'); return; }
+    if (e.target.closest('#vib-try')) { haptic('move', { force: true }); setTimeout(() => haptic('capture', { force: true }), 1000); return; }
     const t = e.target.closest('.topt'); if (!t) return;
     if (t.dataset.board) setTheme({ board: t.dataset.board }); else if (t.dataset.pieces) setTheme({ pieces: t.dataset.pieces });
     const again = t.dataset.board ? `[data-board="${t.dataset.board}"]` : `[data-pieces="${t.dataset.pieces}"]`;

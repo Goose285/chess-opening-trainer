@@ -118,3 +118,6 @@ Every opening has one of five fixed styles in `src/meta.js` (`STYLE`): 🔥 Aggr
 - `src/difficulty.js` scores how easy each opening is to learn; `node tools/gen-ease.mjs` writes `src/ease-data.js` (Easy = "Beginner friendly", Medium, Hard).
 - `src/progress.js` is the pure logic: XP from run points (+bonuses), 11 levels ("Pawn Pusher" 400 to "1500 Club" 1500), bronze/silver/gold mastery per opening and 21 badges. `src/progress-ui.js` is the UI. State lives in `localStorage` key `rt1500-progress`.
 - Tests: `npm run test:progress-unit` (node) and `npm run test:progress` (browser). Run the browser suites with `COLOR` unset (npm sets `COLOR=0`, which `tools/e2e.mjs` reads): `env -u COLOR node tools/e2e.mjs`.
+
+## Haptics
+`src/haptics.js`: a light tap after your move and a stronger double buzz when the computer takes one of your pieces. Android uses `navigator.vibrate`; iPhone Safari (iOS 18+) uses a hidden `<input type="checkbox" switch>` label click. On/off switch in the board & pieces panel (key `rt1500-haptics`). Test: `node tools/e2e-haptics.mjs`.
