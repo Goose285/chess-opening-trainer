@@ -11,6 +11,7 @@ import { initThemes, onThemeChange, getBrushes } from './themes.js';
 import { LORE } from './lore-text.js';
 import { META, LEVELS, levelOf, levelKey, ratingText, STYLES, styleOf, STYLE, EASE, EASE_LEVELS, easeInfo } from './meta.js';
 import { haptic } from './haptics.js';
+import { initTactics } from './tactics-ui.js';
 import { initProgress, recordRun, recordWatch, showRewards, celebrate, starsHtml, renderStartHere, onProgressChange, getProgress } from './progress-ui.js';
 import { GRADES, HINT_POINTS, hintCap, centipawnLoss, gradeFromLoss, formatEval, uciToSan, summaryRating, capEval } from './grading.js';
 
@@ -184,7 +185,7 @@ $('#learn-btn').addEventListener('click', () => {
 });
 
 function show(id) {
-  for (const s of ['setup', 'train', 'demo']) $('#' + s).classList.toggle('hidden', s !== id);
+  for (const s of ['setup', 'tactics', 'puzzle', 'train', 'demo']) $('#' + s).classList.toggle('hidden', s !== id);
   window.scrollTo(0, 0);
 }
 
@@ -228,6 +229,8 @@ window.addEventListener('resize', () => cg && cg.redrawAll());
 onThemeChange(() => { if (cg) { cg.set({ drawable: { brushes: getBrushes() } }); cg.redrawAll(); } });
 initThemes();
 initProgress({ openings: OPENINGS, easeOf: (id) => EASE[id], hooks: { isRisky: (id) => !!(META[id] && META[id].trappy && META[id].hi <= 1200) } });
+
+initTactics({ show, openOpenings: () => { show('setup'); renderGrid(); } });
 
 // ---------------------------------------------------------------- run lifecycle
 function pickOpening() {

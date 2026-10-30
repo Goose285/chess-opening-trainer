@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#14181f">
   <title>Road to 1500 — learn the gambits that win games</title>
-  <meta name="description" content="Road to 1500: learn the gambits that win games on the road to 1500. Practise 48 openings move by move, earn XP and climb the ranks, graded by Stockfish.">
+  <meta name="description" content="Road to 1500: learn the gambits that win games on the road to 1500. Practise 48 openings move by move and solve opening tactics puzzles, earn XP and climb the ranks, graded by Stockfish.">
   <meta name="application-name" content="Road to 1500">
   <meta name="apple-mobile-web-app-title" content="Road to 1500">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -36,6 +36,10 @@
 
   <!-- ============ SETUP ============ -->
   <main id="setup" class="screen">
+    <nav class="modebar" aria-label="Mode">
+      <button type="button" data-mode="openings" class="active"><span aria-hidden="true">♟</span> Openings</button>
+      <button type="button" data-mode="tactics" class=""><span aria-hidden="true">⚔️</span> Tactics</button>
+    </nav>
     <div class="intro">
       <h1>Learn the gambits that win games on the road to 1500</h1>
       <p>Pick an opening and a side. You make every move yourself; the computer answers with a random book line, and Stockfish grades each of your moves.</p>
@@ -87,6 +91,86 @@
           <button id="start-btn" class="btn primary" disabled>Start training</button>
         </div>
       </div>
+    </div>
+  </main>
+
+  <!-- ============ TACTICS (home) ============ -->
+  <main id="tactics" class="screen hidden" aria-label="Tactics">
+    <nav class="modebar" aria-label="Mode">
+      <button type="button" data-mode="openings" class=""><span aria-hidden="true">♟</span> Openings</button>
+      <button type="button" data-mode="tactics" class="active"><span aria-hidden="true">⚔️</span> Tactics</button>
+    </nav>
+    <div class="intro">
+      <h1>Tactics: spot the shot</h1>
+      <p>Short puzzles from real games that start in <b>your openings</b>, plus the famous traps. The opponent makes a move, then you find the best reply.</p>
+    </div>
+    <button id="tac-profile-strip" class="profile-strip" type="button" aria-label="Open your progress"></button>
+    <div id="tac-stats" class="tac-stats"></div>
+    <button id="tac-mixed" class="tac-mixed" type="button"></button>
+    <div class="filter-row level-row">
+      <span class="filter-label" id="tac-kind-label">Openings</span>
+      <div class="seg seg-sm" id="tac-kind-seg" role="radiogroup" aria-labelledby="tac-kind-label">
+        <button data-kind="all" role="radio" class="active">All</button>
+        <button data-kind="gambit" role="radio">♟ Gambits</button>
+        <button data-kind="white" role="radio">White</button>
+        <button data-kind="black" role="radio">Black</button>
+      </div>
+      <span id="tac-count" class="filter-count"></span>
+    </div>
+    <div class="filter-row level-row">
+      <span class="filter-label" id="tac-theme-label">Theme</span>
+      <div class="seg seg-sm" id="tac-theme-seg" role="radiogroup" aria-labelledby="tac-theme-label"></div>
+    </div>
+    <div id="tac-grid" class="grid" aria-label="Opening tactics sets"></div>
+    <p class="credit">Puzzles from the <a href="https://database.lichess.org/#puzzles" target="_blank" rel="noopener">Lichess open database</a> (CC0), plus hand-made famous traps.</p>
+  </main>
+
+  <!-- ============ PUZZLE ============ -->
+  <main id="puzzle" class="screen hidden" aria-label="Puzzle">
+    <div class="layout">
+      <section class="board-col">
+        <div class="tag" id="pz-tag-top"><span class="dot"></span><span class="tag-name"></span></div>
+        <div class="board-row"><div class="board-wrap"><div id="pz-board" class="cg-board-host"></div></div></div>
+        <div class="tag" id="pz-tag-bottom"><span class="dot"></span><span class="tag-name"></span></div>
+      </section>
+
+      <aside class="side">
+        <div class="card head" id="pz-head">
+          <div class="head-top">
+            <div>
+              <div class="eyebrow" id="pz-eyebrow">Tactics</div>
+              <h2 id="pz-title">Puzzle</h2>
+              <div class="pz-stars" id="pz-stars"></div>
+            </div>
+            <div class="score-box" title="Points for this puzzle (100 per move you find)">
+              <div class="score-num" id="pz-score">0</div>
+              <div class="score-sub" id="pz-score-sub">pts</div>
+            </div>
+          </div>
+          <div class="stats">
+            <div><b id="pz-n">1 / 1</b><span>puzzle</span></div>
+            <div><b id="pz-solved">0</b><span>solved here</span></div>
+            <div><b id="pz-streak">0</b><span>streak</span></div>
+          </div>
+        </div>
+
+        <div id="pz-feedback" class="card feedback state-idle" aria-live="polite">
+          <div class="fb-badge" id="pz-fb-badge">…</div>
+          <div class="fb-body">
+            <div class="fb-title" id="pz-fb-title">Ready</div>
+            <div class="fb-text" id="pz-fb-text"></div>
+            <div class="fb-chips" id="pz-fb-chips"></div>
+            <div class="fb-actions" id="pz-fb-actions"></div>
+          </div>
+        </div>
+
+        <div class="actions pz-actions">
+          <button id="pz-hint" class="btn">💡 Hint <small>(5 pts)</small></button>
+          <button id="pz-solution" class="btn">👁 Show solution</button>
+          <button id="pz-skip" class="btn">⏭ Skip</button>
+          <button id="pz-menu" class="btn ghost">☰ Tactics</button>
+        </div>
+      </aside>
     </div>
   </main>
 

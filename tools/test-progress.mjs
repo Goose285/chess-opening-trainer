@@ -61,7 +61,7 @@ check('repeat factor: full, half, quarter', P.repeatFactor(0) === 1 && P.repeatF
 const rep = (() => { let t = P.freshState(); for (let i = 0; i < 6; i++) t = P.applyRun(t, run({ points: 400, pct: 50, perfect: false }), ex, NOW).state; return P.applyRun(t, run({ points: 400, pct: 50, perfect: false }), ex, NOW); })();
 check('the 7th replay of one opening pays half XP', rep.result.gained.base === 200 && rep.result.xpFactor === 0.5);
 // achievements
-check('21 achievements with unique ids, names and positive XP', P.ACHIEVEMENTS.length === 21 && new Set(P.ACHIEVEMENTS.map((a) => a.id)).size === 21 && new Set(P.ACHIEVEMENTS.map((a) => a.name)).size === 21 && P.ACHIEVEMENTS.every((a) => a.xp > 0 && a.icon && a.desc));
+check('29 achievements with unique ids, names and positive XP', P.ACHIEVEMENTS.length === 29 && new Set(P.ACHIEVEMENTS.map((a) => a.id)).size === 29 && new Set(P.ACHIEVEMENTS.map((a) => a.name)).size === 29 && P.ACHIEVEMENTS.every((a) => a.xp > 0 && a.icon && a.desc));
 const gam = P.applyRun(P.freshState(), run({ openingId: 'danish', gambit: true, side: 'white' }), ex, NOW);
 check('first gambit badge', gam.result.newAch.includes('first-gambit'));
 check('streak badges follow the best in-run streak', P.applyRun(P.freshState(), run({ maxStreak: 5 }), ex, NOW).result.newAch.includes('streak-5') && !P.applyRun(P.freshState(), run({ maxStreak: 4 }), ex, NOW).result.newAch.includes('streak-5') && P.applyRun(P.freshState(), run({ maxStreak: 15 }), ex, NOW).result.newAch.includes('streak-15'));

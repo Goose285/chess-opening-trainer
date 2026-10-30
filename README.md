@@ -36,6 +36,9 @@ src/book.js           position-graph book, weighted random replies
 src/engine.js         Stockfish worker wrapper + fallback engine
 src/grading.js        cp-loss → label rules and scoring
 src/main.js           UI / game flow
+src/tactics-core.js   Tactics: puzzle logic (move check, points, queues, themes) - pure
+src/tactics-ui.js     Tactics: home screen + puzzle player (lazy-loads tactics/tactics.json)
+tactics/tactics.json  933 puzzles: Lichess DB picks + 13 hand-made traps (built by tools/build-tactics.mjs)
 vendor/stockfish/     stockfish-19-lite-single.{js,wasm}
 tools/                check-book (legality), audit-book (Stockfish audit of book lines), gen-gambits, e2e tests
 ```
@@ -58,6 +61,8 @@ To add a line, append `{ name, moves: 'e4 e5 Nf3 ...' }` (SAN, no move numbers) 
 ## Licences
 
 chess.js (BSD-2), chessground + cburnett pieces (GPL-3.0+), Stockfish.js 19 (GPL-3.0). This project is therefore distributed under GPL-3.0-or-later; see `vendor/stockfish/LICENSE-stockfish-GPLv3.txt`.
+
+**Puzzles** (`tactics/tactics.json`): selected from the [Lichess open puzzle database](https://database.lichess.org/#puzzles), released under CC0 (public domain); credit and details in [`THIRD_PARTY/LICHESS-PUZZLES.md`](THIRD_PARTY/LICHESS-PUZZLES.md).
 
 **Piece sets** (`pieces/`, copied unmodified from lichess-org/lila `public/piece/`): full credits and licences are in [`THIRD_PARTY/PIECE-SET-CREDITS.md`](THIRD_PARTY/PIECE-SET-CREDITS.md).
 
@@ -116,8 +121,16 @@ Every opening has one of five fixed styles in `src/meta.js` (`STYLE`): 🔥 Aggr
 
 ## Progression (XP, levels, stars, badges)
 - `src/difficulty.js` scores how easy each opening is to learn; `node tools/gen-ease.mjs` writes `src/ease-data.js` (Easy = "Beginner friendly", Medium, Hard).
-- `src/progress.js` is the pure logic: XP from run points (+bonuses), 11 levels ("Pawn Pusher" 400 to "1500 Club" 1500), bronze/silver/gold mastery per opening and 21 badges. `src/progress-ui.js` is the UI. State lives in `localStorage` key `rt1500-progress`.
+- `src/progress.js` is the pure logic: XP from run points (+bonuses), 11 levels ("Pawn Pusher" 400 to "1500 Club" 1500), bronze/silver/gold mastery per opening and 29 badges (8 of them for Tactics). `src/progress-ui.js` is the UI. State lives in `localStorage` key `rt1500-progress`.
 - Tests: `npm run test:progress-unit` (node) and `npm run test:progress` (browser). Run the browser suites with `COLOR` unset (npm sets `COLOR=0`, which `tools/e2e.mjs` reads): `env -u COLOR node tools/e2e.mjs`.
 
+## Tactics (opening-linked puzzles)
+A **Tactics** tab next to **Openings** on the home screen. Each opening has its own puzzle set (about 20 real-game puzzles rated 600-1600 that start in that opening, favouring forks, pins, mates, free and trapped pieces, plus hand-made famous traps such as the Fried Liver fork, Légal's mate, the Blackburne Shilling, the Elephant and Lasker traps, and the Stafford, Englund, Budapest and Traxler tricks). Pick an opening, or **Mixed** (a round of 10 across openings, new ones first); filter by side, gambits or theme (mates, forks, pins, free pieces, trapped pieces, famous traps).
+- Flow: the opponent's setup move is animated, you find the reply (multi-move solutions: the opponent answers between your moves). A wrong move is taken back with feedback and a retry; the theme and a one-line lesson show after a solve. Any checkmating move is accepted, like Lichess.
+- Points: 100 per move you find, 25 after a wrong attempt, a hint caps that move at 5 (same as the drills), 0 if you show the solution. XP = points on the first solve of a puzzle, 20% on re-solves. Streak = puzzles in a row on the first try with no hint (breaks on a miss, hint, skip or shown solution).
+- Mastery stars per opening tactics set, scaled to the set size (set of 20: bronze = 5 solved; silver = 12 solved, 6 first try; gold = all 20, 12 first try). 8 badges (Tactician, Eagle Eyes, Tactics Machine, Sharp Shot, Combo Streak, Trap Spotter, Well Rounded, Tactics Star).
+- Data: `tools/extract-puzzles.py` (needs the ~300 MB Lichess `lichess_db_puzzle.csv.zst`, not in the repo) picks the puzzles; `node tools/build-tactics.mjs` verifies every move with chess.js, merges the hand-made traps from `tools/traps-src.mjs` (`ENGINE=1` also checks them with Stockfish) and writes `tactics/tactics.json` (~114 KB, ~40 KB gzipped). The file is only downloaded when you open the Tactics tab.
+- Tests: `npm run test:tactics-unit` (node: data integrity, move checking, points, queues, XP, stars, badges, storage) and `npm run test:tactics` (browser: lazy load, flow, retry, hint cap, solution, skip, mixed, celebrations, haptics, phone layout).
+
 ## Haptics
-`src/haptics.js`: a light tap after your move and a stronger double buzz when the computer takes one of your pieces. Android uses `navigator.vibrate`; iPhone Safari (iOS 18+) uses a hidden `<input type="checkbox" switch>` label click. On/off switch in the board & pieces panel (key `rt1500-haptics`). Test: `node tools/e2e-haptics.mjs`.
+`src/haptics.js`: a light tap after your move, a stronger double buzz when the computer takes one of your pieces, and (in Tactics) a short double blip for a wrong move. Android uses `navigator.vibrate`; iPhone Safari (iOS 18+) uses a hidden `<input type="checkbox" switch>` label click. On/off switch in the board & pieces panel (key `rt1500-haptics`). Test: `node tools/e2e-haptics.mjs`.

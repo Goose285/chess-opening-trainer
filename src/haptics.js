@@ -13,9 +13,9 @@ export const isIOS = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (naviga
 export const hapticMode = () => (typeof navigator.vibrate === 'function' ? 'vibrate' : isIOS() ? 'ios' : 'none');
 
 // patterns for navigator.vibrate (ms): light tap after your move, strong double buzz when a piece of yours is taken
-const PATTERNS = { move: 14, capture: [38, 55, 62], celebrate: [30, 40, 60] };
+const PATTERNS = { move: 14, capture: [38, 55, 62], celebrate: [30, 40, 60], wrong: [16, 50, 16] };
 // iOS has one fixed tick strength, so "stronger" = several ticks close together
-const TICKS = { move: [0], capture: [0, 85, 170], celebrate: [0, 90] };
+const TICKS = { move: [0], capture: [0, 85, 170], celebrate: [0, 90], wrong: [0, 110] };
 
 let iosLabel = null;
 function iosTick() {
@@ -26,7 +26,7 @@ function iosTick() {
   }
   iosLabel.click();
 }
-/** kind: 'move' | 'capture' | 'celebrate'. Never throws. Returns false when nothing was attempted. */
+/** kind: 'move' | 'capture' | 'celebrate' | 'wrong'. Never throws. Returns false when nothing was attempted. */
 export function haptic(kind, { force = false } = {}) {
   if (!on && !force) return false;
   try {

@@ -3,7 +3,7 @@
 import { haptic } from './haptics.js';
 import {
   LEVELS, levelInfo, levelFor, ACHIEVEMENTS, achievementById, TIER_LABEL, TIER_RULE, STAR_BONUS, applyRun, applyWatch,
-  loadState, saveState, freshState, tierOf, starsOf, recommend, dayKey,
+  loadState, saveState, freshState, tierOf, starsOf, recommend, dayKey, applyPuzzle, tacticRules,
 } from './progress.js';
 
 const $ = (s) => document.querySelector(s);
@@ -30,6 +30,16 @@ export function starsHtml(id) {
   return `<span class="stars t-${t}" title="${esc(tip)}" aria-label="${esc(t === 'none' ? 'No stars yet' : TIER_LABEL[t] + ' mastery')}">${[0, 1, 2].map((i) => `<i class="${i < n ? 'on' : ''}">★</i>`).join('')}</span>`;
 }
 
+export const tacticTier = (id) => ((state.tactics.sets[id] || {}).tier) || 'none';
+export const tacticSolved = (id) => (state.tactics.sets[id] || { solved: [] }).solved;
+export const tacticFlawless = (id) => (state.tactics.sets[id] || { flawless: [] }).flawless;
+/** ★★★ for an opening's tactics set (n = number of puzzles in it, for the tooltip) */
+export function tacticStarsHtml(id, n) {
+  const t = tacticTier(id), k = starsOf(t), rules = tacticRules(n || 1);
+  const tip = t === 'none' ? `No tactics stars yet: ${rules.bronze} for bronze` : `${TIER_LABEL[t]} tactics mastery: ${rules[t]}`;
+  return `<span class="stars t-${t}" title="${esc(tip)}" aria-label="${esc(t === 'none' ? 'No tactics stars yet' : TIER_LABEL[t] + ' tactics mastery')}">${[0, 1, 2].map((i) => `<i class="${i < k ? 'on' : ''}">★</i>`).join('')}</span>`;
+}
+
 // ------------------------------------------------------------------ header chip + strip on the setup screen
 function barHtml(info) { return `<div class="xpbar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${info.pct}"><i style="width:${info.pct}%"></i></div>`; }
 function updateChrome() {
@@ -41,8 +51,7 @@ function updateChrome() {
     b.title = `Level ${info.level.n} · ${info.level.name} · ${fmt(state.xp)} XP`;
     b.setAttribute('aria-label', `Your progress: level ${info.level.n}, ${info.level.name}, ${fmt(state.xp)} XP`);
   }
-  const s = $('#profile-strip');
-  if (s) {
+  for (const s of document.querySelectorAll('.profile-strip')) {
     const stars = Object.values(state.openings).reduce((n, o) => n + starsOf(o.tier), 0);
     const badges = Object.keys(state.ach).length;
     s.innerHTML = `<span class="ps-ico" aria-hidden="true">${info.level.icon}</span>
@@ -72,6 +81,7 @@ function renderProfile() {
   const c = { bronze: 0, silver: 0, gold: 0 };
   for (const o of Object.values(state.openings)) if (c[o.tier] !== undefined) c[o.tier]++;
   const unlocked = Object.keys(state.ach).length;
+  const tacStars = state.tactics.stars;
   const road = LEVELS.map((l) => {
     const st = l.n < info.level.n ? 'done' : l.n === info.level.n ? 'cur' : 'todo';
     return `<li class="rd-${st}"><span class="rd-dot">${st === 'done' ? '✓' : l.icon}</span><span class="rd-name"><b>${esc(l.name)}</b><em>${l.rating}</em></span><span class="rd-xp">${fmt(l.xp)} XP</span></li>`;
@@ -88,6 +98,10 @@ function renderProfile() {
     <section class="pf-stats">
       <div><b>${state.done}</b><span>lines finished</span></div><div><b>${state.perfect}</b><span>perfect lines</span></div>
       <div><b>${state.days.last === dayKey() || state.days.last === dayKey(new Date(Date.now() - 864e5)) ? state.days.streak : 0}</b><span>day streak</span></div><div><b>${state.bestStreak}</b><span>best clean streak</span></div></section>
+    <section class="pf-sec"><h3>Tactics</h3>
+      <div class="pf-tacstats"><div><b>${state.tactics.solved}</b><span>puzzles solved</span></div><div><b>${state.tactics.flawless}</b><span>first-try solves</span></div>
+      <div><b>${state.tactics.streak}</b><span>puzzle streak</span></div><div><b>${state.tactics.bestStreak}</b><span>best streak</span></div></div>
+      <p class="pf-rule">${tacStars} opening tactics set${tacStars === 1 ? '' : 's'} with a star. Solve puzzles on the Tactics tab: each solve pays its points as XP (re-solves pay 20%).</p></section>
     <section class="pf-sec"><h3>Mastery stars</h3>
       <div class="pf-tiers"><span class="tier t-bronze"><i>★</i><b>${c.bronze}</b> bronze</span><span class="tier t-silver"><i>★★</i><b>${c.silver}</b> silver</span><span class="tier t-gold"><i>★★★</i><b>${c.gold}</b> gold</span></div>
       <p class="pf-rule"><b>Bronze:</b> ${TIER_RULE.bronze}. <b>Silver:</b> ${TIER_RULE.silver}. <b>Gold:</b> ${TIER_RULE.gold}. A "clean" run is 90%+ with no hints.</p></section>
@@ -153,7 +167,13 @@ export function showRewards(result, run) {
   go();
 }
 
-const queue = []; let celebrating = false;
+const queue = []; let celebrating = false, starting = false;
+/** Start showing queued celebrations after a short beat (the overlay only appears once it has content, so a quick tap can't skip an item). */
+function startCelebrations() {
+  if (!queue.length || celebrating || starting) return;
+  starting = true;
+  setTimeout(() => { starting = false; showNext(); }, reduced() ? 0 : 450);
+}
 function confetti(host) {
   if (reduced()) return;
   const colors = ['#5ad19a', '#3aa7ff', '#ffd54f', '#fb7185', '#b794f6', '#ffb86b'];
@@ -195,7 +215,7 @@ export function celebrate(result, run) {
   }
   for (const id of result.newAch) { const a = achievementById(id); queue.push({ kind: 'badge', icon: a.icon, kicker: 'New badge', title: a.name, sub: a.desc, xp: a.xp }); }
   if (result.levelUp) { const l = result.levelUp.to; queue.push({ kind: 'level', icon: l.icon, kicker: `Level ${l.n} reached`, title: l.name, sub: l.n === LEVELS.length ? 'Welcome to the 1500 Club. You made it to the end of the road!' : `You now play like a ${l.rating}. Keep climbing!`, xp: 0 }); }
-  if (queue.length && !celebrating) { $('#celebrate').classList.remove('hidden'); setTimeout(showNext, reduced() ? 0 : 450); }
+  startCelebrations();
 }
 let toastTimer = null;
 /** Small non-blocking banner (used while watching an opening, where a full-screen celebration would be in the way). */
@@ -216,6 +236,23 @@ export function recordRun(run) {
   state = s; persist();
   return result;
 }
+export function recordPuzzle(pz) {
+  const { state: s, result } = applyPuzzle(state, pz, ctxExtra);
+  if (s !== state) { state = s; persist(); }
+  return result;
+}
+/** Celebrations for a solved puzzle (star / badges / level). Same overlay as lines; XP for the solve itself is shown in the puzzle panel. */
+export function celebratePuzzle(result, pz) {
+  if (!result.counted) return;
+  if (result.tierUp) {
+    const t = result.tierUp.to;
+    const rules = tacticRules(pz.setSize);
+    queue.push({ kind: 'star', icon: t === 'gold' ? '🥇' : t === 'silver' ? '🥈' : '🥉', kicker: 'Tactics star', title: `${TIER_LABEL[t]} tactics star!`, sub: `${pz.openingName}: ${t === 'gold' ? 'you have solved the whole set.' : rules[t === 'bronze' ? 'silver' : 'gold'] + ' for the next star.'}`, xp: STAR_BONUS[t] });
+  }
+  for (const id of result.newAch) { const a = achievementById(id); queue.push({ kind: 'badge', icon: a.icon, kicker: 'New badge', title: a.name, sub: a.desc, xp: a.xp }); }
+  if (result.levelUp) { const l = result.levelUp.to; queue.push({ kind: 'level', icon: l.icon, kicker: `Level ${l.n} reached`, title: l.name, sub: l.n === LEVELS.length ? 'Welcome to the 1500 Club. You made it to the end of the road!' : `You now play like a ${l.rating}. Keep climbing!`, xp: 0 }); }
+  startCelebrations();
+}
 export function recordWatch(openingId) {
   const { state: s, result } = applyWatch(state, openingId, ctxExtra);
   if (s.watched.length !== state.watched.length) { state = s; persist(); }
@@ -228,7 +265,7 @@ export function initProgress(cfg) {
   state = loadState(localStorage);
   updateChrome();
   $('#profile-btn').addEventListener('click', openProfile);
-  $('#profile-strip').addEventListener('click', openProfile);
+  document.querySelectorAll('.profile-strip').forEach((b) => b.addEventListener('click', openProfile));
   $('#profile-x').addEventListener('click', closeProfile);
   $('#profile-close').addEventListener('click', closeProfile);
   $('#profile').addEventListener('click', (e) => { if (e.target.id === 'profile') closeProfile(); });

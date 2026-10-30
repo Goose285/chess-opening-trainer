@@ -51,7 +51,7 @@ check('header shows Lv 1 and the header fits on one line', (await page.textConte
 check('profile strip on the list shows level 1 Pawn Pusher', /Level 1 · Pawn Pusher/.test(await page.textContent('#profile-strip')));
 await page.click('#profile-btn');
 await page.waitForSelector('#profile:not(.hidden)');
-check('profile panel: 11-step road, 21 badges all locked, 4 stats', (await page.$$('.road li')).length === 11 && (await page.$$('.bdg')).length === 21 && (await page.$$('.bdg.got')).length === 0 && (await page.$$('.pf-stats div')).length === 4);
+check('profile panel: 11-step road, 29 badges all locked, 4 stats', (await page.$$('.road li')).length === 11 && (await page.$$('.bdg')).length === 29 && (await page.$$('.bdg.got')).length === 0 && (await page.$$('.pf-stats div')).length === 4);
 check('profile panel fits a phone (no sideways scroll)', await page.evaluate(() => { const c = document.querySelector('#profile .modal-card'); return c.scrollWidth <= c.clientWidth + 1; }));
 await page.screenshot({ path: '/tmp/prog-profile-fresh.png' });
 await page.keyboard.press('Escape'); check('Escape closes the panel', await page.$eval('#profile', (e) => e.classList.contains('hidden')));
