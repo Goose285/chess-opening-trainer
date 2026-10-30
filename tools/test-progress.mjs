@@ -85,7 +85,10 @@ check('"Start here" recommends the easiest sound-enough gambits first', rec0.key
 const allEasy = (() => { let t = P.freshState(); for (const id of by('easy')) t = P.applyRun(t, run({ openingId: id }), ex, NOW).state; return t; })();
 check('once every easy opening is started it moves on to medium', P.recommend(allEasy, OPENINGS, (id) => EASE[id], 3).key === 'medium');
 // the grading system itself is untouched
-import { GRADES } from '../src/grading.js';
+import { GRADES, HINT_POINTS, hintCap } from '../src/grading.js';
 check('grading points unchanged (100/100/90/75/40/15/0)', Object.values(GRADES).map((x) => x.points).join() === '100,100,90,75,40,15,0');
+
+check('hint cap: a move after a hint scores at most 5 (book 100 -> 5, mistake 15 -> 5, blunder 0 stays 0, nothing is raised)', HINT_POINTS === 5 && Object.values(GRADES).every((g) => hintCap(g.points) === Math.min(g.points, 5)) && hintCap(100) === 5 && hintCap(15) === 5 && hintCap(0) === 0 && hintCap(3) === 3);
+check('XP follows the lower hint points (8 hinted book moves = 40 pts of XP, not 800)', P.applyRun(P.freshState(), run({ points: 8 * 5, pct: 5, perfect: false, hints: 8 }), ex, NOW).result.gained.base === 40);
 
 console.log(ok ? '\nALL PASS' : '\nSOME FAILED'); process.exit(ok ? 0 : 1);

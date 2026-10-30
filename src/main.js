@@ -12,7 +12,7 @@ import { LORE } from './lore-text.js';
 import { META, LEVELS, levelOf, levelKey, ratingText, STYLES, styleOf, STYLE, EASE, EASE_LEVELS, easeInfo } from './meta.js';
 import { haptic } from './haptics.js';
 import { initProgress, recordRun, recordWatch, showRewards, celebrate, starsHtml, renderStartHere, onProgressChange, getProgress } from './progress-ui.js';
-import { GRADES, centipawnLoss, gradeFromLoss, formatEval, uciToSan, summaryRating, capEval } from './grading.js';
+import { GRADES, HINT_POINTS, hintCap, centipawnLoss, gradeFromLoss, formatEval, uciToSan, summaryRating, capEval } from './grading.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
@@ -365,7 +365,7 @@ async function handleUserMove(from, to) {
   ];
   if (!engine.isStockfish) chips.push(chip('Engine', 'basic (approx.)'));
   const showKeep = ['best', 'excellent', 'good'].includes(grade.key);
-  setFeedback(grade.key, grade.icon, `${grade.label} — but not book`, `<b>${esc(mv.san)}</b> is outside the line. ${tail}<br>Expected book move${bookSans.length > 1 ? 's' : ''}: <b>${esc(expected)}</b>.${s.opening.gambit ? '<span class="gnote">Gambit line: book moves always count as Book, even when they give up material. Only moves outside the book are engine-graded.</span>' : ''}`, chips, [
+  setFeedback(grade.key, grade.icon, `${grade.label} — but not book`, `<b>${esc(mv.san)}</b> is outside the line. ${tail}${s.hintUsed ? ` <b>(hint)</b> Because you used a hint, this move scores at most ${HINT_POINTS} pts.` : ''}<br>Expected book move${bookSans.length > 1 ? 's' : ''}: <b>${esc(expected)}</b>.${s.opening.gambit ? '<span class="gnote">Gambit line: book moves always count as Book, even when they give up material. Only moves outside the book are engine-graded.</span>' : ''}`, chips, [
     { label: '↺ Retry', cls: 'primary', fn: retry },
     { label: 'Show book move & continue', fn: () => continueWithBook() },
     ...(showKeep ? [{ label: 'Keep my move (leave book)', cls: 'ghost', fn: () => keepMyMove() }] : []),
@@ -415,7 +415,7 @@ async function commitUserMove(mv, info) {
   pushHistory(made, 'user');
   s.lastMove = [made.from, made.to];
   let pts = info.grade.points;
-  if (info.hint) pts = Math.min(pts, 50);
+  if (info.hint) pts = hintCap(pts);
   s.points += pts;
   const clean = ['book', 'best', 'excellent', 'good'].includes(info.grade.key) && !info.retried && !info.hint;
   if (clean) { s.firstTry++; s.streak++; s.maxStreak = Math.max(s.maxStreak, s.streak); } else s.streak = 0;
@@ -425,11 +425,11 @@ async function commitUserMove(mv, info) {
   addMoveToList(made, 'user', info.grade);
   updateStats();
   if (info.grade.key === 'book' && !info.retried) {
-    setFeedback('book', GRADES.book.icon, info.hint ? 'Book move (hint used)' : 'Book move!', `<b>${esc(made.san)}</b> is in the book.${info.hint ? ' Hint used: max 50 pts for this move.' : ''}`, null, null);
+    setFeedback('book', GRADES.book.icon, info.hint ? 'Book move (hint)' : 'Book move!', `<b>${esc(made.san)}</b> is in the book.${info.hint ? ` <b>(hint)</b> You used a hint, so this move scores <b>${pts} pts</b> instead of 100.` : ''}`, null, null);
   } else if (info.revealed) {
-    setFeedback(info.grade.key, info.grade.icon, 'Book move played', `The book move was <b>${esc(made.san)}</b>. This move scored <b>${esc(info.grade.label)}</b> (${pts} pts).`);
+    setFeedback(info.grade.key, info.grade.icon, 'Book move played', `The book move was <b>${esc(made.san)}</b>. This move scored <b>${esc(info.grade.label)}</b> (${pts} pts${info.hint ? ', hint' : ''}).${info.hint ? ` <b>(hint)</b> Capped at ${HINT_POINTS} pts.` : ''}`);
   } else if (info.retried) {
-    setFeedback('book', GRADES.book.icon, 'Book move — corrected', `<b>${esc(made.san)}</b> is the book move. The move scored as your first try: <b>${esc(info.grade.label)}</b> (${pts} pts).`);
+    setFeedback('book', GRADES.book.icon, 'Book move — corrected', `<b>${esc(made.san)}</b> is the book move. The move scored as your first try: <b>${esc(info.grade.label)}</b> (${pts} pts${info.hint ? ', hint' : ''}).${info.hint ? ` <b>(hint)</b> Capped at ${HINT_POINTS} pts.` : ''}`);
   }
   await sleep(380);
 }
@@ -447,7 +447,7 @@ $('#hint-btn').addEventListener('click', () => {
   s.hintUsed = true;
   const shapes = sans.map((san, i) => { const g = new Chess(s.game.fen()); const m = g.move(san); return { orig: m.from, dest: m.to, brush: i === 0 ? 'green' : 'blue' }; });
   cg.set({ drawable: { autoShapes: shapes } });
-  setFeedback('hint', '💡', 'Hint', `Book move${sans.length > 1 ? 's' : ''} here: <b>${esc(sans.join(', '))}</b> (arrow${sans.length > 1 ? 's' : ''} on the board). This move is capped at 50 points.`);
+  setFeedback('hint', '💡', 'Hint', `Book move${sans.length > 1 ? 's' : ''} here: <b>${esc(sans.join(', '))}</b> (arrow${sans.length > 1 ? 's' : ''} on the board). This move will score just ${HINT_POINTS} points.`);
   $('#hint-btn').disabled = true;
 });
 $('#restart-btn').addEventListener('click', () => { if (session) startRun(selectedId === 'random' ? undefined : session.opening); });

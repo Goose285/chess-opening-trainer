@@ -11,6 +11,10 @@ export const GRADES = {
   blunder:    { key: 'blunder',    label: 'Blunder',    points: 0,   icon: '??', desc: 'Throws away a lot (250+ cp).' },
 };
 
+/** A move made after a hint was shown for it scores at most this many points (a weaker move that normally scores less keeps the lower score). */
+export const HINT_POINTS = 5;
+export const hintCap = (points) => Math.min(points, HINT_POINTS);
+
 const EVAL_CAP = 800; // evaluations beyond ±8 pawns are treated as equally decisive
 
 export const capEval = (cp) => Math.max(-EVAL_CAP, Math.min(EVAL_CAP, cp));

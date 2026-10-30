@@ -21,7 +21,8 @@
     "test:progress-unit": "node tools/test-progress.mjs",
     "test:progress": "node tools/e2e-progress.mjs",
     "gen:ease": "node tools/gen-ease.mjs",
-    "test:haptics": "node tools/e2e-haptics.mjs"
+    "test:haptics": "node tools/e2e-haptics.mjs",
+    "test:hint": "node tools/e2e-hint.mjs"
   },
   "dependencies": {
     "chess.js": "^1.4.0",

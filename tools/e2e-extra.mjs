@@ -19,12 +19,12 @@ const shapes = await page.evaluate(() => document.querySelectorAll('#board svg.c
 check('hint draws arrow(s) + text', shapes > 0 && /Hint/.test(await page.textContent('#fb-title')));
 const sq = async (k) => page.evaluate((k) => { const b = document.querySelector('#board cg-board').getBoundingClientRect(); const f = k.charCodeAt(0) - 97, r = +k[1] - 1; return { x: b.left + (7 - f + .5) * b.width / 8, y: b.top + (r + .5) * b.height / 8 }; }, k);
 const drag = async (a, b) => { const A = await sq(a), B = await sq(b); await page.mouse.move(A.x, A.y); await page.mouse.down(); await page.mouse.move(B.x, B.y, { steps: 6 }); await page.mouse.up(); };
-// play the book move with hint -> 50 pts max
+// play the book move with hint -> exactly 5 pts
 const bm = await page.evaluate(() => { const ss = window.__ot.getSession(); const g = new window.__ot.Chess(ss.game.fen()); const san = window.__ot.bookMoves(ss.book, ss.game.fen())[0]; const m = g.move(san); return { from: m.from, to: m.to }; });
 await drag(bm.from, bm.to);
 await page.waitForFunction(() => window.__ot.getSession().records.length === 1, null, { timeout: 15000 });
 const pts = await page.evaluate(() => window.__ot.getSession().records[0].points);
-check('hint caps move at 50 pts', pts === 50, String(pts));
+check('hint makes the book move score exactly 5 pts', pts === 5, String(pts));
 await page.waitForFunction(() => ['user', 'over'].includes(window.__ot.getSession().phase), null, { timeout: 15000 });
 // now a sound non-book move if available: try a rook-pawn push as black (a6/h6) and see grading, then keep
 const mv = await page.evaluate(() => { const ss = window.__ot.getSession(); const g = new window.__ot.Chess(ss.game.fen()); const book = window.__ot.bookMoves(ss.book, ss.game.fen()); const c = g.moves({ verbose: true }).filter((m) => !book.includes(m.san)); return c.length ? { from: c[0].from, to: c[0].to } : null; });
