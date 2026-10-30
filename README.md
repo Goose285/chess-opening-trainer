@@ -60,26 +60,33 @@ ONLY=gambit THRESH=120 npm run audit   # audit only the gambits (sacrifices are 
 
 To add a line, append `{ name, moves: 'e4 e5 Nf3 ...' }` (SAN, no move numbers) to an opening in `src/openings.js` and rebuild. Lines merge into a position graph, so shared prefixes and transpositions just work.
 
-## Licences
+## Licences (and selling the app)
 
-chess.js (BSD-2), chessground + cburnett pieces (GPL-3.0+), Stockfish.js 19 (GPL-3.0). This project is therefore distributed under GPL-3.0-or-later; see `vendor/stockfish/LICENSE-stockfish-GPLv3.txt`.
+**Road to 1500 is free software: GPL-3.0-or-later** (full text in [`LICENSE`](LICENSE)). It has to be, because it bundles
+chessground (GPL-3.0+) and Stockfish.js (GPL-3.0). You may sell copies of a GPL program; what the GPL requires is that everyone who gets a copy also gets the licence and the source
+and the same freedoms. Everything we ship from other people is listed with its licence, copyright and what we do about it in
+[`THIRD_PARTY/NOTICES.md`](THIRD_PARTY/NOTICES.md), and the same list is in the app under **Home / Profile -> About & licenses**.
 
-**Puzzles** (`tactics/tactics.json`): selected from the [Lichess open puzzle database](https://database.lichess.org/#puzzles), released under CC0 (public domain); credit and details in [`THIRD_PARTY/LICHESS-PUZZLES.md`](THIRD_PARTY/LICHESS-PUZZLES.md).
-
-**Piece sets** (`pieces/`, copied unmodified from lichess-org/lila `public/piece/`): full credits and licences are in [`THIRD_PARTY/PIECE-SET-CREDITS.md`](THIRD_PARTY/PIECE-SET-CREDITS.md).
-
-| Set | Licence | Commercial use |
+| Component | Licence | Commercial use |
 |---|---|---|
-| cburnett (Colin M. L. Burnett) | GPLv2+ | yes, under GPL terms |
-| merida (Armando Hernandez Marroquin) | GPLv2+ | yes, under GPL terms |
-| pixel (therealqtpi) | AGPLv3+ | yes, under AGPL terms |
-| kosal (Kosal Sen / Philatype) | CC BY 4.0 | yes, with attribution |
-| alpha (Eric Bentzen) | free for personal, non-commercial use | **no** |
-| california (Jerry S.) | CC BY-NC-SA 4.0 | **no** |
-| maestro, fresca (sadsnake1) | CC BY-NC-SA 4.0 | **no** |
-| horsey (cham, michael1241) | CC BY-NC-SA 4.0 | **no** |
+| Our code, notes, logo | GPL-3.0-or-later | yes |
+| Stockfish.js 19 (+ its NNUE net, CC0) | GPL-3.0 | yes, with source |
+| chessground | GPL-3.0-or-later | yes, with source |
+| chess.js | BSD-2-Clause | yes, keep the notice |
+| Piece sets cburnett, merida | GPLv2+ | yes, under GPL |
+| Piece set pixel | AGPLv3+ | yes, under AGPL (source public) |
+| Piece set kosal | CC BY 4.0 | yes, with attribution |
+| Lichess puzzles, opening names | CC0 | yes |
+| Fonts / sounds | none bundled | n/a |
 
-The five non-commercial sets are fine for a free hobby site; remove them (see the credits file) before monetising or selling the app.
+The five piece sets that were only licensed for personal / non-commercial use (alpha, california, maestro, fresca, horsey) were **removed on
+2026-10-30**; details in [`THIRD_PARTY/PIECE-SET-CREDITS.md`](THIRD_PARTY/PIECE-SET-CREDITS.md). `npm run test:licenses` fails if a non-approved
+piece set or a missing notice sneaks back in. Never add artwork, fonts, sounds or data without recording its licence there first.
+
+Releasing a build (web, app store, desktop): include `LICENSE` and `THIRD_PARTY/`, keep the About screen, and offer the source of that exact
+build (the repository link). Do not add terms that take away GPL rights. This is a practical summary, not legal advice.
+
+**Puzzles** (`tactics/tactics.json`): selected from the [Lichess open puzzle database](https://database.lichess.org/#puzzles), CC0; details in [`THIRD_PARTY/LICHESS-PUZZLES.md`](THIRD_PARTY/LICHESS-PUZZLES.md).
 
 
 ## Gambits

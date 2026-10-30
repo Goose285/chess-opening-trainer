@@ -42,6 +42,7 @@
     <section id="hero" class="hero" aria-label="Suggested opening"></section>
     <button id="profile-strip" class="profile-strip" type="button" aria-label="Open your progress"></button>
     <div id="home-rails"></div>
+    <footer class="home-foot"><button type="button" class="linklike" data-open-about>About &amp; licenses</button> · <a href="https://github.com/Goose285/chess-opening-trainer" target="_blank" rel="noopener">Source code</a> · Free software (GPL-3.0+)</footer>
   </main>
 
   <!-- ============ OPENINGS ============ -->
@@ -337,7 +338,25 @@
       </div>
       <div id="profile-body" class="learn-body profile-body"></div>
       <div class="modal-actions learn-actions">
+        <button type="button" class="btn" data-open-about>About &amp; licenses</button>
         <button id="profile-close" class="btn primary">Keep climbing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ABOUT & LICENSES ============ -->
+  <div id="about" class="modal about-modal hidden" role="dialog" aria-modal="true" aria-labelledby="about-title">
+    <div class="modal-card learn-card theme-card about-card">
+      <div class="learn-head">
+        <div>
+          <div class="eyebrow">Free software</div>
+          <h2 id="about-title">About &amp; licenses</h2>
+        </div>
+        <button id="about-x" class="x-btn" aria-label="Close">✕</button>
+      </div>
+      <div id="about-body" class="learn-body about-body"></div>
+      <div class="modal-actions learn-actions">
+        <button id="about-close" class="btn primary">Close</button>
       </div>
     </div>
   </div>

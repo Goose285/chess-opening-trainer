@@ -27,7 +27,9 @@
     "test:tactics-unit": "node tools/test-tactics.mjs",
     "test:tactics": "node tools/e2e-tactics.mjs",
     "test:stepper": "node tools/e2e-stepper.mjs",
-    "test:nav": "node tools/e2e-nav.mjs"
+    "test:nav": "node tools/e2e-nav.mjs",
+    "test:licenses": "node tools/check-licenses.mjs",
+    "test:about": "node tools/e2e-about.mjs"
   },
   "dependencies": {
     "chess.js": "^1.4.0",
@@ -37,6 +39,14 @@
     "esbuild": "*",
     "stockfish": "^19.0.1",
     "playwright-core": "*"
+  },
+  "homepage": "https://goose285.github.io/chess-opening-trainer/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Goose285/chess-opening-trainer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Goose285/chess-opening-trainer/issues"
   },
   "license": "GPL-3.0-or-later"
 }

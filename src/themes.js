@@ -11,6 +11,8 @@ const GLOW = 'drop-shadow(0 0 1px rgba(170,238,255,.95)) drop-shadow(0 0 3px rgb
 const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch { return {}; } };
 let state = (() => {
   const s = load();
+  // a saved choice that no longer exists (e.g. a piece set that was removed) quietly falls back to the default
+  if (s.pieces && !PIECE_SETS.some((p) => p.id === s.pieces)) { try { localStorage.setItem(KEY, JSON.stringify({ ...s, pieces: DEFAULT_PIECES })); } catch {} }
   return { board: BOARDS.some((b) => b.id === s.board) ? s.board : DEFAULT_BOARD, pieces: PIECE_SETS.some((p) => p.id === s.pieces) ? s.pieces : DEFAULT_PIECES };
 })();
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {} };
@@ -103,7 +105,7 @@ function renderPicker() {
         <div class="eyebrow">Your look</div>
         <div class="tp-name" id="tp-board-name">${esc(b.name)}</div>
         <div class="tp-name sub" id="tp-piece-name">${esc(ps.name)} pieces</div>
-        <div class="tp-lic ${ps.commercial ? 'ok' : 'nc'}" id="tp-lic">${ps.commercial ? '✓' : '⚠'} ${esc(ps.license)}</div>
+        <div class="tp-lic" id="tp-lic">${esc(ps.author)} · ${esc(ps.license)}</div>
       </div>
     </div>
     <div class="theme-scroll">
@@ -119,9 +121,9 @@ function renderPicker() {
       </div>
       <h3 class="theme-h">Pieces</h3>
       <div class="theme-grid pieces" role="radiogroup" aria-label="Piece set" id="piece-opts">
-        ${PIECE_SETS.map((p) => `<button type="button" role="radio" aria-checked="${p.id === ps.id}" class="topt${p.id === ps.id ? ' on' : ''}" data-pieces="${p.id}"><span class="po-pcs" style="background-color:${b.light};background-image:${boardImage(b)}">${SAMPLE.map((c) => `<i class="${c[0] === 'b' ? 'black' : ''}" style="background-image:url('${pieceUrl(p.id, c)}')"></i>`).join('')}</span><span class="topt-name">${esc(p.name)}</span><span class="topt-lic ${p.commercial ? 'ok' : 'nc'}">${p.commercial ? '✓' : '⚠'} ${esc(p.license)}</span></button>`).join('')}
+        ${PIECE_SETS.map((p) => `<button type="button" role="radio" aria-checked="${p.id === ps.id}" class="topt${p.id === ps.id ? ' on' : ''}" data-pieces="${p.id}"><span class="po-pcs" style="background-color:${b.light};background-image:${boardImage(b)}">${SAMPLE.map((c) => `<i class="${c[0] === 'b' ? 'black' : ''}" style="background-image:url('${pieceUrl(p.id, c)}')"></i>`).join('')}</span><span class="topt-name">${esc(p.name)}</span><span class="topt-lic">${esc(p.license)}</span></button>`).join('')}
       </div>
-      <p class="theme-note">⚠ marks sets that are free for personal / non-commercial use only. Credits: <a href="THIRD_PARTY/PIECE-SET-CREDITS.md" target="_blank" rel="noopener">piece set licences</a>.</p>
+      <p class="theme-note">Piece artwork credits and licences: <button type="button" class="linklike" data-open-about>About &amp; licenses</button>.</p>
     </div>`;
   const sc = $('#theme-body').querySelector('.theme-scroll'); if (sc) sc.scrollTop = prev;
 }

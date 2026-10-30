@@ -22,7 +22,7 @@ let bad = [];
 for (const f of files) { const r = await ctx.request.get(new URL(f, URL_).href); if (!r.ok() || !/svg/.test(r.headers()['content-type'] || '') || (await r.body()).length < 100) bad.push(f); }
 check(`all ${files.length} piece SVGs (${PIECE_SETS.length} sets × 12) load`, bad.length === 0, bad.slice(0, 3).join(','));
 const cr = await ctx.request.get(new URL('THIRD_PARTY/PIECE-SET-CREDITS.md', URL_).href); const crt = await cr.text();
-check('credits file is published and names every set + licence', cr.ok() && PIECE_SETS.every((s) => crt.toLowerCase().includes(s.id) && crt.toLowerCase().includes(s.license.split(' ')[0].toLowerCase())));
+check('credits file is published and names every set + licence', cr.ok() && PIECE_SETS.every((s) => crt.toLowerCase().includes(s.id) && crt.includes(s.author.split(' (')[0])));
 
 // ---- defaults + picker
 check('theme button in the header', await page.$('#theme-btn') !== null);
@@ -32,7 +32,8 @@ check(`picker lists ${BOARDS.length} boards and ${PIECE_SETS.length} piece sets`
 check('the requested 7 boards are present with the requested colours', ['wood', 'green', 'ocean', 'neon', 'purple', 'desert', 'ice'].length === 7 && [['wood', '#f0d9b5', '#b58863'], ['green', '#eeeed2', '#769656'], ['ocean', '#dee3e6', '#8ca2ad'], ['neon', '#3a4660', '#1c2333'], ['purple', '#e8dff5', '#8e6fb5'], ['desert', '#f6e3c5', '#d2774c'], ['ice', '#e9eef2', '#5d7a91']].every(([id, l, d]) => { const b = BOARDS.find((x) => x.id === id); return b && b.light === l && b.dark === d; }));
 check('every option has a live mini preview', (await page.$$('#board-opts .bo-mini')).length === BOARDS.length && (await page.$$('#piece-opts .po-pcs i')).length === PIECE_SETS.length * 6 && (await page.$('.theme-preview .tp-board')) !== null);
 check('current board/pieces are marked selected', (await page.$eval('#board-opts .topt.on', (e) => e.dataset.board)) === 'original' && (await page.$eval('#piece-opts .topt.on', (e) => e.dataset.pieces)) === 'cburnett');
-check('non-commercial sets are flagged in the picker', await page.$$eval('#piece-opts .topt-lic.nc', (l) => l.length) === PIECE_SETS.filter((s) => !s.commercial).length);
+check('picker has no warning icons and lists only the four commercial-OK sets', !/⚠/.test(await page.textContent('#theme')) && (await page.$$('#piece-opts .topt')).length === 4 && PIECE_SETS.map((s) => s.id).join() === 'cburnett,merida,pixel,kosal');
+check('every piece option shows its licence', (await page.$$eval('#piece-opts .topt-lic', (l) => l.map((x) => x.textContent.trim()))).join() === 'GPLv2+,GPLv2+,AGPLv3+,CC BY 4.0');
 
 // ---- every board applies to the page
 for (const b of BOARDS) {
@@ -83,9 +84,9 @@ await page.evaluate(() => localStorage.setItem('rt1500-theme', '{"board":"nope",
 check('a corrupt saved theme falls back to the default', (await root('--sq-light')) === '#b58863');
 
 // ---- Watch-it-first board
-await page.evaluate(() => localStorage.setItem('rt1500-theme', JSON.stringify({ board: 'purple', pieces: 'horsey' }))); await page.reload(); await page.waitForSelector('.ocard');
+await page.evaluate(() => localStorage.setItem('rt1500-theme', JSON.stringify({ board: 'purple', pieces: 'merida' }))); await page.reload(); await page.waitForSelector('.ocard');
 await page.click('.ocard[data-id="italian"] .mini[data-act="watch"]'); await page.waitForSelector('#demo-board piece');
-check('Watch board uses the saved board + pieces', (await page.evaluate(() => getComputedStyle(document.querySelector('#demo-board cg-board')).backgroundColor)) === hex('#e8dff5') && /horsey\/wP\.svg/.test(await pieceImg('#demo-board piece.pawn.white')));
+check('Watch board uses the saved board + pieces', (await page.evaluate(() => getComputedStyle(document.querySelector('#demo-board cg-board')).backgroundColor)) === hex('#e8dff5') && /merida\/wP\.svg/.test(await pieceImg('#demo-board piece.pawn.white')));
 await page.click('#demo-next'); await page.click('#demo-next'); await page.waitForTimeout(500);
 const dArrow = await page.evaluate(() => { const l = document.querySelector('#demo-board .cg-shapes line'); return l && l.getAttribute('stroke'); });
 check('Watch arrows use the board arrow colours', dArrow === '#1e8e3e' || dArrow === '#c62828', String(dArrow));

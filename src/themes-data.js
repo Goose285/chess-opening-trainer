@@ -14,17 +14,13 @@ export const BOARDS = [
 ];
 export const DEFAULT_BOARD = 'original';
 
-// Licences come from lichess-org/lila COPYING.md (checked 2026-10-29); see THIRD_PARTY/PIECE-SET-CREDITS.md.
-// commercial = may be used in a commercial product (with the stated conditions); false = non-commercial only.
+// Only piece sets whose licences allow commercial use are shipped (see THIRD_PARTY/PIECE-SET-CREDITS.md and
+// tools/check-licenses.mjs, which fails if a set is added without being on the allow-list).
+// Licences come from lichess-org/lila COPYING.md and each set's own repository (checked 2026-10-30).
 export const PIECE_SETS = [
-  { id: 'cburnett', name: 'Cburnett', author: 'Colin M. L. Burnett', license: 'GPLv2+', commercial: true },
-  { id: 'merida', name: 'Merida', author: 'Armando Hernandez Marroquin', license: 'GPLv2+', commercial: true },
-  { id: 'alpha', name: 'Alpha', author: 'Eric Bentzen', license: 'Free for personal, non-commercial use', commercial: false },
-  { id: 'california', name: 'California', author: 'Jerry S.', license: 'CC BY-NC-SA 4.0', commercial: false },
-  { id: 'maestro', name: 'Maestro', author: 'sadsnake1', license: 'CC BY-NC-SA 4.0', commercial: false },
-  { id: 'fresca', name: 'Fresca', author: 'sadsnake1', license: 'CC BY-NC-SA 4.0', commercial: false },
-  { id: 'pixel', name: 'Pixel', author: 'therealqtpi', license: 'AGPLv3+', commercial: true },
-  { id: 'horsey', name: 'Horsey', author: 'cham, michael1241', license: 'CC BY-NC-SA 4.0', commercial: false },
-  { id: 'kosal', name: 'Kosal', author: 'Kosal Sen (Philatype)', license: 'CC BY 4.0', commercial: true },
+  { id: 'cburnett', name: 'Cburnett', author: 'Colin M. L. Burnett', license: 'GPLv2+' },
+  { id: 'merida', name: 'Merida', author: 'Armando Hernandez Marroquin', license: 'GPLv2+' },
+  { id: 'pixel', name: 'Pixel', author: 'therealqtpi', license: 'AGPLv3+' },
+  { id: 'kosal', name: 'Kosal', author: 'Kosal Sen (Philatype)', license: 'CC BY 4.0' },
 ];
 export const DEFAULT_PIECES = 'cburnett';
