@@ -1,7 +1,7 @@
 {
-  "name": "Road to 1500",
-  "short_name": "Road to 1500",
-  "description": "Learn the gambits that win games on the road to 1500.",
+  "name": "Gambiteer",
+  "short_name": "Gambiteer",
+  "description": "Gambiteer: your road to 1500. Learn the gambits that win games.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

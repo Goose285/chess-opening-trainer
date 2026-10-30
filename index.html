@@ -4,16 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#14181f">
-  <title>Road to 1500 — learn the gambits that win games</title>
-  <meta name="description" content="Road to 1500: learn the gambits that win games on the road to 1500. Practise 48 openings move by move and solve opening tactics puzzles, earn XP and climb the ranks, graded by Stockfish.">
-  <meta name="application-name" content="Road to 1500">
-  <meta name="apple-mobile-web-app-title" content="Road to 1500">
+  <title>Gambiteer — Your road to 1500</title>
+  <meta name="description" content="Gambiteer, your road to 1500: learn the gambits that win games. Practise 48 openings move by move and solve opening tactics puzzles, earn XP and climb the ranks, graded by Stockfish.">
+  <meta name="application-name" content="Gambiteer">
+  <meta name="apple-mobile-web-app-title" content="Gambiteer">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="format-detection" content="telephone=no">
-  <meta property="og:title" content="Road to 1500">
-  <meta property="og:description" content="Learn the gambits that win games on the road to 1500.">
+  <meta property="og:title" content="Gambiteer — Your road to 1500">
+  <meta property="og:description" content="Learn the gambits that win games. Your road to 1500.">
   <meta property="og:image" content="icons/icon-512.png">
   <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -27,7 +27,7 @@
 </head>
 <body>
   <header class="top">
-    <button class="brand" id="brand-home" type="button" aria-label="Road to 1500, home"><img class="logo" src="icons/favicon.svg" alt="" width="32" height="32"><span class="wordmark"><span class="wm-pre">Road to </span><b>1500</b></span></button>
+    <button class="brand" id="brand-home" type="button" aria-label="Gambiteer, home"><img class="logo" src="icons/favicon.svg" alt="" width="32" height="32"><span class="wordmark"><span class="wm-pre">Gambit</span><b>eer</b></span><span class="tagline">Your road to 1500</span></button>
     <div class="top-right">
       <div id="engine-pill" class="pill pill-wait" title="Engine status"><i></i><span>Loading engine…</span></div>
       <button id="streak-chip" class="chip-btn streak off" type="button" aria-label="Day streak: 0" title="Your day streak"><span aria-hidden="true">🔥</span><b>0</b></button>
@@ -38,11 +38,11 @@
 
   <!-- ============ HOME ============ -->
   <main id="home" class="screen hidden" aria-label="Home">
-    <div class="intro sr-only"><h1>Learn the gambits that win games on the road to 1500</h1></div>
+    <div class="intro sr-only"><h1>Gambiteer: your road to 1500. Learn the gambits that win games</h1></div>
     <section id="hero" class="hero" aria-label="Suggested opening"></section>
     <button id="profile-strip" class="profile-strip" type="button" aria-label="Open your progress"></button>
     <div id="home-rails"></div>
-    <footer class="home-foot"><button type="button" class="linklike" data-open-about>About &amp; licenses</button> · <a href="https://github.com/Goose285/chess-opening-trainer" target="_blank" rel="noopener">Source code</a> · Free software (GPL-3.0+)</footer>
+    <footer class="home-foot"><button type="button" class="linklike" data-open-feedback>Send feedback / suggest a feature</button> · <button type="button" class="linklike" data-open-about>About &amp; licenses</button> · <a href="https://github.com/Goose285/chess-opening-trainer" target="_blank" rel="noopener">Source code</a> · Free software (GPL-3.0+)</footer>
   </main>
 
   <!-- ============ OPENINGS ============ -->
@@ -332,12 +332,13 @@
       <div class="learn-head">
         <div>
           <div class="eyebrow">Your progress</div>
-          <h2 id="profile-title">Road to 1500</h2>
+          <h2 id="profile-title">Gambiteer</h2>
         </div>
         <button id="profile-x" class="x-btn" aria-label="Close">✕</button>
       </div>
       <div id="profile-body" class="learn-body profile-body"></div>
       <div class="modal-actions learn-actions">
+        <button type="button" class="btn" data-open-feedback>💬 Feedback</button>
         <button type="button" class="btn" data-open-about>About &amp; licenses</button>
         <button id="profile-close" class="btn primary">Keep climbing</button>
       </div>
@@ -357,6 +358,52 @@
       <div id="about-body" class="learn-body about-body"></div>
       <div class="modal-actions learn-actions">
         <button id="about-close" class="btn primary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FEEDBACK ============ -->
+  <div id="fbsheet" class="modal about-modal hidden" role="dialog" aria-modal="true" aria-labelledby="fb-title">
+    <div class="modal-card learn-card theme-card feedback-card">
+      <div class="learn-head">
+        <div>
+          <div class="eyebrow">Help shape the app</div>
+          <h2 id="fb-title">Send feedback</h2>
+        </div>
+        <button id="fb-x" class="x-btn" aria-label="Close">✕</button>
+      </div>
+      <div class="learn-body fb-body">
+        <form id="fb-form" novalidate>
+          <p class="fb-lead">Found a bug, want a feature, or want an opening added? Tell me. I read everything.</p>
+          <fieldset class="fb-field"><legend>What kind?</legend><div id="fb-types" class="fb-chips" role="radiogroup" aria-label="Feedback type"></div></fieldset>
+          <fieldset class="fb-field"><legend>How is the app so far? <span id="fb-rate-note" class="fb-opt">Optional</span></legend><div id="fb-stars" class="fb-stars" role="radiogroup" aria-label="Rating, optional"></div></fieldset>
+          <div class="fb-field"><label for="fb-msg">Your message</label>
+            <textarea id="fb-msg" rows="5" maxlength="2000" placeholder="What happened, or what would you love to see? (For an opening request: its name and the moves if you know them.)"></textarea>
+            <div class="fb-sub"><span></span><span id="fb-count">0 / 2000</span></div></div>
+          <div class="fb-field"><label for="fb-contact">Contact <span class="fb-opt">Optional</span></label>
+            <input id="fb-contact" type="text" maxlength="120" autocomplete="off" placeholder="email or @handle" />
+            <div class="fb-sub"><span id="fb-contact-note"></span></div></div>
+          <label class="fb-check"><input id="fb-device" type="checkbox" checked /> <span>Include app version and device info <i id="fb-ver"></i> (helps me fix bugs; no personal data)</span></label>
+          <div id="fb-status" class="fb-status" role="status" aria-live="polite" hidden></div>
+          <div id="fb-fallback" class="fb-fallback" hidden>
+            <b>How this reaches me</b>
+            <p>There is no feedback inbox connected yet, so this opens a ready-written <b>GitHub issue</b> for you to submit (free GitHub account needed). Don't have one, or don't want it public? Tap <b>Copy feedback</b> and send it however you like.</p>
+          </div>
+          <div class="fb-actions">
+            <button id="fb-copy" type="button" class="btn">Copy feedback</button>
+            <button id="fb-gh" type="button" class="btn" hidden>Open a GitHub issue</button>
+            <button id="fb-submit" type="submit" class="btn primary">Open a GitHub issue</button>
+          </div>
+        </form>
+        <div id="fb-done" class="fb-done" hidden>
+          <div class="fb-done-ico" aria-hidden="true">🎉</div>
+          <h3>Thank you!</h3>
+          <p>Your feedback was sent. It really does shape what gets built next.</p>
+          <button id="fb-another" type="button" class="btn">Send another</button>
+        </div>
+      </div>
+      <div class="modal-actions learn-actions">
+        <button id="fb-close" type="button" class="btn">Close</button>
       </div>
     </div>
   </div>

@@ -95,7 +95,7 @@ function loadLine(i, autoplay) {
 
 export function openDemo(op, line = 0, autoplay = true) {
   opening = op;
-  document.title = `Watch it first: ${op.name} — Road to 1500`;
+  document.title = `Watch it first: ${op.name} — Gambiteer`;
   $('#demo-title').textContent = op.name;
   const sel = $('#demo-line');
   sel.innerHTML = op.lines.map((l, i) => `<option value="${i}">${esc(l.name)}</option>`).join('');

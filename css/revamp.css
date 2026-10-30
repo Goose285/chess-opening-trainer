@@ -34,7 +34,7 @@ h1, h2, h3 { letter-spacing: -.02em; }
 .chip-btn:focus-visible, .icon-btn:focus-visible, .brand:focus-visible, .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 #engine-pill { padding: 0 12px; height: 38px; }
 @media (max-width: 520px) {
-  .wm-pre { display: none; }
+  .wm-pre { display: inline; }
   #engine-pill { padding: 0; width: 28px; height: 38px; background: none; justify-content: center; }
   .top-right { gap: 6px; }
 }
@@ -235,7 +235,7 @@ body[data-screen="train"] .top, body[data-screen="puzzle"] .top, body[data-scree
 .reviewing .m[data-ply]:hover:not(.cur) { background: rgba(255,255,255,.12); }
 /* drill review mode: board, stepper, grade for this move, then the clickable move list */
 .reviewing .side .stats, .reviewing .side .actions { display: none; }
-.reviewing .side #feedback { order: 1; } .reviewing .side .moves-card { order: 2; }
+.reviewing .side #fbsheet { order: 1; } .reviewing .side .moves-card { order: 2; }
 
 /* step-through bar (drill review + solved puzzle) */
 .rv-bar { display: flex; align-items: center; gap: var(--s2); margin: var(--s3) var(--s4) 0; }
@@ -320,3 +320,38 @@ body[data-screen="train"] .top, body[data-screen="puzzle"] .top, body[data-scree
 .gb-icon { flex: none; width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--surface); font-size: 18px; line-height: 1; display: grid; place-items: center; padding: 0; }
 .gb-icon:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .rail-row { scroll-padding-left: var(--s4); } @media (min-width: 961px) { .rail-row { scroll-padding-left: 0; } }
+
+/* ---------- feedback sheet ---------- */
+.fb-body { display: block; padding-bottom: var(--s3); }
+.fb-lead { margin: 2px 0 var(--s4); color: var(--muted); font-size: var(--t-sm); line-height: 1.5; }
+.fb-field { border: 0; padding: 0; margin: 0 0 var(--s4); min-width: 0; }
+.fb-field > legend, .fb-field > label { display: block; padding: 0; margin: 0 0 var(--s2); font-size: var(--t-sm); font-weight: 700; }
+.fb-opt { font-weight: 500; color: var(--muted); font-size: var(--t-xs); margin-left: 6px; }
+.fb-chips { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.fb-chip { padding: 10px 14px; min-height: 44px; border-radius: 999px; background: var(--surface-hi); border: 1px solid var(--line); color: var(--text); font: inherit; font-size: var(--t-sm); font-weight: 600; }
+.fb-chip.on { background: rgba(90,209,154,.16); border-color: var(--accent); color: #c8f5df; }
+.fb-stars { display: flex; gap: 2px; }
+.fb-star { width: 46px; height: 46px; border-radius: 12px; background: transparent; border: 0; font-size: 30px; line-height: 1; color: #3a4658; padding: 0; }
+.fb-star.on { color: #ffd54f; text-shadow: 0 0 12px rgba(255,213,79,.35); }
+#fbsheet textarea, #fbsheet input[type="text"] { width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 14px; background: var(--bg2); border: 1px solid #2b3541; color: var(--text); font: inherit; font-size: 16px; line-height: 1.45; resize: vertical; }
+#fbsheet textarea { min-height: 120px; }
+#fbsheet textarea:focus, #fbsheet input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+#fbsheet textarea.bad { border-color: #e5675c; }
+.fb-sub { display: flex; justify-content: space-between; gap: var(--s3); margin-top: 5px; font-size: var(--t-xs); color: var(--muted); }
+.fb-check { display: flex; gap: 10px; align-items: flex-start; margin: 0 0 var(--s4); font-size: var(--t-xs); color: var(--muted); line-height: 1.45; }
+.fb-check input { margin-top: 2px; width: 18px; height: 18px; flex: none; accent-color: var(--accent); }
+.fb-check i { font-style: normal; color: #8fa3bd; }
+.fb-status { margin: 0 0 var(--s3); padding: 10px 12px; border-radius: 12px; font-size: var(--t-sm); line-height: 1.45; background: var(--surface-hi); }
+.fb-status.ok { background: rgba(90,209,154,.13); color: #c8f5df; } .fb-status.err { background: rgba(229,103,92,.15); color: #ffc9c3; }
+.fb-fallback { margin: 0 0 var(--s4); padding: 12px 14px; border-radius: 14px; background: rgba(159,216,255,.08); border: 1px dashed rgba(159,216,255,.35); font-size: var(--t-xs); line-height: 1.5; color: #c9d8e8; }
+.fb-fallback p { margin: 4px 0 0; }
+.fb-actions { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.fb-actions .btn { flex: 1; min-height: 46px; }
+.fb-done { text-align: center; padding: var(--s5) var(--s3); }
+.fb-done-ico { font-size: 44px; } .fb-done h3 { margin: var(--s2) 0; font-size: var(--t-xl); } .fb-done p { color: var(--muted); margin: 0 0 var(--s4); }
+.home-foot { line-height: 1.9; }
+
+/* ---------- Gambiteer wordmark + tagline ---------- */
+.brand .tagline { display: none; margin-left: 10px; padding-left: 10px; border-left: 1px solid var(--line); font-size: var(--t-xs); color: var(--muted); font-weight: 600; letter-spacing: .1px; white-space: nowrap; }
+@media (min-width: 700px) { .brand .tagline { display: inline; } }
+@media (max-width: 350px) { .brand .wordmark { font-size: 15px; letter-spacing: -.5px; } .brand .logo { width: 26px; height: 26px; } .top-right { gap: 3px; } .icon-btn, #engine-pill { width: 32px; } .profile-btn { padding: 0 6px 3px; } }

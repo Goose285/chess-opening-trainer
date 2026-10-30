@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Road to 1500: interactive chess gambit and opening trainer for casual players, with Stockfish grading",
+  "description": "Gambiteer (your road to 1500): interactive chess gambit and opening trainer for casual players, with Stockfish grading",
   "scripts": {
     "build": "esbuild src/main.js --bundle --minify --format=iife --target=es2020 --outfile=dist/app.js",
     "test:book": "node tools/check-book.mjs",
@@ -29,7 +29,8 @@
     "test:stepper": "node tools/e2e-stepper.mjs",
     "test:nav": "node tools/e2e-nav.mjs",
     "test:licenses": "node tools/check-licenses.mjs",
-    "test:about": "node tools/e2e-about.mjs"
+    "test:about": "node tools/e2e-about.mjs",
+    "test:feedback": "node tools/e2e-feedback.mjs"
   },
   "dependencies": {
     "chess.js": "^1.4.0",
@@ -48,5 +49,6 @@
   "bugs": {
     "url": "https://github.com/Goose285/chess-opening-trainer/issues"
   },
-  "license": "GPL-3.0-or-later"
+  "license": "GPL-3.0-or-later",
+  "author": "Seth Moynahan"
 }

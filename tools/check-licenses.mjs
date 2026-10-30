@@ -48,6 +48,8 @@ for (const k of ['Stockfish', 'chessground', 'chess.js', 'Jeff Hlywa', 'cburnett
 for (const s of Object.keys(APPROVED)) check(`PIECE-SET-CREDITS.md covers ${s}`, credits.includes('`' + s + '`'));
 for (const c of COMPONENTS) check(`licenses.js entry complete: ${c.name.slice(0, 30)}`, c.name && c.license && c.notice && c.url.startsWith('https://') && c.licenseUrl.startsWith('https://'));
 const readme = read('README.md');
+check('copyright holder is Seth Moynahan everywhere', ['NOTICE', 'README.md', 'THIRD_PARTY/NOTICES.md', 'src/licenses.js'].every((f) => /Copyright (\(C\)|©) 2026 Seth Moynahan/.test(read(f))) && JSON.parse(read('package.json')).author === 'Seth Moynahan');
+check('old placeholder copyright holder is gone', !['NOTICE', 'README.md', 'THIRD_PARTY/NOTICES.md', 'src/licenses.js', 'dist/app.js'].some((f) => /Goose285 and/.test(read(f))));
 check('README states GPL-3.0-or-later and source link rules', /GPL-3\.0-or-later/.test(readme) && /offer the source/.test(readme));
 check('index.html links the About screen', /data-open-about/.test(read('index.html')) && /id="about"/.test(read('index.html')));
 // nothing may add restrictions on top of the GPL

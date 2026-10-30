@@ -34,7 +34,7 @@ check('Home footer shows About + source links', await page.isVisible('.home-foot
 await page.click('.home-foot [data-open-about]'); await page.waitForSelector('#about:not(.hidden)');
 const txt = await page.innerText('#about-body');
 check('About lists every component with its licence', COMPONENTS.every((c) => txt.includes(c.license) && txt.includes(c.name.split(' (')[0].slice(0, 20))));
-for (const k of ['GNU General Public License v3', 'no warranty', 'Stockfish', 'Chessground', 'chess.js', 'Jeff Hlywa', 'Colin M. L. Burnett', 'Kosal Sen', 'therealqtpi', 'Armando Hernandez Marroquin', 'Lichess puzzle database', 'app-store build', 'not affiliated']) check(`About mentions "${k}"`, txt.includes(k));
+for (const k of ['Gambiteer is free software', 'GNU General Public License v3', 'no warranty', 'Stockfish', 'Chessground', 'chess.js', 'Jeff Hlywa', 'Colin M. L. Burnett', 'Kosal Sen', 'therealqtpi', 'Armando Hernandez Marroquin', 'Lichess puzzle database', 'app-store build', 'not affiliated']) check(`About mentions "${k}"`, txt.includes(k));
 check('About has no warning icon', !/⚠/.test(txt));
 check('"Get the complete source code" links to the repository', (await page.getAttribute('#about-source', 'href')) === REPO_URL);
 const links = await page.$$eval('#about-body a[href]', (a) => a.map((x) => x.href)); check('every link opens in a new tab safely', (await page.$$eval('#about-body a[href]', (a) => a.every((x) => x.target === '_blank' && /noopener/.test(x.rel)))) && links.length > 20, `${links.length} links`);
