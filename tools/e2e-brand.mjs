@@ -8,9 +8,9 @@ const errors = [];
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
 const page = await ctx.newPage(); page.on('pageerror', (e) => errors.push(e.message));
 await page.goto(URL_); await page.waitForSelector('.ocard');
-check('page title is Pawnado — Your road to 1500', (await page.title()) === 'Pawnado — Your road to 1500', await page.title());
+check('page title names the niche: gambits & traps for beginner to intermediate players', (await page.title()) === 'Pawnado — Gambits & traps for beginner to intermediate players', await page.title());
 check('header wordmark reads "Pawnado"', (await page.textContent('.brand .wordmark')).replace(/\s+/g, ' ').trim() === 'Pawnado');
-check('tagline "Your road to 1500" is in the header (desktop) and the page heading', (await page.textContent('.brand .tagline')).trim() === 'Your road to 1500' && /Pawnado: your road to 1500/i.test(await page.textContent('.intro h1')));
+check('tagline "Your road to 1500" is in the header (desktop) and the page heading', (await page.textContent('.brand .tagline')).trim() === 'Your road to 1500' && /Gambits & traps for beginner to intermediate players/.test(await page.textContent('.intro h1')));
 check('old names are gone from the page', !/Opening Trainer/i.test(await page.content()) && !/Road to 1500/.test(await page.evaluate(() => document.body.innerText)));
 check('wordmark is fully visible on the phone', await page.evaluate(() => { const w = document.querySelector('.brand .wordmark'); const r = w.getBoundingClientRect(); const pre = w.querySelector('.wm-pre'); return r.width > 60 && getComputedStyle(pre).display !== 'none'; }));
 check('profile sheet and About use the new name', await (async () => { await page.click('#profile-btn'); await page.waitForSelector('#profile:not(.hidden)'); const t = await page.textContent('#profile-title'); await page.click('#profile-close'); return t.trim() === 'Pawnado'; })());
@@ -26,7 +26,7 @@ check('apple-mobile-web-app-title + capable', head.appTitle === 'Pawnado' && hea
 check('header logo image loads', head.logoOk);
 const get = async (u) => { const r = await ctx.request.get(u); return { ok: r.ok(), type: r.headers()['content-type'] || '', buf: await r.body() }; };
 const man = await get(head.manifest); const mj = JSON.parse(man.buf.toString());
-check('manifest loads and names the app', man.ok && mj.name === 'Pawnado' && mj.short_name === 'Pawnado' && /road to 1500/i.test(mj.description));
+check('manifest loads and names the app', man.ok && mj.name === 'Pawnado' && mj.short_name === 'Pawnado' && /beginner to intermediate/i.test(mj.description) && /road to 1500/i.test(mj.description));
 check('manifest is standalone with start_url/scope inside the app', mj.display === 'standalone' && !!mj.start_url && !!mj.scope);
 let iconsOk = mj.icons.length >= 3;
 for (const ic of mj.icons) { const r = await get(new URL(ic.src, head.manifest).href); const w = r.buf.readUInt32BE(16); iconsOk = iconsOk && r.ok && /png/.test(r.type) && `${w}x${w}` === ic.sizes; }

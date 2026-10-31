@@ -4,6 +4,7 @@ Pawnado ships **four** piece sets. The SVG files in `pieces/<set>/` are **unmodi
 [lichess-org/lila](https://github.com/lichess-org/lila) `public/piece/<set>/` (downloaded 2026-10-29; byte-compared with each set's own
 upstream on 2026-10-30). Licences are taken from lila's
 [COPYING.md](https://github.com/lichess-org/lila/blob/master/COPYING.md) and each set's own repository. All four allow commercial use.
+The default set (new players, and anyone who never picked one) is **`merida`**; a set a player picks is kept.
 
 | Set | Author | Licence | Commercial use? | What you must do |
 |---|---|---|---|---|

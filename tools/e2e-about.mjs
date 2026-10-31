@@ -22,11 +22,11 @@ check('approved sets still served', (await Promise.all(['cburnett', 'merida', 'p
 // ---- saved theme from a removed set falls back to the default
 await page.goto(BASE + '#/openings'); await page.evaluate(() => localStorage.setItem('rt1500-theme', JSON.stringify({ board: 'purple', pieces: 'horsey' })));
 await page.reload(); await page.waitForSelector('.ocard');
-check('removed saved piece set falls back to cburnett', await page.evaluate(() => document.documentElement.dataset.pieces) === 'cburnett');
+check('removed saved piece set falls back to the default (merida)', await page.evaluate(() => document.documentElement.dataset.pieces) === 'merida');
 check('board choice is kept', await page.evaluate(() => document.documentElement.dataset.board) === 'purple');
-check('stored value is repaired', JSON.parse(await page.evaluate(() => localStorage.getItem('rt1500-theme'))).pieces === 'cburnett');
+check('stored value is repaired', JSON.parse(await page.evaluate(() => localStorage.getItem('rt1500-theme'))).pieces === undefined);
 await page.evaluate(() => localStorage.setItem('rt1500-theme', '{"pieces":"alpha"}')); await page.reload(); await page.waitForSelector('.ocard');
-check('another removed set (alpha) also falls back', await page.evaluate(() => document.documentElement.dataset.pieces) === 'cburnett');
+check('another removed set (alpha) also falls back to merida', await page.evaluate(() => document.documentElement.dataset.pieces) === 'merida');
 
 // ---- Home footer -> About
 await page.goto(BASE + '#/home'); await page.evaluate(() => localStorage.clear()); await page.reload(); await page.waitForSelector('#hero');

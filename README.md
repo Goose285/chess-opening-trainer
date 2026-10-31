@@ -1,6 +1,6 @@
 # Pawnado
 
-*Your road to 1500.* Learn the gambits that win games. A chess opening and gambit trainer for casual and improving players (rated under ~1500). The GitHub repo and the URL (`/chess-opening-trainer/`) keep their original name (`chess-opening-trainer`); the app was previously called "Road to 1500" and is now Pawnado. Saved progress, theme and vibration settings live in localStorage keys that still start with `rt1500-` on purpose, so nobody loses their progress.
+*Your road to 1500.* Gambits & traps for beginner to intermediate players. A chess opening and gambit trainer for casual and improving players (rated under ~1500). The GitHub repo and the URL (`/chess-opening-trainer/`) keep their original name (`chess-opening-trainer`); the app was previously called "Road to 1500" and is now Pawnado. Saved progress, theme and vibration settings live in localStorage keys that still start with `rt1500-` on purpose, so nobody loses their progress.
 
 Play through chess openings yourself. Pick an opening and a side; the computer answers with a **random book line**, and every move you make is graded:
 

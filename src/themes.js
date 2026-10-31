@@ -6,16 +6,24 @@ import { BOARDS, PIECE_SETS, DEFAULT_BOARD, DEFAULT_PIECES } from './themes-data
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const KEY = 'rt1500-theme';
+const DEFAULT_OLD_PIECES = 'cburnett'; // the default before Merida
 const GLOW = 'drop-shadow(0 0 1px rgba(170,238,255,.95)) drop-shadow(0 0 3px rgba(70,175,255,.7))';
 
 const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch { return {}; } };
+// Only what the player really picked is stored ({ v: 2, board?, pieces? }); anything not stored follows the app default (Merida pieces).
+// v1 saves wrote both keys on every change, so a stored "cburnett" there was the old default, not a choice: it moves to the new default once.
+let explicit = {};
 let state = (() => {
   const s = load();
-  // a saved choice that no longer exists (e.g. a piece set that was removed) quietly falls back to the default
-  if (s.pieces && !PIECE_SETS.some((p) => p.id === s.pieces)) { try { localStorage.setItem(KEY, JSON.stringify({ ...s, pieces: DEFAULT_PIECES })); } catch {} }
-  return { board: BOARDS.some((b) => b.id === s.board) ? s.board : DEFAULT_BOARD, pieces: PIECE_SETS.some((p) => p.id === s.pieces) ? s.pieces : DEFAULT_PIECES };
+  const board = BOARDS.some((b) => b.id === s.board) ? s.board : undefined;
+  let pieces = PIECE_SETS.some((p) => p.id === s.pieces) ? s.pieces : undefined; // a removed set quietly falls back to the default
+  if (!s.v && pieces === DEFAULT_OLD_PIECES) pieces = undefined;
+  if (board) explicit.board = board;
+  if (pieces) explicit.pieces = pieces;
+  if (s.v !== 2 && Object.keys(s).length) { try { localStorage.setItem(KEY, JSON.stringify({ v: 2, ...explicit })); } catch {} }
+  return { board: explicit.board || DEFAULT_BOARD, pieces: explicit.pieces || DEFAULT_PIECES };
 })();
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {} };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ v: 2, ...explicit })); } catch {} };
 const listeners = [];
 export const onThemeChange = (fn) => listeners.push(fn);
 export const currentTheme = () => ({ ...state });
@@ -51,6 +59,7 @@ function apply() {
   listeners.forEach((fn) => fn(currentTheme()));
 }
 export function setTheme(patch) {
+  for (const k of ['board', 'pieces']) if (patch[k]) explicit[k] = patch[k];
   state = { ...state, ...patch }; save(); apply(); if (isThemeOpen()) renderPicker();
 }
 apply();
@@ -149,7 +158,7 @@ export function initThemes() {
   $('#theme-x').addEventListener('click', closeThemes);
   $('#theme-close').addEventListener('click', closeThemes);
   $('#theme').addEventListener('click', (e) => { if (e.target.id === 'theme') closeThemes(); });
-  $('#theme-reset').addEventListener('click', () => setTheme({ board: DEFAULT_BOARD, pieces: DEFAULT_PIECES }));
+  $('#theme-reset').addEventListener('click', () => { explicit = {}; setTheme({ board: DEFAULT_BOARD, pieces: DEFAULT_PIECES }); explicit = {}; save(); });
   $('#theme-body').addEventListener('click', (e) => {
     const sw = e.target.closest('#vib-switch');
     if (sw) { const v = !hapticsOn(); setHaptics(v); sw.classList.toggle('on', v); sw.setAttribute('aria-checked', v); if (v) haptic('move'); return; }

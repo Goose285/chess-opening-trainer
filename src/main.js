@@ -8,6 +8,7 @@ import { openDemo, closeDemo, initDemo, demoState } from './demo.js';
 import { openLearn, initLearn } from './learn.js';
 import { positionNote } from './explain.js';
 import { initAbout } from './about.js';
+import { mountTipPills } from './tip.js';
 import { initFeedback } from './feedback.js';
 import { initThemes, onThemeChange, getBrushes } from './themes.js';
 import { LORE } from './lore-text.js';
@@ -291,6 +292,7 @@ function initBoard() {
 window.addEventListener('resize', () => cg && cg.redrawAll());
 onThemeChange(() => { if (cg) { cg.set({ drawable: { brushes: getBrushes() } }); cg.redrawAll(); } });
 initFeedback();
+mountTipPills(); // ☕ pill top right of every screen and sheet
 initAbout(); // before the other sheets so its Escape handler runs first
 initThemes();
 initProgress({ openings: OPENINGS, easeOf: (id) => EASE[id], hooks: { isRisky: (id) => !!(META[id] && META[id].trappy && META[id].hi <= 1200) } });

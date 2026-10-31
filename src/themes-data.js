@@ -23,4 +23,4 @@ export const PIECE_SETS = [
   { id: 'pixel', name: 'Pixel', author: 'therealqtpi', license: 'AGPLv3+' },
   { id: 'kosal', name: 'Kosal', author: 'Kosal Sen (Philatype)', license: 'CC BY 4.0' },
 ];
-export const DEFAULT_PIECES = 'cburnett';
+export const DEFAULT_PIECES = 'merida'; // default for new players and for anyone who never picked a set (an explicit pick is kept)

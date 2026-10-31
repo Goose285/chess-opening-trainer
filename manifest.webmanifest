@@ -1,7 +1,7 @@
 {
   "name": "Pawnado",
   "short_name": "Pawnado",
-  "description": "Pawnado: your road to 1500. Learn the gambits that win games.",
+  "description": "Gambits & traps for beginner to intermediate players. Your road to 1500.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

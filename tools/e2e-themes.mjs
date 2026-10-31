@@ -26,12 +26,12 @@ check('credits file is published and names every set + licence', cr.ok() && PIEC
 
 // ---- defaults + picker
 check('theme button in the header', await page.$('#theme-btn') !== null);
-check('default look = original board + cburnett', (await root('--sq-light')) === '#b58863' && (await page.evaluate(() => document.documentElement.dataset.pieces)) === 'cburnett');
+check('default look = original board + merida', (await root('--sq-light')) === '#b58863' && (await page.evaluate(() => document.documentElement.dataset.pieces)) === 'merida');
 await page.click('#theme-btn'); await page.waitForSelector('#theme:not(.hidden)');
 check(`picker lists ${BOARDS.length} boards and ${PIECE_SETS.length} piece sets`, (await page.$$('#board-opts .topt')).length === BOARDS.length && (await page.$$('#piece-opts .topt')).length === PIECE_SETS.length);
 check('the requested 7 boards are present with the requested colours', ['wood', 'green', 'ocean', 'neon', 'purple', 'desert', 'ice'].length === 7 && [['wood', '#f0d9b5', '#b58863'], ['green', '#eeeed2', '#769656'], ['ocean', '#dee3e6', '#8ca2ad'], ['neon', '#3a4660', '#1c2333'], ['purple', '#e8dff5', '#8e6fb5'], ['desert', '#f6e3c5', '#d2774c'], ['ice', '#e9eef2', '#5d7a91']].every(([id, l, d]) => { const b = BOARDS.find((x) => x.id === id); return b && b.light === l && b.dark === d; }));
 check('every option has a live mini preview', (await page.$$('#board-opts .bo-mini')).length === BOARDS.length && (await page.$$('#piece-opts .po-pcs i')).length === PIECE_SETS.length * 6 && (await page.$('.theme-preview .tp-board')) !== null);
-check('current board/pieces are marked selected', (await page.$eval('#board-opts .topt.on', (e) => e.dataset.board)) === 'original' && (await page.$eval('#piece-opts .topt.on', (e) => e.dataset.pieces)) === 'cburnett');
+check('current board/pieces are marked selected', (await page.$eval('#board-opts .topt.on', (e) => e.dataset.board)) === 'original' && (await page.$eval('#piece-opts .topt.on', (e) => e.dataset.pieces)) === 'merida');
 check('picker has no warning icons and lists only the four commercial-OK sets', !/⚠/.test(await page.textContent('#theme')) && (await page.$$('#piece-opts .topt')).length === 4 && PIECE_SETS.map((s) => s.id).join() === 'cburnett,merida,pixel,kosal');
 check('every piece option shows its licence', (await page.$$eval('#piece-opts .topt-lic', (l) => l.map((x) => x.textContent.trim()))).join() === 'GPLv2+,GPLv2+,AGPLv3+,CC BY 4.0');
 
@@ -96,7 +96,7 @@ await page.reload(); await page.waitForSelector('.ocard');
 await page.click('#theme-btn'); await page.keyboard.press('Escape');
 check('Escape closes the picker', await page.$eval('#theme', (e) => e.classList.contains('hidden')));
 await page.click('#theme-btn'); await page.click('#theme-reset');
-check('Reset restores the default look', (await root('--sq-light')) === '#b58863' && (await page.evaluate(() => document.documentElement.dataset.pieces)) === 'cburnett');
+check('Reset restores the default look (merida)', (await root('--sq-light')) === '#b58863' && (await page.evaluate(() => document.documentElement.dataset.pieces)) === 'merida');
 await page.click('#theme-x');
 
 // ---- phone
