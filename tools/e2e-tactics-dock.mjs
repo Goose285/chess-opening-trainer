@@ -143,7 +143,7 @@ for (const [s, want] of [[2, '0'], [3, '1'], [5, '2'], [9, '2'], [10, '3'], [25,
   if (s === 3 || s === 5 || s === 10) await shot(page, `phone-tactics-streak-${s}-playing`);
   if (s === 10) {
     const g = await page.evaluate(() => { const f = document.querySelector('.pz-flame'); const c = getComputedStyle(f); return { fs: c.fontSize, filter: c.filter }; });
-    check('tier 3 flame is the largest (34px) with the blue inferno filter', g.fs === '34px' && /hue-rotate/.test(g.filter), JSON.stringify(g));
+    check('tier 3 flame is the largest (34px) with the gold inferno filter', g.fs === '34px' && /brightness/.test(g.filter), JSON.stringify(g));
     check('Next puzzle is in view at streak 10 too', await inView(page, '#pz-next'));
   }
   await page.context().close();

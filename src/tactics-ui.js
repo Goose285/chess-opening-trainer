@@ -83,7 +83,7 @@ function renderHome() {
       <div class="oc-namerow"><div class="oc-name">${esc(o.name)}</div>${tacticStarsHtml(o.id, full)}</div>
       <div class="tc-prog" role="progressbar" aria-valuemin="0" aria-valuemax="${pool.length}" aria-valuenow="${done}"><i style="width:${Math.round((done / pool.length) * 100)}%"></i></div>
       <div class="oc-foot"><span><b>${done}</b> / ${pool.length} solved${traps ? ` · <span class="trapmark" title="Includes famous traps">🪤 ${traps} trap${traps === 1 ? '' : 's'}</span>` : ''}</span><span class="tc-go">Play ▶</span></div></div>`;
-    c.style.setProperty('--sc', o.gambit ? '#f59e0b' : '#5ad19a');
+    c.style.setProperty('--sc', o.gambit ? '#d4d4d4' : '#8a8a8a');
     c.addEventListener('click', () => startSet(o.id));
     grid.appendChild(c);
   }

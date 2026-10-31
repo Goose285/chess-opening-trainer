@@ -80,7 +80,7 @@ check('meta description is short and on message', /Gambits & traps for beginner 
 check('og:title / og:description match', /beginner to intermediate/.test(head.ogt) && /Gambits & traps/.test(head.ogd));
 check('Home shows the line visibly, right under the header', await page.isVisible('.intro h1') && /Gambits & traps for beginner to intermediate players/.test(await page.textContent('.intro h1')));
 check('the line is above the hero card and fits on the phone (no sideways scroll)', await page.evaluate(() => document.querySelector('.intro').getBoundingClientRect().bottom <= document.querySelector('#hero').getBoundingClientRect().top + 1 && document.documentElement.scrollWidth <= innerWidth));
-check('brand colours untouched: accent still the app green', await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim().toLowerCase() === '#5ad19a'));
+check('primary-action green kept (--go) while the brand accent is white', await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--go').trim().toLowerCase() === '#5ad19a' && getComputedStyle(document.documentElement).getPropertyValue('--accent').trim().toLowerCase() === '#ffffff'));
 if (SHOTS) await page.screenshot({ path: `${SHOTS}/phone-home.png` });
 await ctx.close();
 check('no page errors', errors.length === 0, errors.join('|'));

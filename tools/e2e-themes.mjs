@@ -60,7 +60,7 @@ check('drill board uses the chosen board colours', (await boardCss()) === hex('#
 check('drill board uses the chosen piece set', /pieces\/merida\/wP\.svg/.test(await pieceImg('#board piece.pawn.white')), await pieceImg('#board piece.pawn.white'));
 check('square highlights/selection follow the board theme', await page.evaluate(() => { const s = document.createElement('square'); s.className = 'last-move'; document.querySelector('cg-board').appendChild(s); const c = getComputedStyle(s).backgroundColor; s.remove(); return c === 'rgba(255, 214, 102, 0.6)'; }));
 const co = await page.evaluate(() => [...document.querySelectorAll('#board coords coord')].map((c) => getComputedStyle(c).color));
-check('coordinates are outside the board in one neutral colour (independent of the board theme)', co.length >= 16 && new Set(co).size === 1 && co[0] === 'rgb(159, 176, 195)', [...new Set(co)].join('|'));
+check('coordinates are outside the board in one neutral colour (independent of the board theme)', co.length >= 16 && new Set(co).size === 1 && co[0] === 'rgb(163, 163, 163)', [...new Set(co)].join('|'));
 // live change while a board is on screen
 await page.click('#train [data-open-theme]'); await page.click('#board-opts [data-board="neon"]'); await page.click('#piece-opts [data-pieces="kosal"]');
 check('changing theme updates the open drill board live', (await boardCss()) === hex('#3a4660') && /pieces\/kosal\/wP\.svg/.test(await pieceImg('#board piece.pawn.white')));

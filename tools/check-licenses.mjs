@@ -34,11 +34,14 @@ const walk = (d) => fs.readdirSync(path.join(root, d), { withFileTypes: true }).
 const odd = walk('.').filter((f) => BADEXT.test(f));
 // The one font we ship: a subset of Inter (SIL OFL 1.1). It must stay the only font file, next to its licence text.
 const FONTS = odd.filter((f) => /\.(woff2?|ttf|otf|eot)$/i.test(f)).map((f) => f.replace(/\\/g, '/'));
-check('the only bundled font is the Inter coordinates subset', FONTS.join() === 'fonts/inter-coords-600.woff2', FONTS.join(','));
+check('the only bundled fonts are the Inter coordinates subset and the Archivo Black Latin subset', FONTS.slice().sort().join() === 'fonts/archivo-black-latin.woff2,fonts/inter-coords-600.woff2', FONTS.join(','));
 check('no other fonts, audio, video or photos in the project', odd.filter((f) => !FONTS.includes(f.replace(/\\/g, '/'))).length === 0, odd.join(','));
 const OFL = read('THIRD_PARTY/licenses/Inter-OFL-1.1.txt');
 check('Inter OFL 1.1 text + Inter Project Authors copyright shipped (THIRD_PARTY and fonts/)', /SIL OPEN FONT LICENSE Version 1\.1/.test(OFL) && /The Inter Project Authors/.test(OFL) && OFL.length > 3000 && read('fonts/OFL.txt') === OFL);
 check('Inter font is only used via the @font-face we declare, and its woff2 is small (a subset)', fs.statSync(path.join(root, 'fonts/inter-coords-600.woff2')).size < 20000 && /fonts\/inter-coords-600\.woff2/.test(read('css/app.css')));
+const AOFL = read('THIRD_PARTY/licenses/ArchivoBlack-OFL-1.1.txt');
+check('Archivo Black OFL 1.1 text + Project Authors copyright shipped (THIRD_PARTY and fonts/)', /SIL OPEN FONT LICENSE Version 1\.1/.test(AOFL) && /The Archivo Black Project Authors/.test(AOFL) && AOFL.length > 3000 && read('fonts/OFL-ArchivoBlack.txt') === AOFL);
+check('Archivo Black is only used via our @font-face, and its woff2 is a small subset', fs.statSync(path.join(root, 'fonts/archivo-black-latin.woff2')).size < 30000 && /fonts\/archivo-black-latin\.woff2/.test(read('css/app.css')));
 check('only our own PNG icons/screenshots', walk('.').filter((f) => /\.png$/i.test(f)).every((f) => /^(icons|docs)[\\/]/.test(f)));
 
 // licence texts and notices
@@ -50,7 +53,7 @@ for (const f of ['GPL-3.0.txt', 'GPL-2.0.txt', 'AGPL-3.0.txt', 'CC-BY-4.0.txt', 
 check('chess.js notice names the copyright holder', /Jeff Hlywa/.test(read('THIRD_PARTY/licenses/chess.js-BSD-2-Clause.txt')) && /Redistributions in binary form must reproduce/.test(read('THIRD_PARTY/licenses/chess.js-BSD-2-Clause.txt')));
 check('Stockfish licence ships next to the engine', exists('vendor/stockfish/LICENSE-stockfish-GPLv3.txt') && exists('vendor/stockfish/stockfish-19-lite-single.wasm'));
 const notices = read('THIRD_PARTY/NOTICES.md'), credits = read('THIRD_PARTY/PIECE-SET-CREDITS.md');
-for (const k of ['Stockfish', 'chessground', 'chess.js', 'Jeff Hlywa', 'Inter', 'SIL OFL', 'cburnett', 'merida', 'pixel', 'kosal', 'Lichess', 'CC0', REPO_URL, 'App-store']) check(`NOTICES.md mentions ${k}`, notices.includes(k));
+for (const k of ['Stockfish', 'chessground', 'chess.js', 'Jeff Hlywa', 'Inter', 'Archivo Black', 'SIL OFL', 'cburnett', 'merida', 'pixel', 'kosal', 'Lichess', 'CC0', REPO_URL, 'App-store']) check(`NOTICES.md mentions ${k}`, notices.includes(k));
 for (const s of Object.keys(APPROVED)) check(`PIECE-SET-CREDITS.md covers ${s}`, credits.includes('`' + s + '`'));
 for (const c of COMPONENTS) check(`licenses.js entry complete: ${c.name.slice(0, 30)}`, c.name && c.license && c.notice && c.url.startsWith('https://') && c.licenseUrl.startsWith('https://'));
 const readme = read('README.md');

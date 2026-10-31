@@ -200,7 +200,7 @@ function startCelebrations() {
 }
 function confetti(host) {
   if (reduced()) return;
-  const colors = ['#5ad19a', '#3aa7ff', '#ffd54f', '#fb7185', '#b794f6', '#ffb86b'];
+  const colors = ['#f5c451', '#ffffff', '#ffe08a', '#d9a62e', '#e5e5e5', '#fff3cc']; // gold + white
   const frag = document.createDocumentFragment();
   for (let i = 0; i < 46; i++) {
     const p = document.createElement('i'); p.className = 'cf';

@@ -8,17 +8,17 @@ import { TIER_LABEL } from './progress.js';
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const STYLE_COLOR = { aggressive: '#fb7185', sharp: '#facc15', balanced: '#2dd4bf', positional: '#f0abfc', solid: '#94a3b8' };
+const STYLE_COLOR = { aggressive: '#8a8a8a', sharp: '#8a8a8a', balanced: '#8a8a8a', positional: '#8a8a8a', solid: '#8a8a8a' }; // black & white: no per-style colours
 const byEase = (a, b) => EASE[a.id].score - EASE[b.id].score;
-const colorOf = (o) => { const y = styleOf(o.id); return o.gambit ? '#f59e0b' : y ? STYLE_COLOR[y.key] : '#5ad19a'; };
+const colorOf = (o) => { const y = styleOf(o.id); return o.gambit ? '#d4d4d4' : y ? STYLE_COLOR[y.key] : '#8a8a8a'; };
 
 const TACTIC_TILES = [
-  { key: 'mixed', icon: '🎲', name: 'Mixed round', meta: '10 puzzles', g: ['#10b981', '#0ea5e9'] },
-  { key: 'trap', icon: '🪤', name: 'Famous traps', meta: 'Opening traps', g: ['#f59e0b', '#ef4444'] },
-  { key: 'mate', icon: '♚', name: 'Checkmates', meta: 'Mate in 1–3', g: ['#6366f1', '#8b5cf6'] },
-  { key: 'fork', icon: '🔱', name: 'Forks', meta: 'Hit two at once', g: ['#ec4899', '#f43f5e'] },
-  { key: 'pin', icon: '📌', name: 'Pins & skewers', meta: 'Line them up', g: ['#14b8a6', '#22c55e'] },
-  { key: 'hanging', icon: '🎁', name: 'Free pieces', meta: 'Spot the gift', g: ['#0ea5e9', '#6366f1'] },
+  { key: 'mixed', icon: '🎲', name: 'Mixed round', meta: '10 puzzles', g: ['#1c1c1c', '#0c0c0c'] },
+  { key: 'trap', icon: '🪤', name: 'Famous traps', meta: 'Opening traps', g: ['#1c1c1c', '#0c0c0c'] },
+  { key: 'mate', icon: '♚', name: 'Checkmates', meta: 'Mate in 1–3', g: ['#1c1c1c', '#0c0c0c'] },
+  { key: 'fork', icon: '🔱', name: 'Forks', meta: 'Hit two at once', g: ['#1c1c1c', '#0c0c0c'] },
+  { key: 'pin', icon: '📌', name: 'Pins & skewers', meta: 'Line them up', g: ['#1c1c1c', '#0c0c0c'] },
+  { key: 'hanging', icon: '🎁', name: 'Free pieces', meta: 'Spot the gift', g: ['#1c1c1c', '#0c0c0c'] },
 ];
 
 function tile(o) {

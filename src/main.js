@@ -73,7 +73,7 @@ function easeDots(o) {
   const e = easeInfo(o.id); if (!e || e.key === 'easy') return '';
   return ` · <span class="edots e-${e.key}" title="${e.label}: ${esc(e.why)}"><i class="on"></i><i class="${e.dots >= 2 ? 'on' : ''}"></i><i class="${e.dots >= 3 ? 'on' : ''}"></i> ${e.short}</span>`;
 }
-const STYLE_COLOR = { aggressive: '#fb7185', sharp: '#facc15', balanced: '#2dd4bf', positional: '#f0abfc', solid: '#94a3b8' };
+const STYLE_COLOR = { aggressive: '#8a8a8a', sharp: '#8a8a8a', balanced: '#8a8a8a', positional: '#8a8a8a', solid: '#8a8a8a' }; // black & white: no per-style colours
 function renderGrid() {
   grid.innerHTML = '';
   const pool = OPENINGS.filter(matchesFilter);
@@ -89,7 +89,7 @@ function renderGrid() {
     const sideIcon = o.side === 'white' ? '<span class="chip w">White</span>' : o.side === 'black' ? '<span class="chip b">Black</span>' : '<span class="chip r">?</span>';
     const extras = o.lines.length && LORE[o.id]
       ? `<span class="oc-btns"><button type="button" class="mini" data-act="watch" aria-label="Watch ${esc(o.name)} first">▶ Watch</button><button type="button" class="mini" data-act="learn" aria-label="Learn more about ${esc(o.name)}">Learn more</button></span>` : '';
-    const y = styleOf(o.id); c.style.setProperty('--sc', y ? STYLE_COLOR[y.key] : '#5ad19a');
+    const y = styleOf(o.id); c.style.setProperty('--sc', y ? STYLE_COLOR[y.key] : '#8a8a8a');
     const isEasy = EASE[o.id] && EASE[o.id].ease === 'easy';
     const tier = tierFor(o.id);
     if (o.lines.length) {

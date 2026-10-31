@@ -17,6 +17,7 @@ This file lists everything we ship that someone else wrote, the licence it comes
 | Lichess puzzle data (`tactics/tactics.json`) | lichess.org community | CC0 1.0 | yes | credit given; [`LICHESS-PUZZLES.md`](LICHESS-PUZZLES.md) |
 | Opening names / ECO codes (from lichess-org/chess-openings) | lichess.org contributors | CC0 1.0 | yes | credit given |
 | Inter 4, subset to a–h and 1–8, weight 600 (`fonts/inter-coords-600.woff2`; board coordinates) | The Inter Project Authors (https://github.com/rsms/inter) | SIL OFL 1.1 ([`licenses/Inter-OFL-1.1.txt`](licenses/Inter-OFL-1.1.txt); also `fonts/OFL.txt`) | yes | Copyright notice and licence text shipped with the font; the font is bundled with software, not sold separately; the subset is a modified version and is not sold under the Inter name on its own |
+| Archivo Black, Latin subset (`fonts/archivo-black-latin.woff2`; headings and the wordmark) | The Archivo Black Project Authors (https://github.com/Omnibus-Type/ArchivoBlack) | SIL OFL 1.1 ([`licenses/ArchivoBlack-OFL-1.1.txt`](licenses/ArchivoBlack-OFL-1.1.txt); also `fonts/OFL-ArchivoBlack.txt`) | yes | Copyright notice and licence text shipped with the font; bundled with software, not sold separately; the subset is a modified version and is not sold on its own |
 | Other fonts, sounds, photos, emoji | none bundled (system fonts / system emoji) | n/a | n/a | n/a |
 | Board colours | original (plain colour pairs) | GPL (ours) | yes | n/a |
 
