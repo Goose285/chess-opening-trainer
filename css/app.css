@@ -626,3 +626,30 @@ body.noscroll { overflow: hidden; }
 .ab-links { margin-top: 5px; } .ab-links a, .ab-st a { color: #9fd8ff; }
 .ab-st { margin: 6px 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
 .ab-src .btn:not(.primary) { color: var(--text); }
+
+/* "What's the idea?" one-liner at the end of a line */
+.idea { margin: 10px 0 0; padding: 9px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 12%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); font-size: 13.5px; line-height: 1.45; color: var(--text); }
+.idea b { color: var(--accent); display: block; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 2px; }
+.idea.hidden { display: none; }
+
+/* Opening of the Day + daily quests */
+.daily { margin: 14px 0 6px; }
+.daily-card { display: grid; grid-template-columns: 1.1fr 1fr; gap: 14px; padding: 14px; border-radius: 18px; background: var(--panel, #172029); border: 1px solid color-mix(in srgb, var(--sc, var(--accent)) 35%, #ffffff14); }
+.daily-otd { display: flex; gap: 12px; align-items: center; min-width: 0; }
+.daily-art { width: 84px; flex: none; }
+.daily-art .thumb { width: 84px; height: 84px; }
+.daily-copy { min-width: 0; }
+.daily-copy h3 { margin: 2px 0 4px; font-size: 18px; }
+.daily-copy p { margin: 0 0 8px; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.daily-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.daily-actions .btn { padding: 8px 14px; font-size: 14px; }
+.daily-quests { display: flex; flex-direction: column; gap: 6px; justify-content: center; }
+.dq-head { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+.dq-head b { color: var(--text); font-size: 14px; }
+.dq { display: grid; grid-template-columns: 22px 1fr auto auto; gap: 8px; align-items: center; padding: 7px 9px; border-radius: 10px; background: #ffffff0a; font-size: 13px; }
+.dq-ck { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #ffffff40; display: grid; place-items: center; font-size: 12px; color: var(--accent-ink); }
+.dq.done .dq-ck { background: var(--accent); border-color: var(--accent); }
+.dq.done .dq-t { text-decoration: line-through; color: var(--muted); }
+.dq-p { color: var(--muted); font-variant-numeric: tabular-nums; }
+.dq-xp { color: var(--accent); font-weight: 600; font-size: 12px; }
+@media (max-width: 640px) { .daily-card { grid-template-columns: 1fr; } }

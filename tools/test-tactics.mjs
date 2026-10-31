@@ -18,7 +18,7 @@ const ids = new Set(OPENINGS.map((o) => o.id));
 const all = Object.values(data).flat();
 
 // ---------------------------------------------------------------- data
-check('every opening has a tactics set (48 of 48)', OPENINGS.every((o) => (data[o.id] || []).length >= 1), OPENINGS.filter((o) => !(data[o.id] || []).length).map((o) => o.id).join(','));
+check('every opening has a tactics set (53 of 53)', OPENINGS.every((o) => (data[o.id] || []).length >= 1), OPENINGS.filter((o) => !(data[o.id] || []).length).map((o) => o.id).join(','));
 check('no set for an unknown opening', Object.keys(data).every((k) => ids.has(k)));
 check('database puzzles: gambits get 20-30 (up to 30 where Lichess has enough), the other openings exactly 20', OPENINGS.every((o) => { const n = data[o.id].filter((p) => !p.trap).length; return o.gambit ? n >= 20 && n <= 30 : n === 20; }), OPENINGS.map((o) => o.id + ':' + (data[o.id] || []).filter((p) => !p.trap).length).join(','));
 check('every gambit has at least 3 hand-made / engine-verified traps (Danish and Fajarowicz at least 4)', OPENINGS.filter((o) => o.gambit).every((o) => data[o.id].filter((p) => p.trap).length >= ({ danish: 4, fajarowicz: 4 }[o.id] || 3)), OPENINGS.filter((o) => o.gambit).map((o) => o.id + ':' + data[o.id].filter((p) => p.trap).length).join(','));

@@ -10,6 +10,8 @@ import sys, io, csv, json, re, collections, random, zstandard
 SRC = sys.argv[1]
 # opening id -> regexes over Lichess OpeningTags. FIRST match wins, so specific gambits come before the general openings.
 RULES = [
+ ('urusov-gambit', r'^Bishops_Opening_Urusov_Gambit'), ('tennison-gambit', r'^Zukertort_Opening_Tennison_Gambit'), ('rasa-studier', r'^Caro-Kann_Defense_Rasa-Studier_Gambit'),
+ ('blackburne-shilling', r'^Italian_Game_Blackburne-Kostic_Gambit'), ('froms-gambit', r'^Bird_Opening_Froms_Gambit'),
  ('muzio-gambit', r'^Kings_Gambit_.*Muzio'), ('kings-gambit', r'^Kings_Gambit'),
  ('evans', r'^Italian_Game_Evans_Gambit'), ('danish', r'^Danish_Gambit'),
  ('goring-gambit', r'^Scotch_Game_Goring_Gambit'), ('scotch-gambit', r'^(Scotch_Game|Italian_Game)_Scotch_Gambit'),
@@ -32,8 +34,10 @@ RULES = [
  ('nimzo', r'^Nimzo-Indian_Defense'), ('scandi', r'^Scandinavian_Defense'), ('english', r'^English_Opening'),
  ('catalan', r'^Catalan_Opening'), ('pirc', r'^Pirc_Defense'),
 ]
-RULES = [(i, re.compile(r)) for i, r in RULES]
-GAMBITS = {'fried-liver','traxler','kings-gambit','evans','danish','scotch-gambit','smith-morra','budapest','benko','albin','englund-black','englund-white','stafford','vienna-gambit','qga','latvian','blackmar-diemer','halloween','jerome','schliemann','marshall','icelandic-palme','elephant','von-hennig-schara','rousseau','fajarowicz','blumenfeld','wing-gambit','goring-gambit','staunton-gambit','muzio-gambit','belgrade-gambit'}
+import os
+ONLY = set(os.environ['ONLY'].split(',')) if os.environ.get('ONLY') else None  # ONLY=id,id : extract just these openings (merge into an existing picked file)
+RULES = [(i, re.compile(r)) for i, r in RULES if not ONLY or i in ONLY]
+GAMBITS = {'urusov-gambit','tennison-gambit','rasa-studier','blackburne-shilling','froms-gambit','fried-liver','traxler','kings-gambit','evans','danish','scotch-gambit','smith-morra','budapest','benko','albin','englund-black','englund-white','stafford','vienna-gambit','qga','latvian','blackmar-diemer','halloween','jerome','schliemann','marshall','icelandic-palme','elephant','von-hennig-schara','rousseau','fajarowicz','blumenfeld','wing-gambit','goring-gambit','staunton-gambit','muzio-gambit','belgrade-gambit'}
 def board(fen):
     b = {}
     for r, row in enumerate(fen.split()[0].split('/')):
@@ -66,10 +70,10 @@ for row in rd:
     th = themes.split()
     if 'endgame' in th or 'mateIn3' in th or 'mateIn4' in th or 'mateIn5' in th: continue
     tl = tags.split(); oid = None
-    if any(t.startswith('Italian_Game_Two_Knights_Defense') or t.startswith('Italian_Game_Anti-Fried') for t in tl):
+    if not ONLY and any(t.startswith('Italian_Game_Two_Knights_Defense') or t.startswith('Italian_Game_Anti-Fried') for t in tl):
         bd = board(fen)
         if bd.get('g5') == 'N' or bd.get('f7') == 'N' or (bd.get('c5') == 'b' and bd.get('f2') == 'b'): oid = 'traxler' if (bd.get('c5') == 'b' or bd.get('f2') == 'b') else None
-    if not oid and any(t.startswith('Indian_Defense_Budapest_Defense') for t in tl) and board(fen).get('e4') == 'n': oid = 'fajarowicz'
+    if not ONLY and not oid and any(t.startswith('Indian_Defense_Budapest_Defense') for t in tl) and board(fen).get('e4') == 'n': oid = 'fajarowicz'
     if not oid:
       for i, rx in RULES:
         if any(rx.search(t) for t in tl): oid = i; break

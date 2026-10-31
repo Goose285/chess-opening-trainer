@@ -58,7 +58,7 @@ check('start bar floats above the tab bar (no overlap)', sb.sBottom <= sb.tTop -
 const lastCard = await page.evaluate(() => { const cs = document.querySelectorAll('.ocard'); const l = cs[cs.length - 1]; l.scrollIntoView({ block: 'end' }); window.scrollTo(0, document.documentElement.scrollHeight); const r = l.getBoundingClientRect(); const s = document.querySelector('#startbar').getBoundingClientRect(); return { cardBottom: r.bottom, barTop: s.top }; });
 check('last card can scroll clear of the start bar and tab bar', lastCard.cardBottom <= lastCard.barTop + 1, JSON.stringify(lastCard));
 check('start bar names the pick and the side', /as (White|Black|a random side)/.test(await page.textContent('#start-label')) && !(await page.isDisabled('#start-btn')));
-check('cards: thumbnail, style-colour accent, stars, no long paragraph', (await page.$$('.ocard .oc-thumb .thumb')).length >= 48 && (await page.$eval('.ocard', (c) => getComputedStyle(c).getPropertyValue('--sc').trim().startsWith('#'))));
+check('cards: thumbnail, style-colour accent, stars, no long paragraph', (await page.$$('.ocard .oc-thumb .thumb')).length >= 53 && (await page.$eval('.ocard', (c) => getComputedStyle(c).getPropertyValue('--sc').trim().startsWith('#'))));
 await page.evaluate(() => window.scrollTo(0, 0));
 // filters collapsed behind the Filters button
 check('extra filters are tucked behind a Filters button', !(await vis(page, '#ease-seg')) && (await vis(page, '#more-btn')));
@@ -72,7 +72,7 @@ await page.click('.tab[data-tab="home"]'); await page.click('.rail:nth-of-type(2
 check('"See all" on Gambits shows gambits only', (await page.$$eval('.ocard:not(.surprise)', (c) => c.length > 5 && c.every((x) => x.classList.contains('gambit')))));
 // tactics + profile tabs
 await page.click('.tab[data-tab="tactics"]'); await page.waitForSelector('#tac-grid .tcard');
-check('Tactics tab shows the puzzle home', (await vis(page, '#tactics')) && (await active(page)) === 'tactics' && (await page.$$('#tac-grid .tcard')).length === 48);
+check('Tactics tab shows the puzzle home', (await vis(page, '#tactics')) && (await active(page)) === 'tactics' && (await page.$$('#tac-grid .tcard')).length === 53);
 await page.click('.tab[data-tab="profile"]'); await page.waitForSelector('#profile:not(.hidden)');
 check('Profile tab opens the progress sheet and stays on the bar', (await vis(page, '#profile')) && (await vis(page, '#tabbar')) && (await page.evaluate(() => document.querySelector('#tabbar').getBoundingClientRect().top >= document.querySelector('#profile .modal-card').getBoundingClientRect().bottom - 1)));
 await page.click('.tab[data-tab="home"]');

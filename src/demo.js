@@ -3,6 +3,7 @@
 import { Chessground } from 'chessground';
 import { buildSteps, castleRook } from './explain.js';
 import { LORE } from './lore-text.js';
+import { ideaOf } from './ideas.js';
 import { onThemeChange, getBrushes } from './themes.js';
 
 const $ = (s) => document.querySelector(s);
@@ -51,6 +52,8 @@ function render(animate = true) {
   $('#demo-label').textContent = step ? step.label : 'Starting position';
   $('#demo-text').textContent = step ? step.text : `${firstSentence(lore ? lore.idea : opening.blurb)} Press Play to watch the moves.`;
   $('#demo-note').classList.toggle('is-end', done);
+  const ideaTxt = done ? ideaOf(opening.id, opening.lines[+$('#demo-line').value || 0].name) : null;
+  const ideaEl = $('#demo-idea'); ideaEl.classList.toggle('hidden', !ideaTxt); ideaEl.innerHTML = ideaTxt ? `<b>💡 What's the idea?</b>${esc(ideaTxt)}` : '';
   if (done) $('#demo-text').textContent += ' That is the end of this line. Replay it, pick another line, or press "Start practicing" to play it yourself.';
   $('#demo-count').textContent = `${idx} / ${steps.length}`;
   $('#demo-bar').style.width = (steps.length ? (idx / steps.length) * 100 : 0) + '%';

@@ -2,6 +2,8 @@
 // unit-tested in node; the UI lives in progress-ui.js. The point/grading system is untouched: a finished run's points
 // simply become XP. State is one small JSON blob in localStorage (no accounts).
 
+import { rollDaily, bumpDaily, emptyDaily, sanitizeDaily } from './daily.js';
+
 export const STORE_KEY = 'rt1500-progress';
 export const VERSION = 1;
 
@@ -92,7 +94,7 @@ export const ACHIEVEMENTS = [
 export const achievementById = (id) => ACHIEVEMENTS.find((a) => a.id === id);
 
 export function freshState() {
-  return { v: VERSION, xp: 0, done: 0, perfect: 0, gambitDone: 0, bestStreak: 0, stars: 0, colors: { white: 0, black: 0 }, days: { last: '', streak: 0, best: 0 }, watched: [], openings: {}, ach: {}, created: '', tactics: freshTactics() };
+  return { v: VERSION, xp: 0, done: 0, perfect: 0, gambitDone: 0, bestStreak: 0, stars: 0, colors: { white: 0, black: 0 }, days: { last: '', streak: 0, best: 0 }, watched: [], openings: {}, ach: {}, created: '', tactics: freshTactics(), daily: emptyDaily() };
 }
 export const freshTactics = () => ({ solved: 0, flawless: 0, streak: 0, bestStreak: 0, stars: 0, traps: [], sets: {} });
 /** Accept whatever is in storage; fix up anything missing or malformed. */
@@ -112,6 +114,7 @@ export function sanitize(raw) {
   }
   if (raw.ach && typeof raw.ach === 'object') for (const [id, t] of Object.entries(raw.ach)) if (achievementById(id)) s.ach[id] = typeof t === 'string' ? t : '';
   s.created = typeof raw.created === 'string' ? raw.created : '';
+  s.daily = sanitizeDaily(raw.daily);
   const rt = raw.tactics;
   if (rt && typeof rt === 'object') {
     const strs = (a, cap) => (Array.isArray(a) ? [...new Set(a.filter((x) => typeof x === 'string'))].slice(0, cap) : []);
@@ -150,6 +153,15 @@ function awardAchievements(s, ctx, ctxExtra, today) {
   return out;
 }
 /** Count today as a training day (consecutive-day streak). Mutates s. */
+/** Daily quests: only active when the caller passes ctxExtra.otdId (the Opening of the Day). Mutates s, returns { xp, done:[quest kinds] }. */
+function dailyStep(s, ev, ctxExtra, today) {
+  if (!ctxExtra.otdId) return { xp: 0, done: [] };
+  s.daily = rollDaily(s.daily, today, ctxExtra.otdId);
+  const r = bumpDaily(s.daily, ev); s.daily = r.daily;
+  const xp = r.completed.reduce((n, q) => n + q.xp, 0); s.xp += xp;
+  return { xp, done: r.completed.map((q) => q.kind) };
+}
+
 function touchDay(s, today) {
   if (s.days.last !== today) {
     s.days.streak = s.days.last && dayDiff(s.days.last, today) === 1 ? s.days.streak + 1 : 1;
@@ -168,8 +180,8 @@ export function applyRun(prev, run, ctxExtra = {}, now = new Date()) {
   const before = { xp: s.xp, level: levelFor(s.xp), tier: (s.openings[run.openingId] || {}).tier || 'none' };
   const today = dayKey(now);
   if (run.moves >= 1 && !s.created) s.created = today;
-  const gained = { base: 0, perfect: 0, first: 0, star: 0, ach: 0, total: 0 };
-  const result = { gained, newAch: [], tierUp: null, levelUp: null, before, after: null, counted: false, xpFactor: 1 };
+  const gained = { base: 0, perfect: 0, first: 0, star: 0, ach: 0, quest: 0, total: 0 };
+  const result = { gained, newAch: [], newQuests: [], tierUp: null, levelUp: null, before, after: null, counted: false, xpFactor: 1 };
   if (run.moves < 1) { result.after = before; return { state: prev, result }; } // nothing was played: nothing changes
   result.counted = true;
   const o = s.openings[run.openingId] || (s.openings[run.openingId] = emptyOpening());
@@ -199,11 +211,13 @@ export function applyRun(prev, run, ctxExtra = {}, now = new Date()) {
     }
   }
   s.xp += gained.base + gained.perfect + gained.first + gained.star;
+  const dq = dailyStep(s, { type: 'run', openingId: run.openingId, gambit: run.gambit, side: run.side, pct: run.pct, hints: run.hints, completed: !!run.completed }, ctxExtra, today);
+  gained.quest = dq.xp; result.newQuests = dq.done;
 
   // achievements (may award extra XP, which can in turn unlock more - loop until stable)
   const ach = awardAchievements(s, { run, opening: run.openingId, tierUp: result.tierUp }, ctxExtra, today);
   gained.ach = ach.xp; result.newAch = ach.ids;
-  gained.total = gained.base + gained.perfect + gained.first + gained.star + gained.ach;
+  gained.total = gained.base + gained.perfect + gained.first + gained.star + gained.ach + gained.quest;
   const after = levelFor(s.xp);
   if (after.n > before.level.n) result.levelUp = { from: before.level, to: after };
   result.after = { xp: s.xp, level: after, tier: o.tier };
@@ -213,12 +227,13 @@ export function applyRun(prev, run, ctxExtra = {}, now = new Date()) {
 /** Marks an opening as watched (for the "Student of the Game" badge). Returns { state, newAch } */
 export function applyWatch(prev, openingId, ctxExtra = {}, now = new Date()) {
   const s = JSON.parse(JSON.stringify(prev));
-  const result = { newAch: [], levelUp: null, gained: 0 };
-  if (s.watched.includes(openingId)) return { state: s, result };
-  s.watched.push(openingId);
+  const result = { newAch: [], newQuests: [], levelUp: null, gained: 0 };
   const beforeLevel = levelFor(s.xp);
+  const dq = dailyStep(s, { type: 'watch' }, ctxExtra, dayKey(now)); result.gained += dq.xp; result.newQuests = dq.done; // watching counts for the daily quest every time
+  if (s.watched.includes(openingId)) { const after0 = levelFor(s.xp); if (after0.n > beforeLevel.n) result.levelUp = { from: beforeLevel, to: after0 }; return { state: s, result }; }
+  s.watched.push(openingId);
   const a = achievementById('watcher');
-  if (a && s.ach[a.id] === undefined && a.test(s, {}, {})) { s.ach[a.id] = dayKey(now); s.xp += a.xp; result.gained = a.xp; result.newAch.push(a.id); }
+  if (a && s.ach[a.id] === undefined && a.test(s, {}, {})) { s.ach[a.id] = dayKey(now); s.xp += a.xp; result.gained += a.xp; result.newAch.push(a.id); }
   const after = levelFor(s.xp);
   if (after.n > beforeLevel.n) result.levelUp = { from: beforeLevel, to: after };
   return { state: s, result };
@@ -248,7 +263,7 @@ export function applyPuzzle(prev, pz, ctxExtra = {}, now = new Date()) {
   const s = JSON.parse(JSON.stringify(prev));
   const t = s.tactics;
   const before = { xp: s.xp, level: levelFor(s.xp), tier: (t.sets[pz.openingId] || {}).tier || 'none' };
-  const result = { counted: false, kind: pz.kind, gained: { base: 0, star: 0, ach: 0, total: 0 }, newAch: [], tierUp: null, levelUp: null, before, after: before, first: false, flawless: false, streak: t.streak, xpFactor: 1 };
+  const result = { counted: false, kind: pz.kind, gained: { base: 0, star: 0, ach: 0, quest: 0, total: 0 }, newAch: [], newQuests: [], tierUp: null, levelUp: null, before, after: before, first: false, flawless: false, streak: t.streak, xpFactor: 1 };
   if (pz.kind !== 'solved') {
     if (t.streak === 0) return { state: prev, result };
     t.streak = 0; result.streak = 0; return { state: s, result };
@@ -272,9 +287,10 @@ export function applyPuzzle(prev, pz, ctxExtra = {}, now = new Date()) {
     result.tierUp = { from: rec.tier, to: tier }; rec.tier = tier; t.stars = count(t.sets, (x) => x.tier !== 'none');
   }
   s.xp += result.gained.base + result.gained.star;
+  const dq = dailyStep(s, { type: 'puzzle' }, ctxExtra, today); result.gained.quest = dq.xp; result.newQuests = dq.done;
   const ach = awardAchievements(s, { puzzle: pz, opening: pz.openingId, tierUp: result.tierUp }, ctxExtra, today);
   result.gained.ach = ach.xp; result.newAch = ach.ids;
-  result.gained.total = result.gained.base + result.gained.star + result.gained.ach;
+  result.gained.total = result.gained.base + result.gained.star + result.gained.ach + result.gained.quest;
   const after = levelFor(s.xp);
   if (after.n > before.level.n) result.levelUp = { from: before.level, to: after };
   result.after = { xp: s.xp, level: after, tier: rec.tier };

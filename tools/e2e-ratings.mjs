@@ -17,7 +17,7 @@ page.on('pageerror', (e) => errors.push(e.message)); page.on('console', (m) => {
 await page.goto(URL_);
 await page.evaluate(() => localStorage.clear()); await page.reload();
 let cards = await cardsOf(page);
-check('48 cards', cards.length === 48);
+check('53 cards', cards.length === 53);
 check('every card has a 9–16 word description', cards.every((c) => { const n = c.desc.trim().split(/\s+/).length; return n >= 9 && n <= 16; }), cards.filter((c) => { const n = c.desc.trim().split(/\s+/).length; return n < 9 || n > 16; }).map((c) => c.id).join(','));
 check('every card has a rating pill with a range', cards.every((c) => c.lo && c.hi && c.hi > c.lo));
 check('pill colour matches the level for its range', cards.every((c) => c.cls.includes('r-' + levelOf(c.lo))), cards.filter((c) => !c.cls.includes('r-' + levelOf(c.lo))).map((c) => c.id).join(','));
@@ -25,7 +25,7 @@ const by = Object.fromEntries(cards.map((c) => [c.id, c]));
 check('Italian + London are beginner', ['italian', 'london'].every((i) => levelOf(by[i].lo) === 'beginner'));
 check('Najdorf + Benko + Catalan are advanced', ['najdorf', 'benko', 'catalan'].every((i) => levelOf(by[i].lo) === 'advanced'));
 check('fun/trappy openings top out at ~1400 or less', ['latvian', 'jerome', 'halloween', 'englund-black', 'englund-white', 'stafford', 'fried-liver', 'traxler'].every((i) => by[i].hi <= 1400 && levelOf(by[i].lo) === 'beginner'));
-check('gambit tag still shown on gambits', cards.filter((c) => c.gambit).length === 32);
+check('gambit tag still shown on gambits', cards.filter((c) => c.gambit).length === 37);
 check('pills fit inside the cards', cards.every((c) => c.fits));
 check('"Any level" + 3 level buttons present', (await page.$$eval('#level-seg button', (b) => b.map((x) => x.dataset.level))).join() === 'all,beginner,intermediate,advanced');
 
@@ -43,7 +43,7 @@ await page.click('#filter-seg button[data-filter="all"]');
 await page.reload();
 check('level filter is remembered after reload', await page.$eval('#level-seg button[data-level="beginner"]', (b) => b.classList.contains('active')) && (await cardsOf(page)).every((c) => levelOf(c.lo) === 'beginner'));
 await page.click('#level-seg button[data-level="all"]');
-check('"Any level" restores all 48', (await cardsOf(page)).length === 48);
+check('"Any level" restores all 53', (await cardsOf(page)).length === 53);
 
 // Learn more popup shows description + rating for every opening
 const bad = [];
@@ -53,7 +53,7 @@ for (const c of cards) {
   if (!(r.t.includes(c.desc.trim()) && r.t.includes(`${c.lo}–${c.hi}`) && r.pill.includes('r-' + levelOf(c.lo)) && /Recommended rating/.test(r.t))) bad.push(c.id);
   await page.click('#learn-x');
 }
-check('Learn-more popup shows description + rating + level for all 48', bad.length === 0, bad.join(','));
+check('Learn-more popup shows description + rating + level for all 53', bad.length === 0, bad.join(','));
 await page.click('.ocard[data-id="jerome"] .mini[data-act="learn"]');
 check('trappy openings are flagged in the popup', /Fun \/ trappy/.test(await page.textContent('#learn-body')) && /unsound/.test(await page.textContent('#learn-body .ln-why')));
 await page.click('#learn-x');

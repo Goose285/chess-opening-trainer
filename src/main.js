@@ -11,6 +11,7 @@ import { initAbout } from './about.js';
 import { initFeedback } from './feedback.js';
 import { initThemes, onThemeChange, getBrushes } from './themes.js';
 import { LORE } from './lore-text.js';
+import { ideaForNames } from './ideas.js';
 import { META, LEVELS, levelOf, levelKey, ratingText, STYLES, styleOf, STYLE, EASE, EASE_LEVELS, easeInfo } from './meta.js';
 import { haptic } from './haptics.js';
 import { initTactics, openTactics, startTactics, startTacticsFor } from './tactics-ui.js';
@@ -308,7 +309,7 @@ async function startRun(reuseOpening) {
   closeDemo();
   const userColor = colorChoice === 'random' ? (Math.random() < 0.5 ? 'white' : 'black') : colorChoice;
   session = {
-    opening, book: buildBook(opening), userColor, game: new Chess(), phase: 'busy',
+    opening, book: buildBook(opening, userColor), userColor, game: new Chess(), phase: 'busy',
     records: [], points: 0, streak: 0, maxStreak: 0, firstTry: 0, hintUsed: false, retries: 0,
     attempt: 0, pending: null, over: false, lastMove: null, history: [], token: Math.random(),
   };
@@ -591,6 +592,8 @@ function finishRun(reason) {
   $('#sum-line').innerHTML = reason === 'left-book'
     ? `You deviated with a sound move after ${Math.ceil(s.game.history().length / 2)} moves.`
     : `Variation reached: <b>${esc(lineName || s.opening.name)}</b> · you played ${s.userColor === 'white' ? 'White' : 'Black'}`;
+  const idea = reason === 'book-end' ? ideaForNames(s.opening.id, lineName) : null;
+  $('#sum-idea').classList.toggle('hidden', !idea); $('#sum-idea').innerHTML = idea ? `<b>💡 What's the idea?</b>${esc(idea)}` : '';
   $('#sum-points').textContent = s.points; $('#sum-max').textContent = max;
   $('#sum-pct').textContent = pct + '%';
   $('#sum-ring').style.setProperty('--p', pct);

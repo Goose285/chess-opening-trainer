@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#14181f">
   <title>Pawnado — Your road to 1500</title>
-  <meta name="description" content="Pawnado, your road to 1500: learn the gambits that win games. Practise 48 openings move by move and solve opening tactics puzzles, earn XP and climb the ranks, graded by Stockfish.">
+  <meta name="description" content="Pawnado, your road to 1500: learn the gambits that win games. Practise 53 openings move by move and solve opening tactics puzzles, earn XP and climb the ranks, graded by Stockfish.">
   <meta name="application-name" content="Pawnado">
   <meta name="apple-mobile-web-app-title" content="Pawnado">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -42,6 +42,7 @@
     <div class="intro sr-only"><h1>Pawnado: your road to 1500. Learn the gambits that win games</h1></div>
     <section id="hero" class="hero" aria-label="Suggested opening"></section>
     <button id="profile-strip" class="profile-strip" type="button" aria-label="Open your progress"></button>
+    <section id="home-daily" class="daily" aria-label="Opening of the day and daily quests"></section>
     <div id="home-rails"></div>
     <footer class="home-foot"><button type="button" class="linklike" data-open-feedback>Send feedback / suggest a feature</button> · <button type="button" class="linklike" data-open-about>About &amp; licenses</button> · <a href="https://github.com/Goose285/chess-opening-trainer" target="_blank" rel="noopener">Source code</a> · Free software (GPL-3.0+)</footer>
   </main>
@@ -240,6 +241,7 @@
         <div class="card demo-note" id="demo-note" aria-live="polite">
           <div class="dn-top"><span class="dn-label" id="demo-label">Ready</span><span class="dn-count" id="demo-count">0 / 0</span></div>
           <div class="dn-text" id="demo-text"></div>
+          <div class="idea hidden" id="demo-idea"></div>
           <div class="dn-bar"><i id="demo-bar"></i></div>
         </div>
 
@@ -274,6 +276,7 @@
       <div class="eyebrow" id="sum-eyebrow">Line complete</div>
       <h2 id="sum-title">Summary</h2>
       <div class="sum-line" id="sum-line"></div>
+      <div class="idea hidden" id="sum-idea"></div>
       <div class="sum-hero">
         <div class="ring" id="sum-ring"><span id="sum-pct">0%</span></div>
         <div>

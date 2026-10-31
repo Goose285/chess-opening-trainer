@@ -3,10 +3,12 @@ import { Chess } from 'chess.js';
 export const posKey = (fen) => fen.split(' ').slice(0, 4).join(' ');
 
 // Build a position graph for one opening: key -> Map(san -> { lines:Set(lineIdx) })
-export function buildBook(opening) {
+// Trap lines (trap:true) are only in the book when the opponent is the one falling for them, i.e. you play the opening's own colour.
+export function buildBook(opening, userColor) {
   const graph = new Map();
   const ends = new Map(); // key at end of line -> [line names]
   opening.lines.forEach((line, idx) => {
+    if (line.trap && userColor && userColor !== opening.side) return;
     const g = new Chess();
     for (const san of line.moves.split(/\s+/)) {
       const key = posKey(g.fen());

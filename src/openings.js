@@ -1,6 +1,9 @@
 // Built-in opening library. Each opening has several named lines (SAN, no move numbers).
 // Lines are merged into a position graph (by FEN), so branches and transpositions share book moves.
-import { GAMBITS } from './gambits.js';
+import { GAMBITS as GAMBITS_BASE } from './gambits.js';
+import { NEW_GAMBITS } from './gambits-new.js';
+import { REPLIES } from './gambit-replies.js';
+import { TRAPLINES } from './gambit-traps.js';
 
 const CLASSICAL = [
   {
@@ -163,4 +166,6 @@ const CLASSICAL = [
 ];
 
 // Classical openings first, then the gambit category (o.gambit === true).
-export const OPENINGS = [...CLASSICAL, ...GAMBITS];
+// Extra drillable lines are appended after the hand-made ones so line indexes (and the "Watch it first" notes keyed to the main line) never shift.
+const withExtra = (o) => ({ ...o, lines: [...o.lines, ...(REPLIES[o.id] || []), ...(TRAPLINES[o.id] || [])] });
+export const OPENINGS = [...CLASSICAL, ...GAMBITS_BASE, ...NEW_GAMBITS].map(withExtra);

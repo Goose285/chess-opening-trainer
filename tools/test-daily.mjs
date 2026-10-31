@@ -1,0 +1,40 @@
+// Unit tests: Opening of the Day + daily quests (src/daily.js and the hooks in src/progress.js).
+import * as D from '../src/daily.js';
+import * as P from '../src/progress.js';
+import { OPENINGS } from '../src/openings.js';
+let bad = 0;
+const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'FAIL'} ${n}${ok ? '' : ' — ' + d}`); if (!ok) bad++; };
+const ids = OPENINGS.filter((o) => o.lines.length).map((o) => o.id);
+const days = Array.from({ length: 60 }, (_, i) => P.dayKey(new Date(2026, 0, 1 + i)));
+check('the same day always gives the same opening, whatever the list order', D.openingOfTheDay(ids, days[3]) === D.openingOfTheDay([...ids].reverse(), days[3]));
+const picks = days.map((d) => D.openingOfTheDay(ids, d));
+check('the pick is always a real opening and varies over two months', picks.every((p) => ids.includes(p)) && new Set(picks).size >= 25, new Set(picks).size);
+check('three quests a day: today\'s opening, tactics and one rotating extra', days.every((d) => { const k = D.questKindsFor(d); return k.length === 3 && k[0] === 'otd' && k[1] === 'puzzles' && !['otd', 'puzzles'].includes(k[2]); }));
+check('the rotating quest changes across the month', new Set(days.map((d) => D.questKindsFor(d)[2])).size >= 4);
+
+const NOW = new Date(2026, 5, 10, 12), today = P.dayKey(NOW);
+const otd = D.openingOfTheDay(ids, today);
+const ex = { easyIds: [], gambitIds: [], otdId: otd };
+const run = (o) => ({ openingId: otd, gambit: false, lineCount: 5, side: 'white', moves: 10, points: 800, pct: 80, hints: 0, retries: 0, perfect: false, maxStreak: 3, variation: 'x', completed: true, ...o });
+let r = P.applyRun(P.freshState(), run(), ex, NOW);
+const kinds = r.state.daily.kinds;
+check('finishing a line of the Opening of the Day completes its quest and pays XP once', r.state.daily.done.otd === true && r.result.newQuests.includes('otd') && r.result.gained.quest >= 40 && r.result.gained.total === r.result.gained.base + r.result.gained.perfect + r.result.gained.first + r.result.gained.star + r.result.gained.ach + r.result.gained.quest);
+const before = r.state.xp;
+const r2 = P.applyRun(r.state, run(), ex, NOW);
+check('the same quest never pays twice in a day', !r2.result.newQuests.includes('otd'));
+let s = P.freshState(), puzzleXp = 0;
+for (let i = 0; i < 3; i++) { const q = P.applyPuzzle(s, { kind: 'solved', id: 'p' + i, openingId: otd, points: 40, wrongs: 0, hints: 0, setSize: 20 }, ex, NOW); s = q.state; puzzleXp += q.result.gained.quest; }
+check('three solved puzzles complete the tactics quest (+30 XP, once)', s.daily.done.puzzles === true && puzzleXp === 30, JSON.stringify(s.daily));
+check('without an Opening of the Day (no otdId) nothing changes: old behaviour is kept', (() => { const q = P.applyRun(P.freshState(), run(), { easyIds: [], gambitIds: [] }, NOW); return q.result.gained.quest === 0 && q.state.daily.day === ''; })());
+const tomorrow = new Date(2026, 5, 11, 12);
+const t = P.applyRun(r.state, run(), { ...ex, otdId: D.openingOfTheDay(ids, P.dayKey(tomorrow)) }, tomorrow);
+check('a new day starts with fresh progress', t.state.daily.day === P.dayKey(tomorrow) && !t.state.daily.done.puzzles);
+const WD = days.find((d) => D.questKindsFor(d)[2] === 'watch'), [wy, wm, wd] = WD.split('-').map(Number), WNOW = new Date(wy, wm - 1, wd, 12);
+const wex = { ...ex, otdId: D.openingOfTheDay(ids, WD) };
+const w = P.applyWatch(P.freshState(), 'italian', wex, WNOW);
+check('watching an opening completes the watch quest on the days it is set (+20 XP)', w.result.newQuests.includes('watch') && w.state.daily.done.watch === true && w.result.gained >= 20, JSON.stringify(w.result));
+const w2 = P.applyWatch(P.applyWatch(P.freshState(), 'italian', ex, NOW).state, 'italian', ex, NOW);
+check('watching the same opening again is harmless', w2.state.watched.length === 1);
+check('storage round-trips and bad data is sanitised', (() => { const x = P.sanitize(JSON.parse(JSON.stringify(r.state))); const y = P.sanitize({ daily: { day: 5, kinds: ['nope', 'otd'], prog: { otd: 99 }, done: { otd: true } } }); return JSON.stringify(x.daily.kinds) === JSON.stringify(r.state.daily.kinds) && x.daily.day === r.state.daily.day && x.daily.otd === r.state.daily.otd && JSON.stringify(x.daily.done) === JSON.stringify(r.state.daily.done) && y.daily.kinds.length === 1 && y.daily.prog.otd === 1 && y.daily.day === ''; })());
+check('XP from quests feeds the normal XP total', r.state.xp === r.result.gained.base + r.result.gained.perfect + r.result.gained.first + r.result.gained.star + r.result.gained.ach + r.result.gained.quest, `${r.state.xp}`);
+console.log(bad ? '\nSOME FAILED' : '\nALL PASS'); process.exit(bad ? 1 : 0);

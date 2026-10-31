@@ -48,4 +48,9 @@ export const EASE = {
   'staunton-gambit': { ease: 'medium', score: 5.2, why: "medium-sized book, attacking plans" },
   'muzio-gambit': { ease: 'medium', score: 4.62, why: "medium-sized book, one simple attacking idea" },
   'belgrade-gambit': { ease: 'medium', score: 5.41, why: "small book, open tactical play" },
+  'urusov-gambit': { ease: 'medium', score: 7.26, why: "big book, attacking plans" },
+  'tennison-gambit': { ease: 'medium', score: 5.24, why: "big book, one simple attacking idea" },
+  'rasa-studier': { ease: 'medium', score: 7.3, why: "big book, open tactical play" },
+  'blackburne-shilling': { ease: 'medium', score: 4.75, why: "big book, open tactical play" },
+  'froms-gambit': { ease: 'medium', score: 7.05, why: "big book, attacking plans" },
 };

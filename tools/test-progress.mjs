@@ -11,7 +11,7 @@ const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 // ---------------------------------------------------------------- difficulty
 const fresh = computeEase(OPENINGS, buildBook, META, STYLE);
-check('every one of the 48 openings has an ease rating', OPENINGS.length === 48 && OPENINGS.every((o) => EASE[o.id] && ['easy', 'medium', 'hard'].includes(EASE[o.id].ease)));
+check('every one of the 53 openings has an ease rating', OPENINGS.length === 53 && OPENINGS.every((o) => EASE[o.id] && ['easy', 'medium', 'hard'].includes(EASE[o.id].ease)));
 check('stored table matches the formula (run tools/gen-ease.mjs after changing the book/meta)', OPENINGS.every((o) => eq(EASE[o.id], fresh[o.id])), OPENINGS.filter((o) => !eq(EASE[o.id], fresh[o.id])).map((o) => o.id).join());
 const by = (k) => OPENINGS.filter((o) => EASE[o.id].ease === k).map((o) => o.id);
 check('a sensible spread: 8-20 easy, 20+ medium, 4-10 hard', by('easy').length >= 8 && by('easy').length <= 20 && by('medium').length >= 20 && by('hard').length >= 4 && by('hard').length <= 10, `${by('easy').length}/${by('medium').length}/${by('hard').length}`);

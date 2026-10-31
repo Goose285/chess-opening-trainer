@@ -5,6 +5,7 @@ import {
   LEVELS, levelInfo, levelFor, ACHIEVEMENTS, achievementById, TIER_LABEL, TIER_RULE, STAR_BONUS, applyRun, applyWatch,
   loadState, saveState, freshState, tierOf, starsOf, recommend, dayKey, applyPuzzle, tacticRules,
 } from './progress.js';
+import { openingOfTheDay, rollDaily, questList } from './daily.js';
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -18,6 +19,17 @@ let openings = [], easeOf = () => null, hooks = {};
 const listeners = [];
 export const onProgressChange = (fn) => listeners.push(fn);
 export const getProgress = () => state;
+/** Opening of the Day: same for everyone on the same local date. Only openings that actually have lines. */
+export const otdIdNow = () => openingOfTheDay(openings.filter((o) => o.lines.length).map((o) => o.id), dayKey());
+const withOtd = () => ({ ...ctxExtra, otdId: otdIdNow() });
+/** Today's three quests with progress (rolled to today without saving). */
+export function getDaily() {
+  const otd = otdIdNow(), d = rollDaily(state.daily, dayKey(), otd);
+  const nameOf = (id) => (openings.find((o) => o.id === id) || {}).name || '';
+  return { otd, day: d.day, quests: questList(d, nameOf), allDone: d.kinds.every((k) => d.done[k]) };
+}
+const QUEST_NAME = { otd: "Opening of the Day", puzzles: 'Tactics', lines: 'Lines', clean: 'Clean run', watch: 'Watch first', gambit: 'Gambit', white: 'As White', black: 'As Black' };
+function announceQuests(kinds, xp) { setTimeout(() => toast('🎯', `Daily quest complete: ${kinds.map((k) => QUEST_NAME[k]).join(', ')}`, `+${xp} XP`), 600); }
 const notify = () => listeners.forEach((f) => f(state));
 const persist = () => { saveState(localStorage, state); updateChrome(); notify(); };
 
@@ -151,6 +163,7 @@ export function showRewards(result, run) {
   const chips = [`<span class="rw-chip">Points <b>${fmt(g.base)}</b>${result.xpFactor < 1 ? ` <i>×${result.xpFactor}</i>` : ''}</span>`];
   if (g.perfect) chips.push(`<span class="rw-chip good">💯 Perfect <b>+${g.perfect}</b></span>`);
   if (g.first) chips.push(`<span class="rw-chip good">🆕 First finish <b>+${g.first}</b></span>`);
+  if (g.quest) chips.push(`<span class="rw-chip good">🎯 Daily quest <b>+${g.quest}</b></span>`);
   if (g.star) chips.push(`<span class="rw-chip good">★ ${TIER_LABEL[result.tierUp.to]} star <b>+${g.star}</b></span>`);
   for (const id of result.newAch) { const a = achievementById(id); chips.push(`<span class="rw-chip badge">${a.icon} ${esc(a.name)} <b>+${a.xp}</b></span>`); }
   const t = tierFor(run.openingId);
@@ -241,13 +254,14 @@ export const isCelebrating = () => celebrating;
 
 // ------------------------------------------------------------------ public API
 export function recordRun(run) {
-  const { state: s, result } = applyRun(state, run, ctxExtra);
+  const { state: s, result } = applyRun(state, run, withOtd());
   state = s; persist();
   return result;
 }
 export function recordPuzzle(pz) {
-  const { state: s, result } = applyPuzzle(state, pz, ctxExtra);
+  const { state: s, result } = applyPuzzle(state, pz, withOtd());
   if (s !== state) { state = s; persist(); }
+  if (result.newQuests && result.newQuests.length) announceQuests(result.newQuests, result.gained.quest);
   return result;
 }
 /** Celebrations for a solved puzzle (star / badges / level). Same overlay as lines; XP for the solve itself is shown in the puzzle panel. */
@@ -263,9 +277,10 @@ export function celebratePuzzle(result, pz) {
   startCelebrations();
 }
 export function recordWatch(openingId) {
-  const { state: s, result } = applyWatch(state, openingId, ctxExtra);
-  if (s.watched.length !== state.watched.length) { state = s; persist(); }
+  const { state: s, result } = applyWatch(state, openingId, withOtd());
+  if (s.watched.length !== state.watched.length || result.newQuests.length) { state = s; persist(); }
   if (result.newAch.length) celebrateWatch(result);
+  if (result.newQuests.length) announceQuests(result.newQuests, result.gained);
   return result;
 }
 export function initProgress(cfg) {

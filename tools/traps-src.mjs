@@ -3,13 +3,16 @@
 // Every trap is checked at build time: legality (chess.js) and, with ENGINE=1, that every solver move is
 // engine-best (Stockfish lite, depth 14) and no opponent reply is a blunder.
 export const TRAPS = [
+  { id: 'T-tennison-briggs-trap', open: 'tennison-gambit', name: "Brigg's Trap", rating: 800, themes: 'hangingPiece sacrifice',
+    note: "Black's queen grabs the centre with 5...Qd4?? but Qb5+ forks the king and queen's bishop, and Qxb7 picks up a pawn and a rook.",
+    setup: 9, line: 'e4 d5 Nf3 dxe4 Ng5 Nf6 Nc3 Bf5 Qe2 Qd4 Qb5+ Bd7 Qxb7' },
   { id: 'T-fried-liver-fork', open: 'fried-liver', name: 'Fried Liver fork', rating: 700, themes: 'fork sacrifice attraction',
     note: 'Nxf7! forks the queen and rook. After Kxf7 the king is dragged out and Qf3+ keeps the attack rolling.',
     setup: 9, line: 'e4 e5 Nf3 Nc6 Bc4 Nf6 Ng5 d5 exd5 Nxd5 Nxf7 Kxf7 Qf3+ Ke6 Nc3' },
   { id: 'T-legals-mate', open: 'italian', name: "Légal's mate", rating: 650, themes: 'mateIn2 sacrifice smotheredMate',
     note: "Black grabs your queen, but Bxf7+ and Nd5# is a checkmate with just your minor pieces. A classic from 1750!",
     setup: 9, line: 'e4 e5 Nf3 d6 Bc4 Bg4 Nc3 g6 Nxe5 Bxd1 Bxf7+ Ke7 Nd5#' },
-  { id: 'T-blackburne-shilling', open: 'italian', name: 'Blackburne Shilling Gambit', rating: 900, themes: 'mateIn3 sacrifice fork',
+  { id: 'T-blackburne-shilling', open: 'blackburne-shilling', name: 'Blackburne Shilling Gambit', rating: 900, themes: 'mateIn3 sacrifice fork',
     note: 'The trap behind a famous "shilling" bet: if White is greedy with Nxf7, Black takes g2 and mates with the knight on f3.',
     setup: 8, line: 'e4 e5 Nf3 Nc6 Bc4 Nd4 Nxe5 Qg5 Nxf7 Qxg2 Rf1 Qxe4+ Be2 Nf3#' },
   { id: 'T-elephant-trap', open: 'qg', name: 'Elephant Trap', rating: 800, themes: 'pin hangingPiece',

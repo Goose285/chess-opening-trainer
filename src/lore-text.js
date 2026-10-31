@@ -388,4 +388,45 @@ export const LORE = {
     traps: [t("The pinned knight", "After 5...Nxe4 6.Qe2 the knight on e4 is pinned against the king: Black must defend it with ...f5 and cannot simply retreat it, and 6...Qe7?? loses the queen to Nxe7.", "e4 e5 Nf3 Nc6 Nc3 Nf6 d4 exd4 Nd5 Nxe4 Qe2 f5 Nd2 d3"), t("Nxd5 Qe7+", "After 5...Nxd5 6.exd5 Qe7+ White has a pleasant game with Be2, Nxd4 and Nb5.", "e4 e5 Nf3 Nc6 Nc3 Nf6 d4 exd4 Nd5 Nxd5 exd5 Qe7+ Be2 Ne5 Nxd4")],
     players: "Named after the city of Belgrade; it remains a rare, tricky weapon at club level."
   },
+  "urusov-gambit": {
+    idea: "In the Bishop's Opening (1.e4 e5 2.Bc4 Nf6) White plays 3.d4!? and gives a pawn or two to get a lead in development and an open e-file against a king that is still in the centre. It is easy to understand: castle, play Re1 and attack.",
+    white: ["Castle early and put a rook on the open e-file.", "Win the d4 pawn back with Nxd4 or Qxd4 when it suits you.", "Develop every piece before you start an attack: the gambit is worth a pawn only if Black is slow."],
+    black: ["Be careful about grabbing both pawns: 4...Nxe4 gives White a lot of play.", "Take on d4 and return a pawn with ...d5 to blunt the attack.", "Castle and bring your pieces out before you count your extra pawns."],
+    structure: "Open centre after d4 exd4 with the e-file wide open. Key squares: e4, d5, f7 and the d4 pawn that White wants back.",
+    traps: [t("Greedy knight", "After 4...Nxe4 5.Qxd4 attacks the knight on e4 and the g7 pawn at once, so Black has to retreat with 5...Nf6 and White gets the pawn back with a lead in development.", "e4 e5 Bc4 Nf6 d4 exd4 Nf3 Nxe4 Qxd4"), t("Counting pawns, not pieces", "A sound plan is to give one pawn back quickly with ...d5 and finish your development; Black's extra pawns do not matter if the king is stuck in the middle.")],
+    players: "Named after the 19th-century Russian master Sergey Urusov; a fun surprise at club level."
+  },
+  "tennison-gambit": {
+    idea: "After 1.e4 d5 White plays 2.Nf3!? and, if Black takes with 2...dxe4, 3.Ng5 hits e4 and f7. White gives a pawn for quick development and cheap tricks, such as the Brigg's Trap. It is simple and very good practice for spotting tactics.",
+    white: ["Win back e4 with Ng5, Nc3 and sometimes g4 or Bc4.", "Develop quickly and aim at f7 with the bishop and the g5 knight.", "Watch out for ...Qd4 and ...Bf5 ideas: take your time to check threats."],
+    black: ["Keep the extra pawn by defending e4 with ...Nf6 and ...Bf5.", "Watch f7: do not leave it attacked twice with a loose king.", "Develop calmly with ...e6 or ...Nc6 and castle."],
+    structure: "Early open lines with White a pawn down and the g5 knight on a strong outpost. Key squares: e4, f7, d4 and g5.",
+    traps: [t("Brigg's Trap", "After 3.Ng5 Nf6 4.Nc3 Bf5 5.Qe2 Black's natural-looking 5...Qd4?? runs into Qb5+ and Qxb7: White picks up a pawn and a rook.", "e4 d5 Nf3 dxe4 Ng5 Nf6 Nc3 Bf5 Qe2 Qd4 Qb5+ Bd7 Qxb7"), t("Pushing g4 too early", "With 5.g4 White needs to be ready for ...Bg6 and ...h5: do not push g4 without a plan.")],
+    players: "A fun casual-play weapon: it turns up in online rapid and blitz games, where opponents rarely know how to meet it."
+  },
+  "rasa-studier": {
+    idea: "Against the Caro-Kann (1.e4 c6 2.d4 d5 3.Nc3 dxe4) White plays 4.f3!?, a Blackmar-Diemer-style pawn offer: the f-pawn hits e4, the e-file opens and White develops fast. It is an easy attacking choice against a solid opening.",
+    white: ["Recapture on f3 with the knight and develop Bc4, O-O and Qe1.", "Aim at the e6 and f7 squares and use the open e-file.", "Be ready to trade the dark-squared bishop or play Ne5 when Black pins your knight."],
+    black: ["Take on e4, then on f3, and return the pawn with ...e5 or ...Nf6 at the right time.", "Get the king out of the centre with ...e6 and ...Be7 and castle.", "Do not play ...Bg4 and ...Bxf3 mechanically; look at the open e-file first."],
+    structure: "Open e- and f-files with White a pawn down but ahead in development. Key squares: e4, e5, f7 and d5.",
+    traps: [t("Open e-file tricks", "With the king still in the centre, Black's natural-looking moves can run into e-file tricks: check every move for Qe2, Re1 and Bxf7+ ideas before you play it."), t("Queens off", "After 4...e5 5.dxe5 exf3 6.Nxf3 Qxd1+ 7.Kxd1 the queens are gone, so do not expect a fast attack: White has active pieces and a long fight ahead.")],
+    players: "A rare but fun attacking try at club level, named after the two players who analysed it."
+  },
+  "blackburne-shilling": {
+    idea: "In the Italian Game Black plays 3...Nd4!? and sets a trap. If White grabs with 4.Nxe5? Black plays 4...Qg5! and wins: after 5.Nxf7 Qxg2 6.Rf1 Qxe4+ 7.Be2 Nf3# it is checkmate. Against correct play (4.Nxd4 or 4.c3) Black is a little worse, so it is a surprise weapon, not a main line.",
+    white: ["Do not grab the e5 pawn: take the knight with 4.Nxd4 exd4 and then castle or play d3.", "Or kick the knight with 4.c3 and keep an edge.", "Develop sensibly and avoid Nxf7 sacrifices without a clear reason."],
+    black: ["Play 3...Nd4 only as a surprise: if White takes on d4 you must play for a draw or play ...c6 and ...d5.", "If White plays 4.Nxe5? play 4...Qg5! and calmly take on g2.", "Remember the finish: Qxg2, Qxe4+ and Nf3# as the knight on d4 does the work."],
+    structure: "Open e-file and active queen. The key squares are f3, g2, e4 and the knight on d4 which controls f3 and e2.",
+    traps: [t("The Shilling trap", "If White takes the pawn with 4.Nxe5? Black plays 4...Qg5! and after 5.Nxf7 Qxg2 6.Rf1 Qxe4+ 7.Be2 Nf3# is checkmate.", "e4 e5 Nf3 Nc6 Bc4 Nd4 Nxe5 Qg5 Nxf7 Qxg2 Rf1 Qxe4+ Be2 Nf3#"), t("Not every grab loses", "After 4.Nxe5 Qg5 White can defend with 5.Bxf7+ Kd8 and 6.O-O: the trap only works if White carelessly plays 5.Nxf7?")],
+    players: "Named after Joseph Henry Blackburne, who reputedly won shillings from opponents who fell for it; also called the Kostić Gambit after Boris Kostić."
+  },
+  "froms-gambit": {
+    idea: "Against 1.f4 (the Bird Opening) Black replies 1...e5!? and, after 2.fxe5 d6 3.exd6 Bxd6, gets quick development, open lines and a strong bishop aimed at the white kingside for a pawn. A good choice if you like attacking: the g-pawn and the h-file are your weapons.",
+    white: ["Take the pawns and then calmly develop with Nf3, g3, d4 and Bg2.", "Cover h2 and g1 against the bishop and the queen's attack.", "Be ready to give back a pawn to neutralise the attack."],
+    black: ["Play ...g5 and ...g4 to kick the f3 knight and open the h-file.", "Develop with ...Nf6, ...Nc6 and ...Be6 and keep the bishop on d6.", "Watch out for Ne5 or e4 shots that hit your bishop."],
+    structure: "Open f-file and a bishop on d6 pointing at h2. Key squares: h2, g4, e5 and f3.",
+    traps: [t("The Lasker pawn storm", "After 4.Nf3 g5 White must be careful: ...g4 kicks the f3 knight and Black gets attacking chances. A hasty Ne5? can be met by ...Bxe5 and ...Qxd1+, a trade that leaves the white king awkwardly placed on d1."), t("Declining with 2.Nf3", "If White declines with 2.Nf3 e4 3.Ne5 d6 the knight is chased around and Black takes a good share of the centre with ...d5.")],
+    players: "Named after the Danish master Martin From, who published it in 1862. It still scores well at club level, where White is surprised by 1...e5."
+  },
+
 };

@@ -17,7 +17,7 @@ const overflowX = () => page.evaluate(() => document.documentElement.scrollWidth
 
 // ---------------------------------------------------------------- beginner badges, filter, sort
 let cs = await cards();
-check('48 cards; existing rating pill, style tag and gambit tag are all still there', cs.length === 48 && cs.every((c) => c.hasRating && c.hasStyle) && cs.filter((c) => c.gambit).length === 32);
+check('53 cards; existing rating pill, style tag and gambit tag are all still there', cs.length === 53 && cs.every((c) => c.hasRating && c.hasStyle) && cs.filter((c) => c.gambit).length === 37);
 const easy = cs.filter((c) => c.easy);
 check('beginner-friendly badge on the easy cards only (14)', easy.length === 14 && easy.every((c) => /Beginner friendly/.test(c.badge)) && cs.filter((c) => !c.easy).every((c) => c.dots), easy.map((c) => c.id).join());
 check('badges and pills fit inside every card on a 390px phone', cs.every((c) => c.fits));
@@ -37,11 +37,11 @@ check('easy + Gambits combine (gambit-only, all easy)', cs.length >= 5 && cs.eve
 await page.click('#filter-seg button[data-filter="all"]');
 await page.click('#ease-seg button[data-ease="hard"]');
 cs = await cards(); check('Hard filter: 7 openings, no easy badge', cs.length === 7 && cs.every((c) => !c.easy));
-await page.click('#ease-seg button[data-ease="medium"]'); check('Medium filter: 27 openings', (await cards()).length === 27);
+await page.click('#ease-seg button[data-ease="medium"]'); check('Medium filter: 32 openings', (await cards()).length === 32);
 await page.click('#ease-seg button[data-ease="all"]');
 await page.click('#sort-btn');
 cs = await cards();
-check('"Easiest first" sorts all 48 so the first cards are easy and the last are hard', cs.length === 48 && cs.slice(0, 5).every((c) => c.easy) && ['marshall', 'benko', 'dragon'].includes(cs.at(-1).id) && cs.slice(-4).every((c) => !c.easy), cs.slice(0, 3).map((c) => c.id).join() + ' … ' + cs.at(-1).id);
+check('"Easiest first" sorts all 53 so the first cards are easy and the last are hard', cs.length === 53 && cs.slice(0, 5).every((c) => c.easy) && ['marshall', 'benko', 'dragon'].includes(cs.at(-1).id) && cs.slice(-4).every((c) => !c.easy), cs.slice(0, 3).map((c) => c.id).join() + ' … ' + cs.at(-1).id);
 await page.reload();
 check('sort + filter choice persisted after reload', await page.$eval('#sort-btn', (b) => b.classList.contains('active')) && (await cards())[0].easy);
 await page.click('#sort-btn');
@@ -170,7 +170,7 @@ await page.click('#profile-close');
 // corrupt storage must not break the app
 await page.evaluate(() => localStorage.setItem('rt1500-progress', '{broken'));
 await page.reload(); await page.waitForSelector('.ocard');
-check('corrupt saved progress falls back to a clean start', (await page.textContent('#profile-btn .pb-lv')) === 'Lv 1' && (await page.$$('.ocard')).length === 49);
+check('corrupt saved progress falls back to a clean start', (await page.textContent('#profile-btn .pb-lv')) === 'Lv 1' && (await page.$$('.ocard')).length === 54);
 
 // small phone widths: header must still fit
 for (const w of [320, 360, 390, 430]) {

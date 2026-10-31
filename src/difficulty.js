@@ -53,7 +53,8 @@ export function metricsOf(opening, book, meta, style) {
 /** Recompute the whole table from the live book + meta (used by the generator and the test). */
 export function computeEase(openings, buildBook, META, STYLE) {
   const out = {};
-  for (const o of openings) {
+  for (const o0 of openings) {
+    const o = { ...o0, lines: o0.lines.filter((l) => !l.extra) }; // the difficulty rating is about the core book, not the extra reply/trap lines
     const m = metricsOf(o, buildBook(o), META[o.id], STYLE[o.id].style);
     const score = easeScore(m); const ease = classifyEase(score, m.lo);
     out[o.id] = { ease, score, why: easeWhy(m, ease) };

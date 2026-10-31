@@ -3,7 +3,7 @@
 import { OPENINGS } from './openings.js';
 import { META, EASE, styleOf } from './meta.js';
 import { thumbHtml } from './thumb.js';
-import { starsHtml, getRecommendation, getProgress, tierFor } from './progress-ui.js';
+import { starsHtml, getRecommendation, getProgress, tierFor, getDaily } from './progress-ui.js';
 import { TIER_LABEL } from './progress.js';
 
 const $ = (s) => document.querySelector(s);
@@ -40,6 +40,8 @@ export function renderHome(h) {
   if (!pick) {
     const rec = getRecommendation(1);
     pick = rec.list[0]; eyebrow = rec.key === 'easy' ? 'Start here' : 'Up next';
+    const todays = OPENINGS.find((o) => o.id === getDaily().otd);
+    if (todays && !(prog.done > 0) && rec.key !== 'easy') { pick = todays; eyebrow = 'Opening of the day'; }
   }
   const hero = $('#hero');
   if (pick) {
@@ -70,6 +72,20 @@ export function renderHome(h) {
     rail('Gambits for White', 'Sacrifice a pawn, win the initiative', gw.map(tile), 'gambit-white') +
     rail('Gambits for Black', 'Fight back with a sting', gb.map(tile), 'gambit-black') +
     rail('Tactics', prog.tactics && prog.tactics.solved ? `${prog.tactics.solved} solved so far` : 'Puzzles from your openings', tac, null);
+
+  // Opening of the Day + three daily quests
+  const dl = getDaily(), od = OPENINGS.find((o) => o.id === dl.otd);
+  const nDone = dl.quests.filter((q) => q.done).length;
+  $('#home-daily').innerHTML = od ? `<div class="daily-card" style="--sc:${colorOf(od)}">
+    <div class="daily-otd"><div class="daily-art">${thumbHtml(od)}</div><div class="daily-copy"><span class="hero-eyebrow">Opening of the day</span><h3>${esc(od.name)}</h3>
+      <p>${esc(META[od.id] ? META[od.id].desc : od.blurb)}</p>
+      <div class="daily-actions"><button class="btn primary" type="button" data-daily="play">▶ Play it</button><button class="btn ghost" type="button" data-daily="watch">Watch first</button></div></div></div>
+    <div class="daily-quests"><div class="dq-head"><b>Daily quests</b><span>${nDone}/3 done</span></div>
+      ${dl.quests.map((q) => `<div class="dq${q.done ? ' done' : ''}"><span class="dq-ck" aria-hidden="true">${q.done ? '✓' : ''}</span><span class="dq-t">${esc(q.text)}</span><span class="dq-p">${q.goal > 1 ? `${q.n}/${q.goal}` : ''}</span><span class="dq-xp">+${q.xp} XP</span></div>`).join('')}
+    </div></div>` : '';
+  const dPlay = $('#home-daily [data-daily="play"]'), dWatch = $('#home-daily [data-daily="watch"]');
+  if (dPlay) dPlay.onclick = () => h.onStart(od.id);
+  if (dWatch) dWatch.onclick = () => h.onWatch(od.id);
 
   // handlers (re-bound each render; the nodes are new)
   const heroPlay = hero.querySelector('[data-hero="play"]'), heroWatch = hero.querySelector('[data-hero="watch"]'), heroTac = hero.querySelector('[data-hero="tactics"]');

@@ -921,5 +921,135 @@ export const MINED = [
   "note": "Black just played 9...Bd6, which looks natural. But Nxe4 punishes it and wins a piece (engine: +4.7).",
   "setup": 17,
   "line": "e4 e5 Nf3 Nc6 Nc3 Nf6 d4 exd4 Nd5 Nxe4 Qe2 f5 Nd2 d3 Qxd3 Ne5 Qd4 Bd6 Nxe4 fxe4 Bf4 O-O Bxe5"
+ },
+ {
+  "id": "T-urusov-gambit-1",
+  "open": "urusov-gambit",
+  "name": "Urusov trap: 7...Be6?",
+  "rating": 1150,
+  "themes": "hangingPiece",
+  "note": "Black just played 7...Be6, which looks natural. But Bg5 punishes it and wins a rook (engine: +6.8).",
+  "setup": 13,
+  "line": "e4 e5 Bc4 Nf6 d4 Qe7 Nf3 d5 dxe5 dxc4 exf6 Qxf6 Nc3 Be6 Bg5 Qxc3+ bxc3 Nc6 Kf1"
+ },
+ {
+  "id": "T-urusov-gambit-2",
+  "open": "urusov-gambit",
+  "name": "Urusov trap: 8...Qc5?",
+  "rating": 1000,
+  "themes": "hangingPiece",
+  "note": "Black just played 8...Qc5, which looks natural. But Nxe4 punishes it and wins a piece (engine: +5.5).",
+  "setup": 15,
+  "line": "e4 e5 Bc4 Nf6 d4 exd4 Nf3 Nc6 O-O Nxe4 Re1 d5 Bxd5 Qxd5 Nc3 Qc5 Nxe4 Qe7 Bg5 f6 Nxf6+"
+ },
+ {
+  "id": "T-urusov-gambit-3",
+  "open": "urusov-gambit",
+  "name": "Urusov trap: 5...a6?",
+  "rating": 1150,
+  "themes": "hangingPiece",
+  "note": "Black just played 5...a6, which looks natural. But Qd5 punishes it and wins a piece (engine: +5.4).",
+  "setup": 9,
+  "line": "e4 e5 Bc4 Nf6 d4 Nxe4 dxe5 Nc6 Nf3 a6 Qd5 Bb4+ c3 O-O Qxe4"
+ },
+ {
+  "id": "T-tennison-gambit-2",
+  "open": "tennison-gambit",
+  "name": "Tennison trap: 8...a6?",
+  "rating": 1000,
+  "themes": "hangingPiece",
+  "note": "Black just played 8...a6, which looks natural. But Nxf5 punishes it and wins a piece (engine: +6.2).",
+  "setup": 15,
+  "line": "e4 d5 Nf3 c6 Nc3 dxe4 Nxe4 Nf6 Qe2 Nxe4 Qxe4 Be6 Qe3 Bf5 Nd4 a6 Nxf5 Qd5 Qh3 Qe6+ Ne3"
+ },
+ {
+  "id": "T-tennison-gambit-3",
+  "open": "tennison-gambit",
+  "name": "Tennison trap: 8...e5?",
+  "rating": 1150,
+  "themes": "hangingPiece",
+  "note": "Black just played 8...e5, which looks natural. But Bg4 punishes it and wins the queen (engine: +4.9).",
+  "setup": 15,
+  "line": "e4 d5 Nf3 Bg4 exd5 Qxd5 Be2 Nc6 d4 O-O-O c4 Qf5 Be3 Bxf3 Bxf3 e5 Bg4 Bb4+ Nc3 exd4 Bxf5+"
+ },
+ {
+  "id": "T-rasa-studier-1",
+  "open": "rasa-studier",
+  "name": "Rasa-Studier trap: 6...Nh6?",
+  "rating": 1000,
+  "themes": "hangingPiece",
+  "note": "Black just played 6...Nh6, which looks natural. But Bxh6 punishes it and wins a piece (engine: +5.5).",
+  "setup": 11,
+  "line": "e4 c6 d4 d5 Nc3 dxe4 f3 exf3 Nxf3 Bg4 Bc4 Nh6 Bxh6 Nd7 Be3 e6 h3"
+ },
+ {
+  "id": "T-rasa-studier-2",
+  "open": "rasa-studier",
+  "name": "Rasa-Studier trap: 5...c5?",
+  "rating": 1150,
+  "themes": "hangingPiece",
+  "note": "Black just played 5...c5, which looks natural. But Nd5 punishes it and wins a rook (engine: +3.6).",
+  "setup": 9,
+  "line": "e4 c6 d4 d5 Nc3 dxe4 f3 Qb6 Bc4 c5 Nd5 Qg6 Nc7+ Kd8 Nxa8"
+ },
+ {
+  "id": "T-rasa-studier-3",
+  "open": "rasa-studier",
+  "name": "Rasa-Studier trap: 7...g6?",
+  "rating": 1150,
+  "themes": "hangingPiece",
+  "note": "Black just played 7...g6, which looks natural. But h3 punishes it and wins a piece (engine: +3.5).",
+  "setup": 13,
+  "line": "e4 c6 d4 d5 Nc3 dxe4 f3 exf3 Nxf3 Bg4 Bc4 e6 O-O g6 h3 b5 Bb3 b4 hxg4"
+ },
+ {
+  "id": "T-blackburne-shilling-2",
+  "open": "blackburne-shilling",
+  "name": "Blackburne Shilling trap: 6.Qh5?",
+  "rating": 1000,
+  "themes": "hangingPiece",
+  "note": "White just played 6.Qh5, which looks natural. But Qxg2 punishes it and wins a rook (engine: +7.5).",
+  "setup": 10,
+  "line": "e4 e5 Nf3 Nc6 Bc4 Nd4 Nxe5 Qg5 Bxf7+ Kd8 Qh5 Qxg2 d3 Qxh1+ Kd2 Nf6"
+ },
+ {
+  "id": "T-blackburne-shilling-3",
+  "open": "blackburne-shilling",
+  "name": "Blackburne Shilling trap: 6.Ke2?",
+  "rating": 1150,
+  "themes": "hangingPiece",
+  "note": "White just played 6.Ke2, which looks natural. But d5 punishes it and wins a rook (engine: +6.1).",
+  "setup": 10,
+  "line": "e4 e5 Nf3 Nc6 Bc4 Nd4 c3 Nxf3+ Qxf3 Nf6 Ke2 d5 Bxd5 Bg4 Qxg4 Nxg4"
+ },
+ {
+  "id": "T-froms-gambit-1",
+  "open": "froms-gambit",
+  "name": "From's trap: 4.a3?",
+  "rating": 900,
+  "themes": "mateIn3 sacrifice",
+  "note": "White just played 4.a3, which looks natural. But Qh4+ starts a forced checkmate in 3!",
+  "setup": 6,
+  "line": "f4 e5 fxe5 d6 exd6 Bxd6 a3 Qh4+ g3 Bxg3+ hxg3 Qxg3#"
+ },
+ {
+  "id": "T-froms-gambit-2",
+  "open": "froms-gambit",
+  "name": "From's trap: 3.Nh3?",
+  "rating": 1000,
+  "themes": "hangingPiece",
+  "note": "White just played 3.Nh3, which looks natural. But Bxh3 punishes it and wins a piece (engine: +5.6).",
+  "setup": 4,
+  "line": "f4 e5 fxe5 d6 Nh3 Bxh3 exd6 Bxd6 d4 Bd7"
+ },
+ {
+  "id": "T-froms-gambit-3",
+  "open": "froms-gambit",
+  "name": "From's trap: 8.d4?",
+  "rating": 1000,
+  "themes": "hangingPiece",
+  "note": "White just played 8.d4, which looks natural. But Bxd4 punishes it and wins the queen (engine: +4.8).",
+  "setup": 14,
+  "line": "f4 e5 fxe5 d6 exd6 Bxd6 Nf3 g5 g3 g4 Nh4 Ne7 b3 Be5 d4 Bxd4 Bg2 Bxa1 c3 Qxd1+"
  }
 ];

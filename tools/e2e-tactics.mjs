@@ -45,17 +45,17 @@ await page.click('.tab[data-tab="tactics"]');
 await page.waitForSelector('#tac-grid .tcard');
 check('Tactics tab shows; tactics.json fetched once, only now', page.reqs.filter((u) => u.includes('tactics.json')).length === 1 && (await page.isVisible('#tactics')) && !(await page.isVisible('#setup')));
 const cards = await page.$$('#tac-grid .tcard');
-check('a card for every opening (48) plus a Mixed button', cards.length === 48 && (await page.isVisible('#tac-mixed')), String(cards.length));
+check('a card for every opening (53) plus a Mixed button', cards.length === 53 && (await page.isVisible('#tac-mixed')), String(cards.length));
 const FILE = JSON.parse((await import('node:fs')).readFileSync(new URL('../tactics/tactics.json', import.meta.url), 'utf8')).sets; // expected counts come from the data file itself
 const TOTAL = Object.values(FILE).reduce((n, a) => n + a.length, 0), TRAPSETS = Object.values(FILE).filter((a) => a.some((p) => p[0].startsWith('T-'))).length, TRAPN = Object.values(FILE).flat().filter((p) => p[0].startsWith('T-')).length;
-check('header counts total puzzles', new RegExp(`48 openings · ${TOTAL} puzzles · 0 solved`).test(await page.textContent('#tac-count')), await page.textContent('#tac-count'));
+check('header counts total puzzles', new RegExp(`53 openings · ${TOTAL} puzzles · 0 solved`).test(await page.textContent('#tac-count')), await page.textContent('#tac-count'));
 check('cards show solved count, stars, and trap marks', new RegExp(`0 \\/ ${FILE['fried-liver'].length} solved`).test(await page.textContent('.tcard[data-id="fried-liver"]')) && (await page.$$('.tcard[data-id="fried-liver"] .stars i')).length === 3 && /trap/.test(await page.textContent('.tcard[data-id="fried-liver"]')));
 // filters
 await page.click('#tac-kind-seg button[data-kind="gambit"]');
 const nG = (await page.$$('#tac-grid .tcard')).length;
 await page.click('#tac-kind-seg button[data-kind="all"]'); await page.click('#tac-theme-seg button[data-theme="trap"]');
 const nT = (await page.$$('#tac-grid .tcard')).length;
-check('filters: Gambits only, and the "Famous traps" theme narrows the list to openings that have one', nG > 20 && nG < 48 && nT === TRAPSETS && new RegExp(`${TRAPN} puzzles`).test(await page.textContent('#tac-count')), `gambits ${nG}, trap sets ${nT}, ${await page.textContent('#tac-count')}`);
+check('filters: Gambits only, and the "Famous traps" theme narrows the list to openings that have one', nG > 20 && nG < 53 && nT === TRAPSETS && new RegExp(`${TRAPN} puzzles`).test(await page.textContent('#tac-count')), `gambits ${nG}, trap sets ${nT}, ${await page.textContent('#tac-count')}`);
 await page.click('#tac-theme-seg button[data-theme="any"]');
 check('filter choice is remembered', await page.evaluate(() => JSON.parse(localStorage.getItem('ot-prefs')).tacTheme === 'any'));
 await page.click('#tac-theme-seg button[data-theme="fork"]'); check('Forks theme: every card has at least one fork puzzle', (await page.$$('#tac-grid .tcard')).length >= 40); await page.click('#tac-theme-seg button[data-theme="any"]');
