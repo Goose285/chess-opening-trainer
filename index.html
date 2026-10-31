@@ -115,6 +115,10 @@
       </div>
     </div>
     <div class="filter-row level-row">
+      <span class="filter-label" id="tac-rating-label">Rating</span>
+      <div class="seg seg-sm" id="tac-rating-seg" role="radiogroup" aria-labelledby="tac-rating-label"></div>
+    </div>
+    <div class="filter-row level-row">
       <span class="filter-label" id="tac-theme-label">Theme</span>
       <div class="seg seg-sm" id="tac-theme-seg" role="radiogroup" aria-labelledby="tac-theme-label"></div>
     </div>
@@ -138,6 +142,16 @@
         <div class="tag" id="pz-tag-top"><span class="dot"></span><span class="tag-name"></span></div>
         <div class="board-row"><div class="board-wrap"><div id="pz-board" class="cg-board-host"></div></div></div>
         <div class="tag" id="pz-tag-bottom"><span class="dot"></span><span class="tag-name"></span></div>
+        <div id="pz-dock" class="pz-dock" role="group" aria-label="Score and next puzzle">
+          <div id="pz-streak-pill" class="pz-streak" data-tier="0" title="Puzzles in a row solved first try, no hint">
+            <span class="pz-flame" aria-hidden="true">🔥</span>
+            <span class="pz-sn"><b id="pz-streak">0</b><i id="pz-best">best 0</i></span>
+          </div>
+          <div class="pz-score" id="pz-sess" title="Solved first try (no hint) out of puzzles finished this session">
+            <b id="pz-sess-n">0/0</b><i id="pz-sess-acc">first try</i>
+          </div>
+          <button id="pz-next" class="btn primary pz-next" type="button" disabled>Next puzzle ▶</button>
+        </div>
         <div id="pz-rv" class="rv-bar hidden" role="group" aria-label="Step through the solution"></div>
       </section>
 
@@ -154,8 +168,8 @@
 
         <div class="stats" id="pz-head">
           <div><b id="pz-n">1 / 1</b><span>puzzle</span></div>
-          <div><b id="pz-solved">0</b><span>solved here</span></div>
-          <div><b id="pz-streak">0</b><span>streak</span></div>
+          <div><b id="pz-rating">–</b><span>rating</span></div>
+          <div><b id="pz-pts">0</b><span>points here</span></div>
         </div>
 
         <div class="actions pz-actions">

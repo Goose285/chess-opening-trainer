@@ -115,4 +115,23 @@ check('an older save without tactics still loads (nothing lost)', (() => { const
 check('junk tactics data is sanitised', (() => { const l = P.sanitize({ tactics: { solved: -5, streak: 'x', traps: [1, 'a', 'a'], sets: { x: { solved: 'no', flawless: [3, 'b'], tier: 'platinum' }, y: 5 } } }); return l.tactics.solved === 0 && l.tactics.streak === 0 && l.tactics.traps.length === 1 && l.tactics.sets.x.solved.length === 0 && l.tactics.sets.x.flawless.length === 1 && l.tactics.sets.x.tier === 'none' && !l.tactics.sets.y; })());
 check('line drills still behave: applyRun unaffected by the tactics block', (() => { const rr = P.applyRun(P.freshState(), { openingId: 'italian', gambit: false, lineCount: 5, side: 'white', moves: 8, points: 800, pct: 100, hints: 0, retries: 0, perfect: true, maxStreak: 8, variation: 'x', completed: true }, {}); return rr.result.counted && rr.state.tactics.solved === 0 && rr.state.xp >= 800; })());
 
+// ---- rating (ELO) range filter, fire streak tiers, session accuracy
+{
+  const rows = Object.values(JSON.parse(fs.readFileSync(new URL('../tactics/tactics.json', import.meta.url), 'utf8')).sets).flat().map((r) => T.parsePuzzle(r, 'x'));
+  const keys = T.RATING_FILTERS.map((f) => f.key);
+  check('rating chips: All, <900, 900-1100, 1100-1300, 1300+', keys.join() === 'all,u900,r900,r1100,r1300');
+  const per = keys.slice(1).map((k) => rows.filter((p) => T.inRating(p, k)).length);
+  check('the four ranges partition every puzzle exactly once (traps use their stored estimated rating)', per.reduce((a, b) => a + b, 0) === rows.length && rows.every((p) => keys.slice(1).filter((k) => T.inRating(p, k)).length === 1) && rows.every((p) => p.rating > 0), per.join('/'));
+  check('"all" includes everything; unknown key falls back to all', rows.every((p) => T.inRating(p, 'all') && T.inRating(p, 'nonsense')));
+  check('range edges: 899 -> <900, 900 -> 900-1100, 1100 -> 1100-1300, 1300 -> 1300+', T.inRating({ rating: 899 }, 'u900') && T.inRating({ rating: 900 }, 'r900') && !T.inRating({ rating: 900 }, 'u900') && T.inRating({ rating: 1100 }, 'r1100') && T.inRating({ rating: 1300 }, 'r1300') && !T.inRating({ rating: 1299 }, 'r1300'));
+  check('every range holds at least 250 puzzles (no near-empty chips)', keys.slice(1).every((k) => rows.filter((p) => T.inRating(p, k)).length >= 250));
+  check('traps all have a rating estimate inside the data range', rows.filter((p) => p.trap).every((p) => p.rating >= 500 && p.rating <= 1300));
+  check('fire streak tiers: 0-2 cold, 3-4 flame, 5-9 big flame, 10+ inferno', [0, 2, 3, 4, 5, 9, 10, 40].map(T.streakTier).join() === '0,0,1,1,2,2,3,3');
+  check('session accuracy: 0 attempts -> none, 5/6 -> 83%, 1/3 -> 33%, 4/4 -> 100%', T.accuracy(0, 0) === null && T.accuracy(5, 6) === 83 && T.accuracy(1, 3) === 33 && T.accuracy(4, 4) === 100);
+  // the queue respects a rating-filtered pool (and an empty pool is just an empty queue)
+  const pool = rows.filter((p) => T.inRating(p, 'r1100'));
+  const q = T.buildQueue(pool, []);
+  check('buildQueue on a filtered pool: only that range, easiest first', q.length === pool.length && q.every((p, i) => T.inRating(p, 'r1100') && (i === 0 || p.rating >= q[i - 1].rating)) && T.buildQueue([], []).length === 0);
+}
+
 console.log(ok ? '\nALL PASS' : '\nSOME FAILED'); process.exit(ok ? 0 : 1);

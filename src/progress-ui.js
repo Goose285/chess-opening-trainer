@@ -264,6 +264,12 @@ export function recordPuzzle(pz) {
   if (result.newQuests && result.newQuests.length) announceQuests(result.newQuests, result.gained.quest);
   return result;
 }
+/** A wrong move ends the tactics streak right away (the puzzle itself is recorded when it finishes). Returns true if a streak was lost. */
+export function breakTacticsStreak() {
+  if (!state.tactics.streak) return false;
+  state = JSON.parse(JSON.stringify(state)); state.tactics.streak = 0; persist();
+  return true;
+}
 /** Celebrations for a solved puzzle (star / badges / level). Same overlay as lines; XP for the solve itself is shown in the puzzle panel. */
 export function celebratePuzzle(result, pz) {
   if (!result.counted) return;

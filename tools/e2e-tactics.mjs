@@ -33,7 +33,7 @@ async function solveCurrent(page) {
     await page.waitForFunction((n) => { const x = window.__tac.run(); return x.phase === 'over' || x.idx > n || (x.phase === 'user' && x.idx > n); }, r.idx, { timeout: 15000 });
   }
 }
-const clickNext = async (page) => { await page.click('#pz-fb-actions button.primary'); };
+const clickNext = async (page) => { await page.waitForSelector('#pz-next:not([disabled])'); await page.click('#pz-next'); };
 const state = (page) => page.evaluate(() => JSON.parse(localStorage.getItem('rt1500-progress')));
 const openSet = async (page, id) => { await page.evaluate(() => window.__ot.goTab('tactics')); await page.waitForSelector('#tac-grid .tcard'); await page.click(`.tcard[data-id="${id}"]`); await waitPhase(page, 'user'); };
 

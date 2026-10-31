@@ -690,4 +690,4 @@ renderGrid(); updateStartBar();
 { const h = location.hash.replace(/^#\/?/, ''); goTab(['home', 'openings', 'tactics'].includes(h) ? h : 'home'); }
 
 // test/debug hook
-window.__ot = { demoState, Chess, bookMoves, posKey, engine, getSession: () => session, getCg: () => cg, goTab };
+window.__ot = { demoState, Chess, bookMoves, posKey, engine, getSession: () => session, getCg: () => cg, goTab, startTacticsFor };

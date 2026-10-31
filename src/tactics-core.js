@@ -114,3 +114,22 @@ export function buildQueue(pool, solved, { size = Infinity, random = false, rng 
   const q = fresh.sort(byRating).concat(done.sort(byRating));
   return q.slice(0, size);
 }
+
+// ---- rating (ELO) range filter. Lichess puzzle ratings in the data run 515 to 1500; the hand-made famous traps carry an estimated rating
+// (500 to 1300) in the same field, so they are filtered exactly like every other puzzle. The buckets are quartile-sized for this data
+// (a "1600+" chip would be empty, so the top chip is 1300+).
+export const RATING_FILTERS = [
+  { key: 'all', label: 'All', min: 0, max: Infinity },
+  { key: 'u900', label: '<900', min: 0, max: 900 },
+  { key: 'r900', label: '900\u20131100', min: 900, max: 1100 },
+  { key: 'r1100', label: '1100\u20131300', min: 1100, max: 1300 },
+  { key: 'r1300', label: '1300+', min: 1300, max: Infinity },
+];
+export const ratingFilter = (key) => RATING_FILTERS.find((f) => f.key === key) || RATING_FILTERS[0];
+export const inRating = (p, key) => { const f = ratingFilter(key); return p.rating >= f.min && p.rating < f.max; };
+
+// ---- fire streak: 0 = cold, 1 = flame (3 in a row), 2 = big flame + glow (5), 3 = blue inferno (10)
+export const STREAK_STEPS = [3, 5, 10];
+export const streakTier = (n) => STREAK_STEPS.filter((x) => n >= x).length;
+/** session score: hits = puzzles solved first try with no hint, attempted = every puzzle you finished (solved, solution shown or skipped) */
+export const accuracy = (hits, attempted) => (attempted > 0 ? Math.round((100 * hits) / attempted) : null);

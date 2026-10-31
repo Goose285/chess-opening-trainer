@@ -9,9 +9,9 @@ import { haptic } from './haptics.js';
 import { thumbHtml } from './thumb.js';
 import { createStepper } from './stepper.js';
 import {
-  parseData, buildQueue, THEME_FILTERS, themeFilter, themesOf, solverColor, solverMoveCount, maxPoints, movePoints, judgeMove, splitUci, HINT_POINTS,
+  parseData, buildQueue, THEME_FILTERS, themeFilter, RATING_FILTERS, ratingFilter, inRating, streakTier, accuracy, themesOf, solverColor, solverMoveCount, maxPoints, movePoints, judgeMove, splitUci, HINT_POINTS,
 } from './tactics-core.js';
-import { recordPuzzle, celebratePuzzle, getProgress, tacticTier, tacticSolved, tacticStarsHtml, onProgressChange } from './progress-ui.js';
+import { recordPuzzle, breakTacticsStreak, celebratePuzzle, getProgress, tacticTier, tacticSolved, tacticStarsHtml, onProgressChange } from './progress-ui.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
@@ -24,8 +24,9 @@ const MIXED_SIZE = 10;
 let host = { show: () => {} };     // set by initTactics: { show(screenId) }
 let data = null, loading = null, loadError = null; // { [openingId]: puzzle[] }
 const prefs = (() => { try { return JSON.parse(localStorage.getItem('ot-prefs') || '{}'); } catch { return {}; } })();
-const savePrefs = () => { try { const cur = JSON.parse(localStorage.getItem('ot-prefs') || '{}'); cur.tacKind = prefs.tacKind; cur.tacTheme = prefs.tacTheme; localStorage.setItem('ot-prefs', JSON.stringify(cur)); } catch {} };
-let kind = prefs.tacKind || 'all', themeKey = prefs.tacTheme || 'any';
+const savePrefs = () => { try { const cur = JSON.parse(localStorage.getItem('ot-prefs') || '{}'); cur.tacKind = prefs.tacKind; cur.tacTheme = prefs.tacTheme; cur.tacRating = prefs.tacRating; localStorage.setItem('ot-prefs', JSON.stringify(cur)); } catch {} };
+let kind = prefs.tacKind || 'all', themeKey = prefs.tacTheme || 'any', ratingKey = RATING_FILTERS.some((f) => f.key === prefs.tacRating) ? prefs.tacRating : 'all';
+const passes = (p) => themeFilter(themeKey).test(p) && inRating(p, ratingKey);
 let sess = null;   // { mode: 'opening'|'mixed', openingId, queue, index, solved, points, xp }
 let run = null;    // the puzzle being played
 let cg = null, detachLift = null;
@@ -41,7 +42,7 @@ export function loadData() {
   return loading;
 }
 const openingOf = (id) => OPENINGS.find((o) => o.id === id);
-const filteredSet = (id) => (data[id] || []).filter(themeFilter(themeKey).test);
+const filteredSet = (id) => (data[id] || []).filter(passes);
 const kindOk = (o) => kind === 'all' || (kind === 'gambit' ? !!o.gambit : o.side === kind);
 const allSolved = () => { const s = new Set(); for (const r of Object.values(getProgress().tactics.sets)) r.solved.forEach((x) => s.add(x)); return s; };
 
@@ -61,7 +62,7 @@ function renderHome() {
     grid.innerHTML = '';
     return;
   }
-  const pf = themeFilter(themeKey).test;
+  const pf = passes;
   const openings = OPENINGS.filter((o) => data[o.id] && kindOk(o));
   const sets = openings.map((o) => ({ o, pool: data[o.id].filter(pf) })).filter((x) => x.pool.length);
   const total = sets.reduce((n, x) => n + x.pool.length, 0);
@@ -86,7 +87,17 @@ function renderHome() {
     c.addEventListener('click', () => startSet(o.id));
     grid.appendChild(c);
   }
-  if (!sets.length) grid.appendChild(el('p', 'tac-empty', 'No puzzles match these filters. Try another theme.'));
+  if (!sets.length) {
+    const none = el('div', 'tac-empty', `<p>No puzzles match these filters${ratingKey !== 'all' ? ` (rating ${esc(ratingFilter(ratingKey).label)})` : ''}.</p>`);
+    const b = el('button', 'btn', ratingKey !== 'all' ? 'Show all ratings' : 'Show all themes'); b.type = 'button';
+    b.addEventListener('click', () => { if (ratingKey !== 'all') setRating('all'); else { themeKey = 'any'; kind = 'all'; prefs.tacTheme = themeKey; prefs.tacKind = kind; savePrefs(); setSeg($('#tac-theme-seg'), 'theme', themeKey); setSeg($('#tac-kind-seg'), 'kind', kind); renderHome(); } });
+    none.appendChild(b); grid.appendChild(none);
+  }
+}
+function setRating(key) {
+  ratingKey = RATING_FILTERS.some((f) => f.key === key) ? key : 'all';
+  prefs.tacRating = ratingKey; savePrefs();
+  setSeg($('#tac-rating-seg'), 'rating', ratingKey); renderHome();
 }
 function refreshChrome() {
   const f = $('#tac-stats'); if (f) f.innerHTML = statsHtml();
@@ -119,12 +130,14 @@ export async function openTactics() {
 async function startSet(openingId) {
   try { await loadData(); } catch { return; }
   const solvedAll = openingId === 'mixed' ? allSolved() : new Set(tacticSolved(openingId));
-  let pool;
-  if (openingId === 'mixed') pool = OPENINGS.filter((o) => data[o.id] && kindOk(o)).flatMap((o) => data[o.id].filter(themeFilter(themeKey).test));
-  else pool = filteredSet(openingId);
+  const poolOf = (ok) => (openingId === 'mixed' ? OPENINGS.filter((o) => data[o.id] && kindOk(o)).flatMap((o) => data[o.id].filter(ok)) : (data[openingId] || []).filter(ok));
+  let pool = poolOf(passes), ratingNote = '';
+  // nothing in the chosen rating range for this opening (e.g. 1300+ in a small set): play it at all ratings instead of a dead end
+  if (!pool.length && ratingKey !== 'all') { pool = poolOf((p) => themeFilter(themeKey).test(p)); ratingNote = `none at ${ratingFilter(ratingKey).label}, showing all`; }
   if (!pool.length) return;
   const queue = buildQueue(pool, [...solvedAll], openingId === 'mixed' ? { size: MIXED_SIZE, random: true } : {});
-  sess = { mode: openingId === 'mixed' ? 'mixed' : 'opening', openingId, queue, index: 0, solved: 0, points: 0, xp: 0, skipped: 0 };
+  sess = { mode: openingId === 'mixed' ? 'mixed' : 'opening', openingId, queue, index: 0, solved: 0, points: 0, xp: 0, skipped: 0, hits: 0, attempted: 0, ratingNote };
+  shownStreak = null;
   host.show('puzzle');
   initBoard();
   loadPuzzle();
@@ -165,7 +178,8 @@ async function loadPuzzle() {
   window.__tac = { run: () => run, sess: () => sess, data: () => data, cg: () => cg };
   closeReview();
   const o = openingOf(p.openingId);
-  $('#pz-eyebrow').textContent = sess.mode === 'mixed' ? 'Tactics · Mixed' : 'Tactics';
+  const rtag = sess.ratingNote ? ` · ${sess.ratingNote}` : ratingKey !== 'all' ? ` · ${ratingFilter(ratingKey).label}` : '';
+  $('#pz-eyebrow').textContent = (sess.mode === 'mixed' ? 'Tactics · Mixed' : 'Tactics') + rtag;
   $('#pz-title').textContent = sess.mode === 'mixed' ? 'Mixed puzzles' : (o ? o.name : 'Puzzle');
   $('#pz-stars').innerHTML = sess.mode === 'mixed' ? '' : tacticStarsHtml(p.openingId, (data[p.openingId] || []).length);
   setTags();
@@ -211,6 +225,9 @@ function setButtons() {
   $('#pz-solution').disabled = !live;
   $('#pz-skip').disabled = !run || run.finished || run.phase === 'busy' && !run.revealing;
   $('#pz-skip').hidden = !!(run && run.finished);
+  const nx = $('#pz-next'), ready = !!(run && run.finished && sess);
+  nx.disabled = !ready; nx.classList.toggle('ready', ready);
+  nx.textContent = sess && sess.index + 1 >= sess.queue.length ? 'Finish ▶' : 'Next puzzle ▶';
 }
 
 // ------------------------------------------------------------------ your moves
@@ -235,6 +252,7 @@ async function handleMove(from, to) {
     try { const t = new Chess(fenBefore); san = t.move({ from, to, promotion: promo }).san; } catch {}
     r.cur.wrong = true; r.wrongs++; r.moveTries++;
     haptic('wrong');
+    breakTacticsStreak(); updateStats(); // a miss ends the fire streak right away
     r.phase = 'user';
     syncBoard({ lastMove: lastOf(g), drawable: { autoShapes: [] } });
     const extra = r.moveTries >= 2 ? ' Stuck? Use the hint (5 pts) or show the solution.' : ' Look for checks, captures and threats.';
@@ -291,17 +309,17 @@ async function showSolution() {
     syncBoard({ lastMove: [mv.from, mv.to], drawable: { autoShapes: [] } });
     r.idx++;
   }
-  r.revealing = false; r.finished = true; r.phase = 'over';
+  r.revealing = false; r.finished = true; r.phase = 'over'; sess.attempted++;
   const res = recordPuzzle({ openingId: p.openingId, id: p.id, trap: p.trap, setSize: (data[p.openingId] || []).length, kind: 'revealed', points: 0, max: maxPoints(p), wrongs: r.wrongs, hints: r.hints });
   updateStats();
-  setFeedback('mistake', '👁', 'Solution shown', `The line was <b>${esc(sans.join(' '))}</b>.${lessonHtml(p)}<br>No points for this one${res.streak === 0 ? ', and your puzzle streak starts over' : ''}. You can try it again later.`, null, nextActions());
+  setFeedback('mistake', '👁', 'Solution shown', `The line was <b>${esc(sans.join(' '))}</b>.${lessonHtml(p)}<br>No points for this one${res.streak === 0 ? ', and your puzzle streak starts over' : ''}. You can try it again later.`);
   setButtons();
   openReview();
 }
 function skipPuzzle() {
   const r = run; if (!r || r.finished) return;
   const p = r.p;
-  r.finished = true; r.phase = 'over'; sess.skipped++;
+  r.finished = true; r.phase = 'over'; sess.skipped++; sess.attempted++;
   recordPuzzle({ openingId: p.openingId, id: p.id, trap: p.trap, setSize: (data[p.openingId] || []).length, kind: 'skipped', points: 0, max: maxPoints(p), wrongs: r.wrongs, hints: r.hints });
   updateStats(); advance();
 }
@@ -322,13 +340,13 @@ function finishSolved(lastMv) {
   const setSize = (data[p.openingId] || []).length;
   const pz = { openingId: p.openingId, id: p.id, trap: p.trap, setSize, kind: 'solved', points: r.points, max, wrongs: r.wrongs, hints: r.hints };
   const res = recordPuzzle(pz);
-  sess.solved++; sess.points += r.points; sess.xp += res.gained.total;
+  sess.solved++; sess.attempted++; if (r.wrongs === 0 && r.hints === 0) sess.hits++; sess.points += r.points; sess.xp += res.gained.total;
   haptic('celebrate');
   const flawless = r.wrongs === 0 && r.hints === 0;
   const chips = [`<span class="fchip"><i>Points</i><b>${r.points} / ${max}</b></span>`, `<span class="fchip"><i>XP</i><b>+${res.gained.total}${res.xpFactor < 1 ? ' (re-solve)' : ''}</b></span>`];
   if (res.streak >= 2) chips.push(`<span class="fchip"><i>Streak</i><b>🔥 ${res.streak}</b></span>`);
   if (res.tierUp) chips.push(`<span class="fchip"><i>Star</i><b>★ ${res.tierUp.to}</b></span>`);
-  setFeedback('best', '🎯', flawless ? 'Solved — first try!' : 'Solved!', `<b>${esc(lastMv.san)}</b> finishes it.${lessonHtml(p)}`, chips, nextActions());
+  setFeedback('best', '🎯', flawless ? 'Solved — first try!' : 'Solved!', `<b>${esc(lastMv.san)}</b> finishes it.${lessonHtml(p)}`, chips);
   $('#pz-stars').innerHTML = sess.mode === 'mixed' ? '' : tacticStarsHtml(p.openingId, setSize);
   updateStats();
   setButtons();
@@ -336,7 +354,7 @@ function finishSolved(lastMv) {
   openReview();
   setTimeout(() => celebratePuzzle(res, { setSize, openingName: o ? o.name : '' }), 1100);
 }
-const nextActions = () => [{ label: sess.index + 1 < sess.queue.length ? 'Next puzzle ▶' : 'Finish ▶', cls: 'primary', fn: () => advance() }];
+$('#pz-next').addEventListener('click', () => { if (run && run.finished && sess) advance(); });
 
 function advance() {
   sess.index++;
@@ -354,7 +372,7 @@ function roundOver() {
     { label: mixed ? 'Another round ▶' : 'Play this set again ▶', cls: 'primary', fn: () => startSet(sess.openingId) },
     { label: '☰ Tactics', fn: leave },
   ]);
-  $('#pz-hint').disabled = true; $('#pz-solution').disabled = true; $('#pz-skip').hidden = true;
+  $('#pz-hint').disabled = true; $('#pz-solution').disabled = true; $('#pz-skip').hidden = true; $('#pz-next').disabled = true;
   cg.set({ movable: { color: undefined, dests: new Map() }, drawable: { autoShapes: [] } });
 }
 function leave() {
@@ -395,13 +413,28 @@ function setFeedback(state, badge, title, textHtml, chips, actions) {
   const a = $('#pz-fb-actions'); a.innerHTML = '';
   (actions || []).forEach((x) => { const b = el('button', 'btn ' + (x.cls || ''), x.label); b.addEventListener('click', x.fn); a.appendChild(b); });
 }
+let shownStreak = null;
 function updateStats() {
   if (!run || !sess) return;
   $('#pz-score').textContent = run.points;
   $('#pz-score-sub').textContent = `/ ${maxPoints(run.p)} pts`;
   $('#pz-n').textContent = `${Math.min(sess.index + 1, sess.queue.length)} / ${sess.queue.length}`;
-  $('#pz-solved').textContent = sess.solved;
-  $('#pz-streak').textContent = getProgress().tactics.streak;
+  $('#pz-rating').textContent = run.p.trap ? `~${run.p.rating}` : run.p.rating;
+  $('#pz-pts').textContent = fmt(sess.points + run.points * (run.finished ? 0 : 1));
+  // dock: fire streak (saved in the progress, so it carries over), best streak, session score
+  const t = getProgress().tactics, n = t.streak, tier = streakTier(n);
+  const pill = $('#pz-streak-pill');
+  $('#pz-streak').textContent = n; $('#pz-best').textContent = `best ${t.bestStreak}`;
+  pill.dataset.tier = tier;
+  if (shownStreak !== null && n !== shownStreak) {
+    const cls = n > shownStreak ? (tier > streakTier(shownStreak) ? 'level' : 'bump') : 'lost';
+    pill.classList.remove('bump', 'level', 'lost'); void pill.offsetWidth; pill.classList.add(cls);
+  }
+  shownStreak = n;
+  pill.setAttribute('aria-label', `Streak ${n}${tier ? ', on fire' : ''}. Best ${t.bestStreak}.`);
+  const acc = accuracy(sess.hits, sess.attempted);
+  $('#pz-sess-n').textContent = `${sess.hits}/${sess.attempted}`;
+  $('#pz-sess-acc').textContent = acc == null ? 'first try' : `${acc}% first try`;
 }
 
 // ------------------------------------------------------------------ boot
@@ -412,6 +445,10 @@ export function initTactics(h) {
   themeSeg.innerHTML = THEME_FILTERS.map((f) => `<button data-theme="${f.key}" role="radio">${f.label}</button>`).join('');
   if (!THEME_FILTERS.some((f) => f.key === themeKey)) themeKey = 'any';
   if (!['all', 'gambit', 'white', 'black'].includes(kind)) kind = 'all';
+  const ratingSeg = $('#tac-rating-seg');
+  ratingSeg.innerHTML = RATING_FILTERS.map((f) => `<button data-rating="${f.key}" role="radio">${f.label}</button>`).join('');
+  setSeg(ratingSeg, 'rating', ratingKey);
+  ratingSeg.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setRating(b.dataset.rating); });
   setSeg(themeSeg, 'theme', themeKey); setSeg($('#tac-kind-seg'), 'kind', kind);
   themeSeg.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; themeKey = b.dataset.theme; prefs.tacTheme = themeKey; savePrefs(); setSeg(themeSeg, 'theme', themeKey); renderHome(); });
   $('#tac-kind-seg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; kind = b.dataset.kind; prefs.tacKind = kind; savePrefs(); setSeg($('#tac-kind-seg'), 'kind', kind); renderHome(); });
