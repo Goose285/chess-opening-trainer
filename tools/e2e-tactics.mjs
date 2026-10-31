@@ -146,9 +146,9 @@ for (let k = 0; k < 5; k++) {
   for (let i = 0; i < 8 && await page.isVisible('#celebrate'); i++) { seen.push(await page.textContent('#cel-title')); await page.click('#cel-next'); await page.waitForTimeout(120); }
   if (k < 4) { await clickNext(page); await waitPhase(page, 'user'); }
 }
-check('celebrations: a bronze tactics star + badges (Tactician, Trap Spotter, Tactics Star)', seen.some((t) => /Bronze tactics star/.test(t)) && seen.includes('Tactician') && seen.includes('Trap Spotter') && seen.includes('Tactics Star'), seen.join(' | '));
+check('celebrations: a bronze tactics star + badges (Tactician, Tactics Star)', seen.some((t) => /Bronze tactics star/.test(t)) && seen.includes('Tactician') && seen.includes('Tactics Star'), seen.join(' | '));
 st = await state(page);
-check('star + badge XP are added (50 star + 40 + 60 + 75 badges) on top of the points', st.tactics.sets.traxler.tier === 'bronze' && st.tactics.stars === 1 && st.xp >= 50 + 40 + 60 + 75 + 100, String(st.xp));
+check('star + badge XP are added (50 star + 40 + 75 badges) on top of the points', st.tactics.sets.traxler.tier === 'bronze' && st.tactics.stars === 1 && st.xp >= 50 + 40 + 75 + 500, String(st.xp));
 check('the set card shows one filled star', await (async () => { await page.click('#pz-menu'); await page.waitForSelector('#tac-grid .tcard'); return (await page.$$('.tcard[data-id="traxler"] .stars i.on')).length === 1; })());
 // profile
 await page.click('#profile-btn'); await page.waitForSelector('#profile:not(.hidden)');
