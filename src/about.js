@@ -1,4 +1,5 @@
 // "About & licenses" screen (opened from Home footer, Profile and the theme picker). Content: src/licenses.js.
+import { tipHtml } from './tip.js';
 import { COMPONENTS, STATEMENTS, REPO_URL } from './licenses.js';
 
 const $ = (s) => document.querySelector(s);
@@ -17,6 +18,7 @@ function render() {
   }).join('');
   $('#about-body').innerHTML = `
     <p class="ab-lead">Pawnado is free software released under the <b>GNU General Public License v3 or later</b>. You can read, copy, change and share it under that licence. It comes with <b>no warranty</b>.</p>
+    <div class="ab-tip">${tipHtml(true)}</div>
     <p class="ab-src"><a class="btn primary" href="${esc(REPO_URL)}" target="_blank" rel="noopener" id="about-source">Get the complete source code</a>
     <a class="btn" href="${esc(REPO_URL)}/blob/main/LICENSE" target="_blank" rel="noopener">Read the GPL</a></p>
     ${rows}

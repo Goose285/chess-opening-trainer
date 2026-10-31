@@ -5,6 +5,7 @@ import {
   LEVELS, levelInfo, levelFor, ACHIEVEMENTS, achievementById, TIER_LABEL, TIER_RULE, STAR_BONUS, applyRun, applyWatch,
   loadState, saveState, freshState, tierOf, starsOf, recommend, dayKey, applyPuzzle, tacticRules,
 } from './progress.js';
+import { tipHtml } from './tip.js';
 import { openingOfTheDay, rollDaily, questList } from './daily.js';
 
 const $ = (s) => document.querySelector(s);
@@ -128,6 +129,7 @@ function renderProfile() {
     <section class="pf-sec"><h3>Badges <span>${unlocked}/${ACHIEVEMENTS.length}</span></h3><div class="bdg-grid">${badges}</div></section>
     <section class="pf-sec"><h3>The road to 1500</h3><ol class="road">${road}</ol>
       <p class="pf-rule">You earn XP equal to your points on every finished line, plus bonuses for perfect lines, new openings, stars and badges. Replaying the same opening many times earns less, so mix it up.</p></section>
+    <section class="pf-sec pf-tip">${tipHtml()}</section>
     <section class="pf-sec pf-reset"><button id="pf-reset" class="btn ghost" type="button">Reset my progress</button><span id="pf-reset-ask" class="hidden"> Erase all XP, stars and badges? <button id="pf-reset-yes" class="btn danger" type="button">Yes, erase</button> <button id="pf-reset-no" class="btn" type="button">Cancel</button></span></section>`;
   const ask = $('#pf-reset-ask'), rb = $('#pf-reset');
   rb.addEventListener('click', () => { ask.classList.remove('hidden'); rb.classList.add('hidden'); });

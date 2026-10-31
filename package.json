@@ -30,6 +30,7 @@
     "test:tactics-unit": "node tools/test-tactics.mjs",
     "test:tactics": "node tools/e2e-tactics.mjs",
     "test:tactics-dock": "node tools/e2e-tactics-dock.mjs",
+    "test:tip": "node tools/e2e-tip.mjs",
     "test:stepper": "node tools/e2e-stepper.mjs",
     "test:nav": "node tools/e2e-nav.mjs",
     "test:licenses": "node tools/check-licenses.mjs",
