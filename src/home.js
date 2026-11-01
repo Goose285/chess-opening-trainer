@@ -80,8 +80,9 @@ export function renderHome(h) {
     <div class="daily-otd"><div class="daily-art">${thumbHtml(od)}</div><div class="daily-copy"><span class="hero-eyebrow">Opening of the day</span><h3>${esc(od.name)}</h3>
       <p>${esc(META[od.id] ? META[od.id].desc : od.blurb)}</p>
       <div class="daily-actions"><button class="btn primary" type="button" data-daily="play">▶ Play it</button><button class="btn ghost" type="button" data-daily="watch">Watch first</button></div></div></div>
-    <div class="daily-quests"><div class="dq-head"><b>Daily quests</b><span>${nDone}/3 done</span></div>
-      ${dl.quests.map((q) => `<div class="dq${q.done ? ' done' : ''}"><span class="dq-ck" aria-hidden="true">${q.done ? '✓' : ''}</span><span class="dq-t">${esc(q.text)}</span><span class="dq-p">${q.goal > 1 ? `${q.n}/${q.goal}` : ''}</span><span class="dq-xp">+${q.xp} XP</span></div>`).join('')}
+    <div class="daily-quests"><div class="dq-head"><b>Daily quests</b><span>${nDone}/${dl.quests.length} done · resets at midnight</span></div>
+      ${dl.quests.map((q) => `<div class="dq${q.done ? ' done' : ''}" data-kind="${q.kind}"><span class="dq-ck" aria-hidden="true">${q.done ? '✓' : ''}</span><span class="dq-t">${esc(q.text)}</span><span class="dq-xp">+${q.xp} XP</span><span class="dq-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${q.goal}" aria-valuenow="${q.n}" aria-label="${esc(q.text)}"><i style="width:${Math.round(100 * q.n / q.goal)}%"></i></span><span class="dq-p">${q.n}/${q.goal}</span></div>`).join('')}
+      ${dl.allDone ? '<p class="dq-all">All quests done. Come back tomorrow for new ones.</p>' : ''}
     </div></div>` : '';
   const dPlay = $('#home-daily [data-daily="play"]'), dWatch = $('#home-daily [data-daily="watch"]');
   if (dPlay) dPlay.onclick = () => h.onStart(od.id);

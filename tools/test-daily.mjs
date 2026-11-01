@@ -4,7 +4,7 @@ import * as P from '../src/progress.js';
 import { OPENINGS } from '../src/openings.js';
 let bad = 0;
 const check = (n, ok, d = '') => { console.log(`${ok ? 'PASS' : 'FAIL'} ${n}${ok ? '' : ' — ' + d}`); if (!ok) bad++; };
-const ids = OPENINGS.filter((o) => o.lines.length).map((o) => o.id);
+const ids = OPENINGS.filter((o) => o.lines.length && o.gambit).map((o) => o.id);
 const days = Array.from({ length: 60 }, (_, i) => P.dayKey(new Date(2026, 0, 1 + i)));
 check('the same day always gives the same opening, whatever the list order', D.openingOfTheDay(ids, days[3]) === D.openingOfTheDay([...ids].reverse(), days[3]));
 const picks = days.map((d) => D.openingOfTheDay(ids, d));

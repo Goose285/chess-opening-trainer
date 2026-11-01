@@ -211,7 +211,7 @@ export function applyRun(prev, run, ctxExtra = {}, now = new Date()) {
     }
   }
   s.xp += gained.base + gained.perfect + gained.first + gained.star;
-  const dq = dailyStep(s, { type: 'run', openingId: run.openingId, gambit: run.gambit, side: run.side, pct: run.pct, hints: run.hints, completed: !!run.completed }, ctxExtra, today);
+  const dq = dailyStep(s, { type: 'run', openingId: run.openingId, gambit: run.gambit, side: run.side, pct: run.pct, hints: run.hints, perfect: !!run.perfect, completed: !!run.completed }, ctxExtra, today);
   gained.quest = dq.xp; result.newQuests = dq.done;
 
   // achievements (may award extra XP, which can in turn unlock more - loop until stable)
@@ -287,7 +287,7 @@ export function applyPuzzle(prev, pz, ctxExtra = {}, now = new Date()) {
     result.tierUp = { from: rec.tier, to: tier }; rec.tier = tier; t.stars = count(t.sets, (x) => x.tier !== 'none');
   }
   s.xp += result.gained.base + result.gained.star;
-  const dq = dailyStep(s, { type: 'puzzle' }, ctxExtra, today); result.gained.quest = dq.xp; result.newQuests = dq.done;
+  const dq = dailyStep(s, { type: 'puzzle', trap: !!pz.trap, flawless }, ctxExtra, today); result.gained.quest = dq.xp; result.newQuests = dq.done;
   const ach = awardAchievements(s, { puzzle: pz, opening: pz.openingId, tierUp: result.tierUp }, ctxExtra, today);
   result.gained.ach = ach.xp; result.newAch = ach.ids;
   result.gained.total = result.gained.base + result.gained.star + result.gained.ach + result.gained.quest;

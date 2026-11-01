@@ -23,8 +23,8 @@ let openings = [], easeOf = () => null, hooks = {};
 const listeners = [];
 export const onProgressChange = (fn) => listeners.push(fn);
 export const getProgress = () => state;
-/** Opening of the Day: same for everyone on the same local date. Only openings that actually have lines. */
-export const otdIdNow = () => openingOfTheDay(openings.filter((o) => o.lines.length).map((o) => o.id), dayKey());
+/** Opening of the Day: same for everyone on the same local date. A gambit (that has lines); falls back to any opening if there are none. */
+export const otdIdNow = () => { const have = openings.filter((o) => o.lines.length), g = have.filter((o) => o.gambit); return openingOfTheDay((g.length ? g : have).map((o) => o.id), dayKey()); };
 const withOtd = () => ({ ...ctxExtra, otdId: otdIdNow() });
 /** Today's three quests with progress (rolled to today without saving). */
 export function getDaily() {
@@ -32,7 +32,7 @@ export function getDaily() {
   const nameOf = (id) => (openings.find((o) => o.id === id) || {}).name || '';
   return { otd, day: d.day, quests: questList(d, nameOf), allDone: d.kinds.every((k) => d.done[k]) };
 }
-const QUEST_NAME = { otd: "Opening of the Day", puzzles: 'Tactics', lines: 'Lines', clean: 'Clean run', watch: 'Watch first', gambit: 'Gambit', white: 'As White', black: 'As Black' };
+const QUEST_NAME = { otd: "Opening of the Day", puzzles: 'Tactics', lines: 'Lines', clean: 'Clean run', watch: 'Watch first', gambit: 'Gambit', traps: 'Traps', perfect: 'Perfect line', white: 'As White', black: 'As Black' };
 function announceQuests(kinds, xp) { setTimeout(() => toast('🎯', `Daily quest complete: ${kinds.map((k) => QUEST_NAME[k]).join(', ')}`, `+${xp} XP`), 600); }
 const notify = () => listeners.forEach((f) => f(state));
 const persist = () => { saveState(localStorage, state); updateChrome(); notify(); };

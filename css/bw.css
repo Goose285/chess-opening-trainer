@@ -140,3 +140,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible, button:focus-
 @media (max-width: 380px) { .brand .wordmark { font-size: 15px; } .brand .logo { width: 26px; height: 26px; } .top .brand { gap: 5px; } .profile-btn .pb-lv { gap: 5px; } }
 .rd-todo { opacity: 1; } .rd-todo .rd-name b { color: #b5b5b5; } .rd-todo .rd-name em, .rd-todo .rd-xp { color: #8f8f8f; } .rd-todo .rd-dot { opacity: .7; }
 .bdg em { color: var(--gold); } .bdg em.dim { color: #9a9a9a; } .bdg.locked { opacity: .8; }
+
+/* daily quests: white bar while in progress, gold once the quest (an achievement) is complete */
+.dq.done .dq-bar i { background: var(--gold); }
+.dq.done .dq-p { color: var(--gold); }

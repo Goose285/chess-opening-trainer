@@ -18,10 +18,12 @@ export const QUEST_KINDS = {
   clean: { goal: 1, xp: 40, text: () => 'Finish a line with 90%+ and no hints', counts: (ev) => done(ev) && ev.pct >= 90 && ev.hints === 0 },
   watch: { goal: 1, xp: 20, text: () => 'Watch an opening first, then play it', counts: (ev) => ev.type === 'watch' },
   gambit: { goal: 1, xp: 30, text: () => 'Finish a gambit line', counts: (ev) => done(ev) && !!ev.gambit },
+  traps: { goal: 2, xp: 40, text: () => 'Land 2 traps in Tactics, no mistakes', counts: (ev) => ev.type === 'puzzle' && !!ev.trap && !!ev.flawless },
+  perfect: { goal: 1, xp: 40, text: () => 'Play a perfect line', counts: (ev) => done(ev) && !!ev.perfect },
   white: { goal: 1, xp: 25, text: () => 'Finish a line as White', counts: (ev) => done(ev) && ev.side === 'white' },
   black: { goal: 1, xp: 25, text: () => 'Finish a line as Black', counts: (ev) => done(ev) && ev.side === 'black' },
 };
-const EXTRA_KINDS = ['lines', 'clean', 'watch', 'gambit', 'white', 'black'];
+const EXTRA_KINDS = ['lines', 'clean', 'watch', 'gambit', 'white', 'black', 'traps', 'perfect'];
 
 export const emptyDaily = () => ({ day: '', otd: '', kinds: [], prog: {}, done: {} });
 

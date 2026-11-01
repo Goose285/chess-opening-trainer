@@ -16,7 +16,7 @@ let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log
 await page.addInitScript(() => document.addEventListener('DOMContentLoaded', () => { const s = document.createElement('style'); s.textContent = '#celebrate,#toast{display:none!important}'; document.head.appendChild(s); }));
 await page.goto(URL_);
 await page.waitForSelector('#home-daily .daily-card');
-const otd = openingOfTheDay(OPENINGS.filter((o) => o.lines.length).map((o) => o.id), dayKey());
+const otd = openingOfTheDay(OPENINGS.filter((o) => o.lines.length && o.gambit).map((o) => o.id), dayKey());
 const otdName = OPENINGS.find((o) => o.id === otd).name;
 check('Home shows today\'s Opening of the Day (same pick as the pure function)', (await page.textContent('#home-daily h3')) === otdName, `${await page.textContent('#home-daily h3')} vs ${otdName}`);
 check('three daily quests, none done yet', (await page.$$('#home-daily .dq')).length === 3 && (await page.$$('#home-daily .dq.done')).length === 0 && /0\/3/.test(await page.textContent('#home-daily .dq-head')));
