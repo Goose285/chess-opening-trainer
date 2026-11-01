@@ -18,6 +18,7 @@ import { LORE } from './lore-text.js';
 import { ideaForNames } from './ideas.js';
 import { META, LEVELS, levelOf, levelKey, ratingText, STYLES, styleOf, STYLE, EASE, EASE_LEVELS, easeInfo } from './meta.js';
 import { haptic } from './haptics.js';
+import { renderMastery, initMastery } from './mastery-ui.js';
 import { initTactics, openTactics, startTactics, startTacticsFor } from './tactics-ui.js';
 import { thumbHtml } from './thumb.js';
 import { createStepper } from './stepper.js';
@@ -210,21 +211,23 @@ $('#learn-btn').addEventListener('click', () => {
   openLearn(s.opening, { note, onTactics: () => startTacticsFor(s.opening.id) });
 });
 
-const SCREENS = ['home', 'setup', 'tactics', 'puzzle', 'train', 'demo'];
-const TAB_OF = { home: 'home', setup: 'openings', tactics: 'tactics' };
+const SCREENS = ['home', 'setup', 'tactics', 'puzzle', 'train', 'demo', 'mastery'];
+const TAB_OF = { home: 'home', setup: 'openings', tactics: 'tactics', mastery: 'home' };
 function show(id) {
   for (const s of SCREENS) $('#' + s).classList.toggle('hidden', s !== id);
   document.body.dataset.screen = id; trackScreen(id);
   const tab = TAB_OF[id];
   document.querySelectorAll('#tabbar .tab').forEach((t) => { const on = t.dataset.tab === tab; t.classList.toggle('active', on); if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
-  if (tab) { try { history.replaceState(null, '', '#/' + tab); } catch {} }
+  if (tab) { try { history.replaceState(null, '', '#/' + (id === 'mastery' ? 'mastery' : tab)); } catch {} }
   if (id === 'home') paintHome();
+  if (id === 'mastery') renderMastery();
   window.scrollTo(0, 0);
 }
 function goTab(tab) {
   closeProfile();
   if (tab === 'profile') return openProfile();
   if (tab === 'home') return show('home');
+  if (tab === 'mastery') return show('mastery');
   if (tab === 'tactics') return openTactics();
   show('setup'); renderGrid(); updateStartBar();
 }
@@ -251,6 +254,7 @@ function paintHome() {
     onStart: (id) => { const o = OPENINGS.find((x) => x.id === id); if (!o) return; selectedId = id; prefs.opening = id; if (colorChoice !== 'random') setColor(o.side); savePrefs(); updateStartBar(); startRun(o); },
     onWatch: (id) => { const o = OPENINGS.find((x) => x.id === id); if (o) { selectedId = id; watchOpening(o); } },
     onOpen: focusOpening,
+    onMastery: () => goTab('mastery'),
     onSeeAll: (what) => { if (what === 'beginner') applyFilters({ ease: 'easy', sort: true }); else if (what === 'gambit-white') applyFilters({ kind: 'gambit' }); else applyFilters({ kind: 'gambit' }); show('setup'); renderGrid(); updateStartBar(); },
     onTactic: (key) => startTactics(key),
   });
@@ -296,10 +300,11 @@ window.addEventListener('resize', () => cg && cg.redrawAll());
 onThemeChange(() => { if (cg) { cg.set({ drawable: { brushes: getBrushes() } }); cg.redrawAll(); } });
 initFeedback();
 initShare();
+initMastery({ onTrain: (id) => focusOpening(id), onBack: () => goTab('home') });
 mountTipPills(); // ☕ pill top right of every screen and sheet
 initAbout(); // before the other sheets so its Escape handler runs first
 initThemes();
-initProgress({ openings: OPENINGS, easeOf: (id) => EASE[id], hooks: { isRisky: (id) => !!(META[id] && META[id].trappy && META[id].hi <= 1200) } });
+initProgress({ openings: OPENINGS, easeOf: (id) => EASE[id], hooks: { onMastery: () => goTab('mastery'), isRisky: (id) => !!(META[id] && META[id].trappy && META[id].hi <= 1200) } });
 
 initTactics({ show });
 
@@ -700,7 +705,7 @@ $('#color-seg').querySelectorAll('button').forEach((x) => { x.classList.toggle('
 if (selectedId && selectedId !== 'random' && !OPENINGS.find((o) => o.id === selectedId)) selectedId = null;
 $('#filter-seg').querySelectorAll('button').forEach((x) => { x.classList.toggle('active', x.dataset.filter === filter); });
 renderGrid(); updateStartBar();
-{ const h = location.hash.replace(/^#\/?/, ''); goTab(['home', 'openings', 'tactics'].includes(h) ? h : 'home'); }
+{ const h = location.hash.replace(/^#\/?/, ''); goTab(['home', 'openings', 'tactics', 'mastery'].includes(h) ? h : 'home'); }
 
 // test/debug hook
 window.__ot = { demoState, Chess, bookMoves, posKey, engine, getSession: () => session, getCg: () => cg, goTab, startTacticsFor };

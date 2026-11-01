@@ -661,3 +661,58 @@ body.noscroll { overflow: hidden; }
 .dq-p { grid-column: 3 / 4; text-align: right; font-size: 12px; }
 .dq-all { margin: 4px 0 0; font-size: 12.5px; color: var(--muted); text-align: center; }
 .daily-card { margin-bottom: 10px; }
+
+/* Gambit mastery map */
+.mm-home { margin: 6px 0 10px; }
+.mm-entry { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; padding: 12px 14px; border-radius: var(--radius, 18px); background: #0b0b0b; border: 1px solid #262626; color: var(--text); cursor: pointer; }
+.mm-entry:hover { background: #121212; border-color: #333; }
+.mm-entry-ico { font-size: 24px; flex: none; }
+.mm-entry-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.mm-entry-copy b { font-size: 15px; }
+.mm-entry-copy span { color: var(--muted); font-size: 13px; }
+.mm-entry-copy em { font-style: normal; font-weight: 700; color: var(--text); }
+.mm-entry-go { font-size: 24px; color: var(--muted); }
+.mm-head { display: flex; gap: 12px; align-items: center; margin: 8px 0 12px; }
+.mm-head h1 { margin: 0; font-size: 26px; line-height: 1.1; }
+.mm-head .page-sub { margin: 2px 0 0; }
+.mm-sum { padding: 14px; border-radius: 18px; background: #0b0b0b; border: 1px solid #262626; margin-bottom: 10px; }
+.mm-sum-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 14px; }
+.mm-sum-top b { font-size: 26px; font-family: var(--display, inherit); margin-right: 4px; }
+.mm-started { color: var(--muted); font-size: 13px; }
+.mm-stack { display: flex; gap: 3px; height: 10px; margin-top: 10px; border-radius: 6px; overflow: hidden; }
+.mm-stack i { display: block; min-width: 6px; border-radius: 3px; }
+.mm-legend { list-style: none; margin: 0 0 4px; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.mm-legend li { padding: 7px 4px; border-radius: 10px; background: #0b0b0b; border: 1px solid #262626; text-align: center; }
+.mm-legend b { font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.mm-legend b i { font-style: normal; }
+.mm-how { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); }
+.mm-how summary { cursor: pointer; padding: 6px 2px; }
+.mm-how ul { margin: 4px 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.mm-how p { margin: 6px 0 0; }
+.mm-how li b { color: var(--text); } .mm-how li.lv-mastered b { color: var(--gold); }
+.mm-group h2 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 18px 0 8px; font-size: 16px; }
+.mm-group h2 span { color: var(--muted); font-size: 12px; font-weight: 500; font-family: inherit; }
+.mm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mm-cell { display: flex; flex-direction: column; gap: 6px; text-align: left; padding: 11px 12px 10px; border-radius: 14px; background: #0b0b0b; color: var(--text); border: 1.5px solid #333; cursor: pointer; min-width: 0; min-height: 96px; }
+.mm-cell:active { transform: scale(.98); }
+.mm-cell:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.mm-name { font-weight: 700; font-size: 14px; line-height: 1.2; flex: 1; overflow-wrap: anywhere; }
+.mm-lv { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
+.mm-lv i { font-style: normal; width: 13px; text-align: center; }
+.mm-lv em { margin-left: auto; font-style: normal; font-variant-numeric: tabular-nums; }
+.mm-bar { height: 4px; border-radius: 2px; background: #1f1f1f; overflow: hidden; }
+.mm-bar b { display: block; height: 100%; border-radius: 2px; background: #a3a3a3; }
+.mm-lines { font-size: 11px; color: #7c7c7c; font-variant-numeric: tabular-nums; }
+/* levels: grey -> white; gold ONLY for mastered */
+.lv-unseen.mm-cell { border: 1.5px dashed #2c2c2c; background: #070707; }
+.lv-unseen .mm-name { color: #8a8a8a; }
+.lv-learning.mm-cell { border-color: #5c5c5c; }
+.lv-solid.mm-cell { border-color: #fff; background: #101010; }
+.lv-solid .mm-lv { color: #fff; } .lv-solid .mm-bar b { background: #fff; }
+.lv-mastered.mm-cell { border-color: var(--gold); background: var(--gold-bg); }
+.lv-mastered .mm-lv, .lv-mastered .mm-lines { color: var(--gold); } .lv-mastered .mm-bar b { background: var(--gold); } .lv-mastered .mm-bar { background: #2a2210; }
+.mm-stack .lv-unseen { background: #2a2a2a; } .mm-stack .lv-learning { background: #5c5c5c; } .mm-stack .lv-solid { background: #fff; } .mm-stack .lv-mastered { background: var(--gold); }
+.mm-legend .lv-solid b { color: #fff; } .mm-legend .lv-mastered b { color: var(--gold); } .mm-legend .lv-unseen b, .mm-legend .lv-learning b { color: #a3a3a3; }
+.mm-entry-copy em.gold { color: var(--gold); }
+.pf-mm { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.pf-mm span { color: var(--muted); font-size: 12.5px; flex: 1; min-width: 140px; }

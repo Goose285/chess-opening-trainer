@@ -122,6 +122,7 @@ function renderProfile() {
     <section class="pf-stats">
       <div><b>${state.done}</b><span>lines finished</span></div><div><b>${state.perfect}</b><span>perfect lines</span></div>
       <div><b>${state.days.last === dayKey() || state.days.last === dayKey(new Date(Date.now() - 864e5)) ? state.days.streak : 0}</b><span>day streak</span></div><div><b>${state.bestStreak}</b><span>best clean streak</span></div></section>
+    <section class="pf-sec pf-mm"><button id="pf-mastery" class="btn" type="button">🗺 Gambit mastery map</button><span>See every gambit from unseen to mastered.</span></section>
     <section class="pf-sec pf-share"><button id="pf-share" class="btn share-btn" type="button">↗ Share my progress</button><span>A picture of your level, XP and stats for your story or feed.</span></section>
     <section class="pf-sec"><h3>Tactics</h3>
       <div class="pf-tacstats"><div><b>${state.tactics.solved}</b><span>puzzles solved</span></div><div><b>${state.tactics.flawless}</b><span>first-try solves</span></div>
@@ -311,7 +312,7 @@ export function initProgress(cfg) {
   $('#profile-btn').addEventListener('click', openProfile);
   const sc = $('#streak-chip'); if (sc) sc.addEventListener('click', openProfile);
   document.querySelectorAll('.profile-strip').forEach((b) => b.addEventListener('click', openProfile));
-  $('#profile-body').addEventListener('click', (e) => { if (e.target.closest('#pf-share')) openShare(profileShareSpec()); });
+  $('#profile-body').addEventListener('click', (e) => { if (e.target.closest('#pf-share')) openShare(profileShareSpec()); if (e.target.closest('#pf-mastery') && hooks.onMastery) { closeProfile(); hooks.onMastery(); } });
   $('#profile-x').addEventListener('click', closeProfile);
   $('#profile-close').addEventListener('click', closeProfile);
   $('#profile').addEventListener('click', (e) => { if (e.target.id === 'profile') closeProfile(); });

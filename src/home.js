@@ -5,6 +5,7 @@ import { META, EASE, styleOf } from './meta.js';
 import { thumbHtml } from './thumb.js';
 import { starsHtml, getRecommendation, getProgress, tierFor, getDaily } from './progress-ui.js';
 import { TIER_LABEL } from './progress.js';
+import { homeMasteryHtml } from './mastery-ui.js';
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -87,6 +88,8 @@ export function renderHome(h) {
   const dPlay = $('#home-daily [data-daily="play"]'), dWatch = $('#home-daily [data-daily="watch"]');
   if (dPlay) dPlay.onclick = () => h.onStart(od.id);
   if (dWatch) dWatch.onclick = () => h.onWatch(od.id);
+
+  const mm = $('#home-mastery'); mm.innerHTML = homeMasteryHtml(); mm.onclick = (e) => { if (e.target.closest('[data-mastery-open]')) h.onMastery(); };
 
   // handlers (re-bound each render; the nodes are new)
   const heroPlay = hero.querySelector('[data-hero="play"]'), heroWatch = hero.querySelector('[data-hero="watch"]'), heroTac = hero.querySelector('[data-hero="tactics"]');

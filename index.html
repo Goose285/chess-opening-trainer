@@ -52,6 +52,7 @@
     <section id="hero" class="hero" aria-label="Suggested opening"></section>
     <section id="home-daily" class="daily" aria-label="Opening of the day and daily quests"></section>
     <button id="profile-strip" class="profile-strip" type="button" aria-label="Open your progress"></button>
+    <section id="home-mastery" class="mm-home" aria-label="Gambit mastery map"></section>
     <div id="home-rails"></div>
     <footer class="home-foot"><button type="button" class="linklike" data-open-feedback>Send feedback / suggest a feature</button> · <button type="button" class="linklike" data-open-about>About &amp; licenses</button> · <a href="https://github.com/Goose285/chess-opening-trainer" target="_blank" rel="noopener">Source code</a> · Free software (GPL-3.0+)</footer>
   </main>
@@ -106,6 +107,12 @@
         </div>
       </div>
     </div>
+  </main>
+
+  <!-- ============ GAMBIT MASTERY MAP ============ -->
+  <main id="mastery" class="screen hidden" aria-label="Gambit mastery map">
+    <div class="mm-head"><button id="mastery-back" class="gb-back" type="button" aria-label="Back to home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div><h1>Mastery map</h1><p class="page-sub">Every gambit, from unseen to mastered. Tap one to train it.</p></div></div>
+    <div id="mastery-body"></div>
   </main>
 
   <!-- ============ TACTICS (home) ============ -->

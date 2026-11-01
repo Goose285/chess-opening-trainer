@@ -85,7 +85,7 @@ const colors = await page.evaluate(() => { const f = (s, p) => getComputedStyle(
 check('XP reward is gold, the unfinished bar is white (gold only for achievements)', colors.xp.includes(gold) && colors.fill === 'rgb(255, 255, 255)', JSON.stringify(colors));
 await shotOf(page, 'home-top-in-progress');
 await page.evaluate(() => document.querySelector('#home-daily').scrollIntoView({ block: 'start' })); await page.evaluate(() => window.scrollBy(0, -70));
-if (SHOTS) await page.screenshot({ path: `${SHOTS}/quests-in-progress.png` });
+if (SHOTS) { await page.screenshot({ path: `${SHOTS}/quests-in-progress.png` }); await page.locator('#home-daily').screenshot({ path: `${SHOTS}/ootd-card-element.png` }); }
 await page.close();
 
 page = await open(mk(['otd', 'puzzles', 'perfect'], { otd: 1, puzzles: 3, perfect: 1 }, { otd: true, puzzles: true, perfect: true }));
