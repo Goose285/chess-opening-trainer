@@ -52,6 +52,16 @@ for (const s of PIECE_SETS) {
 }
 check('every piece set updates the preview + licence badge', pieceBad.length === 0, pieceBad.join(','));
 
+check('Mono board: own neutral colours #ececec / #7d7d7d, subtle gold last-move tint, listed after the default; default unchanged', (() => { const m = BOARDS.find((x) => x.id === 'mono'); return BOARDS[0].id === 'original' && m && m.name === 'Mono' && m.light === '#ececec' && m.dark === '#7d7d7d' && /^rgba\(245,196,81,\.[2-5]/.test(m.last); })());
+await page.click('#board-opts [data-board="mono"]');
+check('Mono applies: variables, selected state, live preview name', (await root('--sq-light')) === '#ececec' && (await root('--sq-dark')) === '#7d7d7d' && (await root('--hl-last')).startsWith('rgba(245, 196, 81') || (await root('--hl-last')).startsWith('rgba(245,196,81'));
+check('Mono is marked selected and the preview is named', (await page.$eval('#board-opts .topt.on', (e) => e.dataset.board)) === 'mono' && (await page.textContent('#tp-board-name')) === 'Mono');
+await page.reload(); await page.waitForSelector('.ocard');
+check('Mono choice persists across reload', (await root('--sq-light')) === '#ececec');
+await page.evaluate(() => localStorage.clear()); await page.reload(); await page.waitForSelector('.ocard');
+check('a fresh player still gets the original board', (await root('--sq-light')) === '#b58863');
+await page.click('#theme-btn'); await page.waitForSelector('#theme:not(.hidden)');
+
 // ---- drill board
 await page.click('#board-opts [data-board="ocean"]'); await page.click('#piece-opts [data-pieces="merida"]');
 await page.click('#theme-close'); await page.waitForSelector('#theme.hidden', { state: 'attached' });
