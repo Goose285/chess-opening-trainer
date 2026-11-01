@@ -1,8 +1,10 @@
 // Card descriptions, rating pills, rating filter and the rating info in "Learn more". Usage: node tools/e2e-ratings.mjs [url]
 import { chromium } from 'playwright-core';
+import { stubAnalytics } from './lib-net.mjs';
 const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/openings';
 const errors = [];
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+stubAnalytics(browser);
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
 const levelOf = (lo) => (lo < 1000 ? 'beginner' : lo < 1600 ? 'intermediate' : lo < 2000 ? 'advanced' : 'expert');
 const cardsOf = (page) => page.$$eval('.ocard:not([data-id="random"])', (cs) => cs.map((c) => {

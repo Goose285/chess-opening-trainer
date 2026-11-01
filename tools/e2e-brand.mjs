@@ -1,8 +1,10 @@
 // Branding: title, wordmark, tagline, favicon, manifest and Add-to-Home-Screen icons. Usage: node tools/e2e-brand.mjs [url]
 import { chromium } from 'playwright-core';
+import { stubAnalytics } from './lib-net.mjs';
 const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/openings';
 const SHOT = process.env.SHOT || '/workspace/pawnado-header-phone.png';
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+stubAnalytics(browser);
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
 const errors = [];
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });

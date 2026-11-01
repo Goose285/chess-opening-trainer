@@ -1,9 +1,11 @@
 // Browser test: beginner-friendly badges + filter/sort, "Start here", XP / levels / stars / badges, celebration, profile panel,
 // persistence and phone layout. Usage: node tools/e2e-progress.mjs [url]
 import { chromium } from 'playwright-core';
+import { stubAnalytics } from './lib-net.mjs';
 const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/openings';
 const errors = [];
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+stubAnalytics(browser);
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: false });
 const page = await ctx.newPage();

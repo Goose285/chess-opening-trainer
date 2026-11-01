@@ -8,6 +8,7 @@ import {
 import { tipHtml } from './tip.js';
 import { profileSpec } from './share-core.js';
 import { openShare } from './share.js';
+import { trackScreen } from './analytics.js';
 import { openingOfTheDay, rollDaily, questList } from './daily.js';
 
 const $ = (s) => document.querySelector(s);
@@ -148,6 +149,7 @@ function profileShareSpec() {
 }
 export const getRecommendation = (n = 3) => recommend(state, openings, easeOf, n, hooks.isRisky);
 export function openProfile() {
+  trackScreen('profile');
   lastFocus = document.activeElement;
   renderProfile();
   $('#profile').classList.remove('hidden'); document.body.classList.add('noscroll', 'sheet-profile');

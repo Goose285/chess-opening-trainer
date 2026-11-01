@@ -1,8 +1,10 @@
 // Haptics: light tap after your move, strong double buzz when the computer takes your piece, on/off toggle (persisted),
 // Android (navigator.vibrate) and iOS (switch-checkbox) paths, silent in Watch mode. Usage: node tools/e2e-haptics.mjs [url]
 import { chromium } from 'playwright-core';
+import { stubAnalytics } from './lib-net.mjs';
 const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/openings';
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+stubAnalytics(browser);
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
 const errors = [];
 const HIDE = () => document.addEventListener('DOMContentLoaded', () => { const s = document.createElement('style'); s.textContent = '#celebrate,#toast{display:none!important}'; document.head.appendChild(s); });

@@ -1,10 +1,12 @@
 // Board + piece theme picker: options, live application to drill and Watch boards, readability tweaks, persistence,
 // asset files, phone layout. Usage: node tools/e2e-themes.mjs [url]   (SHOT=/path.png for the phone screenshot)
 import { chromium } from 'playwright-core';
+import { stubAnalytics } from './lib-net.mjs';
 import { BOARDS, PIECE_SETS } from '../src/themes-data.js';
 const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/openings';
 const SHOT = process.env.SHOT || '/workspace/road-to-1500-theme-picker-phone.png';
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+stubAnalytics(browser);
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
 const errors = [];
 const hex = (h) => { const n = parseInt(h.slice(1), 16); return `rgb(${n >> 16}, ${(n >> 8) & 255}, ${n & 255})`; };

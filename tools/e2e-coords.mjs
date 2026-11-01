@@ -1,9 +1,11 @@
 // Board coordinates: outside the board (ranks in a left gutter, files in a strip below), Inter subset font, correct for White and
 // Black, on drill / puzzle / watch-demo boards at 320-430px phone widths. Usage: node tools/e2e-coords.mjs [url]
 import { chromium } from 'playwright-core';
+import { stubAnalytics } from './lib-net.mjs';
 const BASE = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '');
 const SHOT = '';
 const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+stubAnalytics(b);
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
 async function geom(page, sel, label, color, w) {
   const g = await page.evaluate(({ sel }) => {

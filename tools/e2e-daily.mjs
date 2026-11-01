@@ -1,12 +1,14 @@
 // E2E: Opening of the Day + daily quests on Home, quest XP after a finished line, the "What's the idea?" notes (summary + Watch-it-first),
 // and that trap lines / reply lines are offered in the Watch picker. Usage: node tools/e2e-daily.mjs [url]
 import { chromium } from 'playwright-core';
+import { stubAnalytics } from './lib-net.mjs';
 import { openingOfTheDay } from '../src/daily.js';
 import { OPENINGS } from '../src/openings.js';
 import { dayKey } from '../src/progress.js';
 const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/home';
 const errors = [];
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+stubAnalytics(browser);
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });

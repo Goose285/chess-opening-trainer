@@ -1,10 +1,12 @@
 // "About & licenses" screen, licence files served with the site, removed piece sets gone, saved-theme fallback.
 // Usage: node tools/e2e-about.mjs [url]
 import { chromium } from 'playwright-core';
+import { stubAnalytics } from './lib-net.mjs';
 import { COMPONENTS, REPO_URL } from '../src/licenses.js';
 const BASE = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '');
 const SHOT = process.env.SHOT || '/workspace/road-to-1500-about-phone.png';
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+stubAnalytics(browser);
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
 const errors = [];
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });

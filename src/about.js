@@ -23,6 +23,8 @@ function render() {
     <p class="ab-src"><a class="btn primary" href="${esc(REPO_URL)}" target="_blank" rel="noopener" id="about-source">Get the complete source code</a>
     <a class="btn" href="${esc(REPO_URL)}/blob/main/LICENSE" target="_blank" rel="noopener">Read the GPL</a></p>
     ${rows}
+    <h3 class="ab-h">Privacy</h3>
+    <p class="ab-st">Pawnado has no accounts. Your progress and settings stay on your device. It counts anonymous page views with <a href="https://www.goatcounter.com/" target="_blank" rel="noopener">GoatCounter</a>, a privacy-friendly counter that uses <b>no cookies</b> and collects no personal data or cross-site tracking.</p>
     <h3 class="ab-h">Also</h3>
     ${STATEMENTS.map((t) => `<p class="ab-st">${esc(t)}</p>`).join('')}
     <p class="ab-st">Full notices and licence texts: <a href="${esc(REPO_URL)}/tree/main/THIRD_PARTY" target="_blank" rel="noopener">THIRD_PARTY/</a> in the source repository.</p>`;

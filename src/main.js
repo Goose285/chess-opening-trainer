@@ -11,6 +11,7 @@ import { initAbout } from './about.js';
 import { mountTipPills } from './tip.js';
 import { runMilestone } from './share-core.js';
 import { initShare, openShare } from './share.js';
+import { trackScreen } from './analytics.js';
 import { initFeedback } from './feedback.js';
 import { initThemes, onThemeChange, getBrushes } from './themes.js';
 import { LORE } from './lore-text.js';
@@ -213,7 +214,7 @@ const SCREENS = ['home', 'setup', 'tactics', 'puzzle', 'train', 'demo'];
 const TAB_OF = { home: 'home', setup: 'openings', tactics: 'tactics' };
 function show(id) {
   for (const s of SCREENS) $('#' + s).classList.toggle('hidden', s !== id);
-  document.body.dataset.screen = id;
+  document.body.dataset.screen = id; trackScreen(id);
   const tab = TAB_OF[id];
   document.querySelectorAll('#tabbar .tab').forEach((t) => { const on = t.dataset.tab === tab; t.classList.toggle('active', on); if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
   if (tab) { try { history.replaceState(null, '', '#/' + tab); } catch {} }

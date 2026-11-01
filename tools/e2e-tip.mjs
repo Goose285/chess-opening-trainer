@@ -1,10 +1,12 @@
 // Buy Me a Coffee tip card in the Profile sheet (above the reset button) and in About; opens in a new tab with rel=noopener.
 // Usage: node tools/e2e-tip.mjs [url] [screenshot.png]
 import { chromium } from 'playwright-core';
+import { stubAnalytics } from './lib-net.mjs';
 const BASE = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '');
 const SHOT = process.argv[3] || '';
 const URL_TIP = 'https://buymeacoffee.com/sethcmoynai';
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+stubAnalytics(browser);
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
 const errors = [];
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });

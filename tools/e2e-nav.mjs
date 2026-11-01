@@ -1,8 +1,10 @@
 // App shell: bottom tab bar (Home / Openings / Tactics / Profile), Home hero + rails, hash routes, streak chip, floating start bar,
 // full-screen game screens, phone + desktop layout. Usage: node tools/e2e-nav.mjs [url]
 import { chromium } from 'playwright-core';
+import { stubAnalytics } from './lib-net.mjs';
 const BASE = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '');
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+stubAnalytics(browser);
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
 const errors = [];
 const HIDE = () => document.addEventListener('DOMContentLoaded', () => { const s = document.createElement('style'); s.textContent = '#celebrate,#toast{display:none!important}'; document.head.appendChild(s); });

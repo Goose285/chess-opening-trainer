@@ -2,9 +2,11 @@
 // (a) the gambit filter works, (b) every book move is graded "Book" (never engine-graded / downgraded),
 // (c) each run finishes with a summary. Usage: node tools/e2e-gambits.mjs [url] ; ONLY=id,id to limit.
 import { chromium } from 'playwright-core';
+import { stubAnalytics } from './lib-net.mjs';
 const URL_ = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '') + '#/openings';
 const errors = [];
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+stubAnalytics(browser);
 const page = await browser.newPage({ viewport: { width: 1100, height: 850 } });
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });

@@ -2,6 +2,7 @@
 // the coffee pill unchanged, no leftover teal, share image + manifest updated, every screen readable (contrast) on a phone.
 // Usage: node tools/e2e-bw.mjs [url]
 import { chromium } from 'playwright-core';
+import { stubAnalytics } from './lib-net.mjs';
 import fs from 'node:fs';
 const BASE = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '');
 const ROOT = new URL('..', import.meta.url).pathname;
@@ -18,6 +19,7 @@ check('theme-color meta is near-black, og:image is the absolute share card', /na
 check('share card + icons exist', ['icons/og-card.png', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/favicon-32.png', 'icons/apple-touch-icon.png', 'icons/logo-mark.svg'].every((f) => fs.existsSync(ROOT + f) && fs.statSync(ROOT + f).size > 300));
 
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+stubAnalytics(browser);
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
 const page = await ctx.newPage(); const errors = [];
 page.on('pageerror', (e) => errors.push(String(e))); page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
@@ -38,7 +40,7 @@ check('level chip dot + XP numbers are gold', isGold(await page.evaluate(() => g
 check('coffee pill keeps its own yellow', await page.evaluate(() => { const p = document.querySelector('[data-tip-pill]'); const [r, g, b] = getComputedStyle(p).backgroundColor.match(/\d+/g).map(Number); return r > 240 && g > 200 && b < 80; }));
 
 // ---- seed a streak and reach the rewards styling
-await page.evaluate(() => localStorage.setItem('rt1500-progress', JSON.stringify({ v: 1, xp: 420, done: 4, perfect: 1, days: { last: new Date().toISOString().slice(0, 10), streak: 7, best: 7 }, openings: {}, tactics: { solved: 14, flawless: 9, streak: 5, bestStreak: 8, traps: [], sets: {} } })));
+await page.evaluate(() => localStorage.setItem('rt1500-progress', JSON.stringify({ v: 1, xp: 420, done: 4, perfect: 1, days: { last: (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })(), streak: 7, best: 7 }, openings: {}, tactics: { solved: 14, flawless: 9, streak: 5, bestStreak: 8, traps: [], sets: {} } })));
 await page.reload(); await page.waitForSelector('#tabbar'); await page.waitForTimeout(400);
 check('day-streak chip is gold when lit', isGold(await css('.chip-btn.streak:not(.off)', 'color')));
 

@@ -2,12 +2,14 @@
 // rel=noopener, never overlapping another control or the board. Phone 390 + small 360 + desktop 1100.
 // Usage: node tools/e2e-tip-pill.mjs [url] [screenshotDir]
 import { chromium } from 'playwright-core';
+import { stubAnalytics } from './lib-net.mjs';
 import fs from 'node:fs';
 const BASE = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '');
 const SHOTS = process.argv[3] || '';
 if (SHOTS) fs.mkdirSync(SHOTS, { recursive: true });
 const TIP = 'https://buymeacoffee.com/sethcmoynai';
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+stubAnalytics(browser);
 let ok = true; const check = (n, c, x = '') => { if (!c) ok = false; console.log((c ? 'PASS ' : 'FAIL ') + n + (x ? ' — ' + x : '')); };
 const errors = [];
 const HIDE = () => document.addEventListener('DOMContentLoaded', () => { const s = document.createElement('style'); s.textContent = '#celebrate,#toast{display:none!important}'; document.head.appendChild(s); });

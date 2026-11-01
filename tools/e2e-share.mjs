@@ -2,6 +2,7 @@
 // (story 1080x1920 + square 1080x1080 PNGs painted on a canvas), navigator.share with the file, the download fallback, the Profile share,
 // and that gold / green / the coffee pill are untouched. Usage: node tools/e2e-share.mjs [url] [screenshotDir]  (serve the folder first: python3 -m http.server 8099)
 import { chromium } from 'playwright-core';
+import { stubAnalytics } from './lib-net.mjs';
 import fs from 'node:fs';
 import { isStreakMilestone, puzzleMilestone, runMilestone, profileSpec, parseFen, pieceFile, fileName, FORMATS, SITE_LINK } from '../src/share-core.js';
 const BASE = (process.argv[2] || 'http://localhost:8099/index.html').replace(/#.*$/, '');
@@ -39,6 +40,7 @@ check('formats: story 1080x1920, square 1080x1080; PNG file names', FORMATS.stor
 
 // ---------------------------------------------------------------- browser
 const browser = await chromium.launch({ executablePath: process.env.CHROME || '/usr/bin/google-chrome', args: ['--no-sandbox'] });
+stubAnalytics(browser);
 const ALL = JSON.parse(fs.readFileSync(new URL('../tactics/tactics.json', import.meta.url), 'utf8')).sets;
 async function newPage() {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, acceptDownloads: true });
