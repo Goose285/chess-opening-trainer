@@ -9,6 +9,8 @@ import { openLearn, initLearn } from './learn.js';
 import { positionNote } from './explain.js';
 import { initAbout } from './about.js';
 import { mountTipPills } from './tip.js';
+import { runMilestone } from './share-core.js';
+import { initShare, openShare } from './share.js';
 import { initFeedback } from './feedback.js';
 import { initThemes, onThemeChange, getBrushes } from './themes.js';
 import { LORE } from './lore-text.js';
@@ -292,6 +294,7 @@ function initBoard() {
 window.addEventListener('resize', () => cg && cg.redrawAll());
 onThemeChange(() => { if (cg) { cg.set({ drawable: { brushes: getBrushes() } }); cg.redrawAll(); } });
 initFeedback();
+initShare();
 mountTipPills(); // ☕ pill top right of every screen and sheet
 initAbout(); // before the other sheets so its Escape handler runs first
 initThemes();
@@ -577,8 +580,10 @@ function setEvalBar(whiteCp) {
 }
 
 // ---------------------------------------------------------------- finish + summary
+let shareSpec = null;
 function finishRun(reason) {
   const s = session; if (!s || s.over) return;
+  shareSpec = null;
   s.over = true; s.phase = 'over';
   cg.set({ movable: { color: undefined, dests: new Map() }, drawable: { autoShapes: [] } });
   $('#hint-btn').disabled = true;
@@ -621,7 +626,11 @@ function finishRun(reason) {
     showRewards(result, run);
     if (result.counted) setTimeout(() => celebrate(result, run), 900);
     renderGrid();
+    // a perfect line (100%, no hints, no retries) offers a Share card in the summary
+    const hist = s.game.history({ verbose: true }), last = hist[hist.length - 1];
+    shareSpec = runMilestone({ perfect, completed, gambit: !!s.opening.gambit, openingName: s.opening.name, variation: lineName, side: s.userColor, fen: s.game.fen(), lastMove: last ? [last.from, last.to] : null });
   } catch (e) { console.error('progress', e); }
+  $('#sum-share').classList.toggle('hidden', !shareSpec);
   setFeedback('done', '🏁', reason === 'left-book' ? 'Out of book' : 'Line complete', `Score <b>${s.points}</b> / ${max} (${pct}%).`, null, [
     { label: '⏮ Step through it', cls: 'primary', fn: () => enterReview() },
     { label: 'New line', fn: () => startRun(selectedId === 'random' ? undefined : s.opening) },
@@ -629,6 +638,7 @@ function finishRun(reason) {
   setTimeout(() => $('#summary').classList.remove('hidden'), 350);
 }
 onProgressChange(() => { if (!$('#setup').classList.contains('hidden')) renderGrid(); if (!$('#home').classList.contains('hidden')) paintHome(); });
+$('#sum-share').addEventListener('click', () => { if (shareSpec) openShare(shareSpec); });
 $('#sum-again').addEventListener('click', () => startRun(selectedId === 'random' ? undefined : session.opening));
 $('#sum-review').addEventListener('click', () => { $('#summary').classList.add('hidden'); enterReview(); });
 $('#sum-menu').addEventListener('click', () => { $('#summary').classList.add('hidden'); exitReview(); show('setup'); renderGrid(); updateStartBar(); });

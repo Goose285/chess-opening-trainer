@@ -39,7 +39,8 @@
     "test:about": "node tools/e2e-about.mjs",
     "test:feedback": "node tools/e2e-feedback.mjs",
     "test:bw": "node tools/e2e-bw.mjs",
-    "test:coords": "node tools/e2e-coords.mjs"
+    "test:coords": "node tools/e2e-coords.mjs",
+    "test:share": "node tools/e2e-share.mjs"
   },
   "dependencies": {
     "chess.js": "^1.4.0",

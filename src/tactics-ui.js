@@ -8,6 +8,8 @@ import { getBrushes, onThemeChange } from './themes.js';
 import { haptic } from './haptics.js';
 import { thumbHtml } from './thumb.js';
 import { createStepper } from './stepper.js';
+import { puzzleMilestone } from './share-core.js';
+import { offerShare, openShare, hidePrompt } from './share.js';
 import {
   parseData, buildQueue, THEME_FILTERS, themeFilter, RATING_FILTERS, ratingFilter, inRating, streakTier, accuracy, themesOf, solverColor, solverMoveCount, maxPoints, movePoints, judgeMove, splitUci, HINT_POINTS,
 } from './tactics-core.js';
@@ -176,7 +178,7 @@ async function loadPuzzle() {
   const token = Math.random();
   run = { p, token, color: solverColor(p), game: new Chess(p.fen), idx: 0, phase: 'busy', points: 0, wrongs: 0, hints: 0, cur: { wrong: false, hint: false }, revealed: false, finished: false, moveTries: 0 };
   window.__tac = { run: () => run, sess: () => sess, data: () => data, cg: () => cg };
-  closeReview();
+  closeReview(); hidePrompt();
   const o = openingOf(p.openingId);
   const rtag = sess.ratingNote ? ` · ${sess.ratingNote}` : ratingKey !== 'all' ? ` · ${ratingFilter(ratingKey).label}` : '';
   $('#pz-eyebrow').textContent = (sess.mode === 'mixed' ? 'Tactics · Mixed' : 'Tactics') + rtag;
@@ -339,6 +341,7 @@ function finishSolved(lastMv) {
   const max = maxPoints(p);
   const setSize = (data[p.openingId] || []).length;
   const pz = { openingId: p.openingId, id: p.id, trap: p.trap, setSize, kind: 'solved', points: r.points, max, wrongs: r.wrongs, hints: r.hints };
+  const prevBest = getProgress().tactics.bestStreak;
   const res = recordPuzzle(pz);
   sess.solved++; sess.attempted++; if (r.wrongs === 0 && r.hints === 0) sess.hits++; sess.points += r.points; sess.xp += res.gained.total;
   haptic('celebrate');
@@ -346,7 +349,12 @@ function finishSolved(lastMv) {
   const chips = [`<span class="fchip"><i>Points</i><b>${r.points} / ${max}</b></span>`, `<span class="fchip"><i>XP</i><b>+${res.gained.total}${res.xpFactor < 1 ? ' (re-solve)' : ''}</b></span>`];
   if (res.streak >= 2) chips.push(`<span class="fchip"><i>Streak</i><b>🔥 ${res.streak}</b></span>`);
   if (res.tierUp) chips.push(`<span class="fchip"><i>Star</i><b>★ ${res.tierUp.to}</b></span>`);
-  setFeedback('best', '🎯', flawless ? 'Solved — first try!' : 'Solved!', `<b>${esc(lastMv.san)}</b> finishes it.${lessonHtml(p)}`, chips);
+  // a milestone (5 / 10 / 15… in a row, a new best streak, a trap landed first try) offers a Share card
+  const hist = r.game.history({ verbose: true }), last = hist[hist.length - 1];
+  const share = res.counted ? puzzleMilestone({ streak: res.streak, prevBest, flawless, trap: p.trap, trapName: p.name, openingName: (openingOf(p.openingId) || {}).name || '', fen: r.game.fen(), lastMove: last ? [last.from, last.to] : null, orientation: r.color }) : null;
+  const shareBtn = share ? [{ label: `${share.prompt.icon} Share`, cls: 'share-btn', fn: () => openShare(share) }] : null;
+  setFeedback('best', '🎯', flawless ? 'Solved — first try!' : 'Solved!', `<b>${esc(lastMv.san)}</b> finishes it.${lessonHtml(p)}`, chips, shareBtn);
+  if (share) offerShare(share);
   $('#pz-stars').innerHTML = sess.mode === 'mixed' ? '' : tacticStarsHtml(p.openingId, setSize);
   updateStats();
   setButtons();
@@ -376,7 +384,7 @@ function roundOver() {
   cg.set({ movable: { color: undefined, dests: new Map() }, drawable: { autoShapes: [] } });
 }
 function leave() {
-  closeReview();
+  closeReview(); hidePrompt();
   if (run) run.token = Math.random();
   run = null;
   openTactics();

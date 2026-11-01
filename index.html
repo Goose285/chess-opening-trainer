@@ -31,6 +31,7 @@
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/revamp.css">
   <link rel="stylesheet" href="css/bw.css">
+  <link rel="stylesheet" href="css/share.css">
 </head>
 <body>
   <header class="top">
@@ -304,6 +305,7 @@
           <div class="sum-rating" id="sum-rating"></div>
         </div>
       </div>
+      <button id="sum-share" class="btn share-btn sum-share hidden" type="button">↗ Share this perfect line</button>
       <div class="sum-rewards hidden" id="sum-rewards" aria-live="polite"></div>
       <div class="grade-grid" id="sum-grades"></div>
       <div class="sum-moves" id="sum-moves"></div>
@@ -432,6 +434,38 @@
         <button id="fb-close" type="button" class="btn">Close</button>
       </div>
     </div>
+  </div>
+
+  <!-- ============ SHARE CARD ============ -->
+  <div id="share" class="modal share-modal hidden" role="dialog" aria-modal="true" aria-labelledby="share-title">
+    <div class="modal-card learn-card share-card">
+      <div class="learn-head">
+        <div>
+          <div class="eyebrow" id="share-eyebrow">Share</div>
+          <h2 id="share-title">Share your win</h2>
+        </div>
+        <button id="share-x" class="x-btn" aria-label="Close">✕</button>
+      </div>
+      <div class="learn-body share-body">
+        <div class="seg seg-sm share-fmt" id="share-fmt" role="radiogroup" aria-label="Card size">
+          <button type="button" data-fmt="story" role="radio" aria-checked="true" class="active">Story 9:16</button>
+          <button type="button" data-fmt="square" role="radio" aria-checked="false">Square 1:1</button>
+        </div>
+        <div class="share-stage"><img id="share-img" class="share-img dim" alt="Preview of your Pawnado share card" width="1080" height="1920"><div id="share-busy" class="share-busy" role="status">Making your card…</div></div>
+      </div>
+      <div class="modal-actions learn-actions">
+        <button id="share-save" class="btn" type="button" disabled>Save image</button>
+        <button id="share-go" class="btn primary" type="button" disabled>Share</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- milestone prompt: slides up after a streak / trap / perfect line -->
+  <div id="share-prompt" class="share-prompt" role="status" aria-live="polite" hidden>
+    <span class="sp-ico" id="sp-ico" aria-hidden="true">🔥</span>
+    <div class="sp-text"><b id="sp-title"></b><span id="sp-sub"></span></div>
+    <button id="sp-go" class="btn primary sp-go" type="button">Share</button>
+    <button id="sp-x" class="sp-x" type="button" aria-label="Dismiss">✕</button>
   </div>
 
   <!-- ============ CELEBRATION (level up / badge / star) ============ -->

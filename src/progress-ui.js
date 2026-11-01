@@ -6,6 +6,8 @@ import {
   loadState, saveState, freshState, tierOf, starsOf, recommend, dayKey, applyPuzzle, tacticRules,
 } from './progress.js';
 import { tipHtml } from './tip.js';
+import { profileSpec } from './share-core.js';
+import { openShare } from './share.js';
 import { openingOfTheDay, rollDaily, questList } from './daily.js';
 
 const $ = (s) => document.querySelector(s);
@@ -119,6 +121,7 @@ function renderProfile() {
     <section class="pf-stats">
       <div><b>${state.done}</b><span>lines finished</span></div><div><b>${state.perfect}</b><span>perfect lines</span></div>
       <div><b>${state.days.last === dayKey() || state.days.last === dayKey(new Date(Date.now() - 864e5)) ? state.days.streak : 0}</b><span>day streak</span></div><div><b>${state.bestStreak}</b><span>best clean streak</span></div></section>
+    <section class="pf-sec pf-share"><button id="pf-share" class="btn share-btn" type="button">↗ Share my progress</button><span>A picture of your level, XP and stats for your story or feed.</span></section>
     <section class="pf-sec"><h3>Tactics</h3>
       <div class="pf-tacstats"><div><b>${state.tactics.solved}</b><span>puzzles solved</span></div><div><b>${state.tactics.flawless}</b><span>first-try solves</span></div>
       <div><b>${state.tactics.streak}</b><span>puzzle streak</span></div><div><b>${state.tactics.bestStreak}</b><span>best streak</span></div></div>
@@ -135,6 +138,13 @@ function renderProfile() {
   rb.addEventListener('click', () => { ask.classList.remove('hidden'); rb.classList.add('hidden'); });
   $('#pf-reset-no').addEventListener('click', () => { ask.classList.add('hidden'); rb.classList.remove('hidden'); });
   $('#pf-reset-yes').addEventListener('click', () => { state = freshState(); persist(); renderProfile(); });
+}
+/** the current stats as a Share card spec */
+function profileShareSpec() {
+  const info = levelInfo(state.xp), live = state.days.last === dayKey() || state.days.last === dayKey(new Date(Date.now() - 864e5));
+  return profileSpec({ levelName: info.level.name, levelN: info.level.n, rating: info.level.rating, xp: state.xp, pct: info.pct, toNext: info.toNext, nextName: info.next ? info.next.name : '', max: info.max,
+    done: state.done, perfect: state.perfect, solved: state.tactics.solved, bestStreak: Math.max(state.bestStreak, state.tactics.bestStreak), dayStreak: live ? state.days.streak : 0,
+    stars: Object.values(state.openings).reduce((n, o) => n + starsOf(o.tier), 0) + state.tactics.stars, badges: Object.keys(state.ach).length, badgeTotal: ACHIEVEMENTS.length });
 }
 export const getRecommendation = (n = 3) => recommend(state, openings, easeOf, n, hooks.isRisky);
 export function openProfile() {
@@ -299,6 +309,7 @@ export function initProgress(cfg) {
   $('#profile-btn').addEventListener('click', openProfile);
   const sc = $('#streak-chip'); if (sc) sc.addEventListener('click', openProfile);
   document.querySelectorAll('.profile-strip').forEach((b) => b.addEventListener('click', openProfile));
+  $('#profile-body').addEventListener('click', (e) => { if (e.target.closest('#pf-share')) openShare(profileShareSpec()); });
   $('#profile-x').addEventListener('click', closeProfile);
   $('#profile-close').addEventListener('click', closeProfile);
   $('#profile').addEventListener('click', (e) => { if (e.target.id === 'profile') closeProfile(); });
