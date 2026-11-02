@@ -1,14 +1,14 @@
 /* ======================================================================
    Revamp: a calmer, app-like skin. Loaded after app.css, so it only overrides.
    Scale: spacing 4 / 8 / 12 / 16 / 24 / 32, type 12 / 13.5 / 15 / 17 / 22 / 30, system font, bold headings.
-   One strong accent (green) + the existing gambit orange; fewer borders, soft rounded surfaces.
+   Structure and spacing for the app-like layout; colour, type and finish live in theme.css.
    ====================================================================== */
 :root {
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px;
   --t-xs: 12px; --t-sm: 13.5px; --t-md: 15px; --t-lg: 17px; --t-xl: 22px; --t-2xl: 30px;
-  --bg: #050505; --bg2: #0b0b0b; --card: #0b0b0b; --card2: #161616; --line: #262626;
-  --surface: #0b0b0b; --surface-hi: #151515;
-  --radius: 18px; --radius-lg: 24px; --shadow: 0 10px 30px rgba(0,0,0,.35);
+  --bg: #060606; --bg2: #0a0a0a; --card: #0d0d0d; --card2: #151515; --line: rgba(255,255,255,.08);
+  --surface: #0d0d0d; --surface-hi: #131313;
+  --radius: 20px; --radius-lg: 24px; --shadow: 0 10px 30px rgba(0,0,0,.35);
   --safe-t: env(safe-area-inset-top, 0px); --safe-b: env(safe-area-inset-bottom, 0px);
   --tab-h: 64px; --tab-space: calc(var(--tab-h) + 22px + var(--safe-b));
   --gambit: #e5e5e5;
@@ -30,7 +30,7 @@ h1, h2, h3 { letter-spacing: -.02em; }
 .chip-btn { height: 38px; display: inline-flex; align-items: center; gap: 5px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--surface); font-weight: 800; font-size: var(--t-sm); font-variant-numeric: tabular-nums; }
 .chip-btn.streak span { font-size: 16px; line-height: 1; }
 .chip-btn.streak.off { color: var(--muted); } .chip-btn.streak.off span { filter: grayscale(1); opacity: .55; }
-.chip-btn.streak:not(.off) { color: #ffb86b; background: rgba(255,184,107,.12); }
+.chip-btn.streak:not(.off) { color: #c9a961; background: rgba(201,169,97,.12); }
 .chip-btn:focus-visible, .icon-btn:focus-visible, .brand:focus-visible, .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 #engine-pill { padding: 0 12px; height: 38px; }
 @media (max-width: 520px) {
@@ -66,7 +66,7 @@ body[data-screen="train"] .top, body[data-screen="puzzle"] .top, body[data-scree
 .btn.ghost { background: rgba(255,255,255,.06); }
 .chip { font-size: 11px; padding: 3px 9px; }
 .chip.b { border: 0; background: #0d0d0d; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
-.chip.g { background: rgba(255,184,107,.16); color: var(--gambit); }
+.chip.g { background: rgba(201,169,97,.16); color: var(--gambit); }
 .seg { background: none; border: 0; padding: 0; gap: var(--s2); }
 .seg button { background: var(--surface); border-radius: 999px; padding: 9px 15px; font-size: var(--t-sm); font-weight: 650; white-space: nowrap; min-height: 38px; }
 .seg button.active { background: var(--accent); color: var(--accent-ink); box-shadow: none; }
@@ -106,7 +106,7 @@ body[data-screen="train"] .top, body[data-screen="puzzle"] .top, body[data-scree
 .thumb cg-container { position: absolute; inset: 0; width: 100%; height: 100%; }
 .thumb cg-board { border-radius: 0; }
 .thumb piece::before { content: ''; position: absolute; inset: 0; background-image: var(--pimg); background-size: cover; }
-.sprout { position: absolute; right: -4px; bottom: -4px; width: 24px; height: 24px; display: grid; place-items: center; background: #14301f; border-radius: 50%; font-style: normal; font-size: 13px; box-shadow: 0 0 0 2px var(--surface); }
+.sprout { position: absolute; right: -4px; bottom: -4px; width: 24px; height: 24px; display: grid; place-items: center; background: #0d0d0d; border-radius: 50%; font-style: normal; font-size: 13px; box-shadow: 0 0 0 2px var(--surface); }
 .dice { display: grid; place-items: center; aspect-ratio: 1; font-size: 40px; border-radius: 12px; background: var(--card2); }
 .ocard.surprise { align-items: center; }
 .oc-main { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
@@ -332,7 +332,7 @@ body[data-screen="train"] .top, body[data-screen="puzzle"] .top, body[data-scree
 .fb-chip.on { background: rgba(255,255,255,.08); border-color: var(--accent); color: #f5f5f5; }
 .fb-stars { display: flex; gap: 2px; }
 .fb-star { width: 46px; height: 46px; border-radius: 12px; background: transparent; border: 0; font-size: 30px; line-height: 1; color: #444444; padding: 0; }
-.fb-star.on { color: #f5c451; text-shadow: 0 0 12px rgba(245,196,81,.35); }
+.fb-star.on { color: #c9a961; text-shadow: 0 0 12px rgba(201,169,97,.35); }
 #fbsheet textarea, #fbsheet input[type="text"] { width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 14px; background: var(--bg2); border: 1px solid #333333; color: var(--text); font: inherit; font-size: 16px; line-height: 1.45; resize: vertical; }
 #fbsheet textarea { min-height: 120px; }
 #fbsheet textarea:focus, #fbsheet input[type="text"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
@@ -374,7 +374,7 @@ body[data-screen="train"] .top, body[data-screen="puzzle"] .top, body[data-scree
 /* tier 2 (5): bigger flame + glow */
 .pz-streak[data-tier="2"] { background: linear-gradient(160deg, rgba(255,120,30,.28), rgba(255,70,30,.10)), var(--surface); box-shadow: inset 0 0 0 1px rgba(255,150,40,.7), 0 0 22px rgba(255,120,30,.4); }
 .pz-streak[data-tier="2"] .pz-flame { font-size: 28px; filter: drop-shadow(0 0 6px rgba(255,140,30,.9)); opacity: 1; animation: pz-flicker .8s ease-in-out infinite; }
-.pz-streak[data-tier="2"] b { color: #ffd9a0; }
+.pz-streak[data-tier="2"] b { color: #d8c08a; }
 /* tier 3 (10): blue inferno */
 .pz-streak[data-tier="3"] { background: linear-gradient(160deg, rgba(60,150,255,.34), rgba(150,90,255,.16)), var(--surface); box-shadow: inset 0 0 0 1px rgba(120,190,255,.85), 0 0 28px rgba(80,160,255,.6); animation: pz-glow 1.4s ease-in-out infinite; }
 .pz-streak[data-tier="3"] .pz-flame { font-size: 34px; filter: hue-rotate(200deg) saturate(1.8) drop-shadow(0 0 8px rgba(100,180,255,.95)); opacity: 1; animation: pz-flicker .6s ease-in-out infinite; }

@@ -1,13 +1,13 @@
 // Share card: paints a polished PNG (1080x1920 story, 1080x1080 square) with canvas and shares it with the native
 // share sheet when the browser can send files, else downloads it. Specs come from share-core.js (pure, unit-tested).
-// Look: near-black, white type, Archivo Black headings; gold only on the achievement itself. Merida pieces on a neutral board.
+// Look (Premium theme): near-black, warm-white type, Cormorant Garamond headings + Inter labels; gold only on the achievement itself. Merida pieces on a neutral board.
 import { FORMATS, TAGLINE, SITE_URL, SITE_LINK, parseFen, pieceFile, sqCoords, fileName } from './share-core.js';
 
 const $ = (s) => document.querySelector(s);
-const GOLD = '#f5c451', GOLD_HI = '#ffe08a', GOLD_LO = '#d9a62e', INK = '#050505', GREY = '#a3a3a3', LINE = '#262626';
-const DISPLAY = '"Pawnado Display","Archivo Black",Inter,system-ui,sans-serif';
-const TEXT = '"Pawnado Coords",Inter,-apple-system,"Segoe UI",system-ui,sans-serif';
-const SQ_LIGHT = '#ececec', SQ_DARK = '#7d7d7d', LAST = 'rgba(245,196,81,.62)';
+const GOLD = '#c9a961', GOLD_HI = '#d8c08a', GOLD_LO = '#b8975a', INK = '#060606', GREY = '#8e8b84', LINE = 'rgba(255,255,255,.1)', WHITE = '#f4f1ea';
+const DISPLAY = '"Cormorant Garamond",Georgia,"Times New Roman",serif';
+const TEXT = 'Inter,-apple-system,"Segoe UI",system-ui,sans-serif';
+const SQ_LIGHT = '#ececec', SQ_DARK = '#7d7d7d', LAST = 'rgba(201,169,97,.55)';
 
 // ------------------------------------------------------------------ assets
 const imgCache = new Map();
@@ -23,7 +23,7 @@ async function loadAssets(spec) {
   if (grid) for (const row of grid) for (const ch of row) if (ch) files.add(pieceFile(ch));
   const [logo, ...pcs] = await Promise.all([loadImg('icons/logo-mark.svg'), ...[...files].map((f) => loadImg(`pieces/merida/${f}.svg`))]);
   const pieces = {}; [...files].forEach((f, i) => { pieces[f] = pcs[i]; });
-  try { await Promise.all([document.fonts.load('400 100px "Pawnado Display"'), document.fonts.load('600 30px "Pawnado Coords"')]); } catch { /* fall back to system fonts */ }
+  try { await Promise.all([document.fonts.load('600 100px "Cormorant Garamond"'), document.fonts.load('600 30px Inter'), document.fonts.load('500 30px Inter')]); } catch { /* fall back to system fonts */ }
   return { logo, pieces, grid };
 }
 
@@ -31,7 +31,7 @@ async function loadAssets(spec) {
 function rr(ctx, x, y, w, h, r) {
   ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
 }
-const font = (px, face = DISPLAY, weight = 400) => `${weight} ${px}px ${face}`;
+const font = (px, face = DISPLAY, weight = 600) => `${weight} ${px}px ${face}`;
 /** text with manual letter-spacing (works in every browser). align: 'left' | 'center' | 'right' */
 function spaced(ctx, str, x, y, sp, align = 'left') {
   const chars = [...str]; const widths = chars.map((c) => ctx.measureText(c).width);
@@ -54,7 +54,7 @@ function wrap(ctx, str, maxW) {
   }
   if (line) out.push(line); return out;
 }
-const goldFill = (ctx, y0, y1) => { const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, GOLD_HI); g.addColorStop(0.55, GOLD); g.addColorStop(1, GOLD_LO); return g; };
+const goldFill = (ctx, y0, y1) => { const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, GOLD_HI); g.addColorStop(1, GOLD); return g; };
 
 /** hand-drawn flame: tip at the top, w x h box with its top-left at (x, y) */
 function flame(ctx, x, y, w, h) {
@@ -63,25 +63,24 @@ function flame(ctx, x, y, w, h) {
   path([0.5, 0, 0.56, 0.2, 0.9, 0.36, 0.9, 0.66, 0.9, 0.88, 0.72, 1, 0.5, 1, 0.28, 1, 0.1, 0.88, 0.1, 0.66, 0.1, 0.5, 0.19, 0.4, 0.27, 0.31, 0.3, 0.42, 0.36, 0.5, 0.43, 0.5, 0.36, 0.3, 0.4, 0.12, 0.5, 0]);
   ctx.fillStyle = goldFill(ctx, y, y + h); ctx.fill();
   path([0.5, 0.42, 0.54, 0.54, 0.7, 0.62, 0.7, 0.78, 0.7, 0.92, 0.6, 1, 0.5, 1, 0.4, 1, 0.3, 0.92, 0.3, 0.78, 0.3, 0.68, 0.38, 0.62, 0.44, 0.55, 0.47, 0.6, 0.5, 0.6, 0.5, 0.5, 0.5, 0.42, 0.5, 0.42]);
-  ctx.fillStyle = '#fff3cc'; ctx.fill();
+  ctx.fillStyle = '#f1e6c8'; ctx.fill();
 }
 
 function backdrop(ctx, W, H) {
   ctx.fillStyle = INK; ctx.fillRect(0, 0, W, H);
-  const s = 90; // faint checker that fades out towards the bottom
-  for (let r = 0; r * s < H; r++) for (let c = 0; c * s < W; c++) {
-    if ((r + c) % 2) continue;
-    const a = 0.045 * Math.max(0, 1 - (r * s) / (H * 0.75));
-    if (a > 0.001) { ctx.fillStyle = `rgba(255,255,255,${a.toFixed(4)})`; ctx.fillRect(c * s, r * s, s, s); }
-  }
+  const v = ctx.createRadialGradient(W / 2, H * 0.32, 0, W / 2, H * 0.32, Math.max(W, H) * 0.8); v.addColorStop(0, 'rgba(255,255,255,.035)'); v.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(201,169,97,.28)'; ctx.lineWidth = 2; ctx.strokeRect(34, 34, W - 68, H - 68); // thin inset gold frame
 }
 /** logo mark + wordmark; returns width */
 function brand(ctx, assets, x, y, size, align) {
   ctx.font = font(size); ctx.textBaseline = 'alphabetic';
-  const tw = ctx.measureText('Pawnado').width, lg = size * 1.08, gap = size * 0.3, total = lg + gap + tw;
+  const word = 'PAWNADO', sp = size * 0.2;
+  let tw = 0; for (const c of word) tw += ctx.measureText(c).width + sp; tw -= sp;
+  const lg = size * 1.0, gap = size * 0.34, total = lg + gap + tw;
   const x0 = align === 'center' ? x - total / 2 : x;
-  ctx.drawImage(assets.logo, x0, y - size * 0.86, lg, lg);
-  ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.fillText('Pawnado', x0 + lg + gap, y);
+  ctx.drawImage(assets.logo, x0, y - size * 0.8, lg, lg);
+  ctx.fillStyle = WHITE; spaced(ctx, word, x0 + lg + gap, y, sp, 'left');
   return total;
 }
 
@@ -134,20 +133,20 @@ function hero(ctx, spec, o) {
       const fh = s * 0.62; flame(ctx, x0 + (spec.flame === 2 ? 0 : 0), cy, fh * 0.76, fh); cy += fh + s * 0.04;
     }
     cy += capH;
-    if (spec.flame === 2) { const g = ctx.createRadialGradient(cx, cy - capH / 2, 0, cx, cy - capH / 2, maxW * 0.8); g.addColorStop(0, 'rgba(245,196,81,.16)'); g.addColorStop(1, 'rgba(245,196,81,0)'); ctx.fillStyle = g; ctx.fillRect(cx - maxW, cy - maxW, maxW * 2, maxW * 2); }
+    if (spec.flame === 2) { const g = ctx.createRadialGradient(cx, cy - capH / 2, 0, cx, cy - capH / 2, maxW * 0.8); g.addColorStop(0, 'rgba(201,169,97,0)'); g.addColorStop(1, 'rgba(201,169,97,0)'); ctx.fillStyle = g; ctx.fillRect(cx - maxW, cy - maxW, maxW * 2, maxW * 2); }
     let nx = x0;
     if (spec.flame && flameMode === 'beside') { const fh = capH * 1.02; flame(ctx, x0, cy - fh, fh * 0.76, fh); nx = x0 + s * 0.52 + s * 0.06; }
     ctx.fillStyle = goldFill(ctx, cy - capH, cy); ctx.textAlign = 'left'; ctx.fillText(spec.big, nx, cy);
     numBottom = cy;
   }
   cy = numBottom + o.gap2;
-  ctx.fillStyle = '#fff'; const ls = fit(ctx, spec.label, maxW, labelSize); ctx.font = font(ls); ctx.textAlign = align === 'center' ? 'center' : 'left';
+  ctx.fillStyle = WHITE; const ls = fit(ctx, spec.label, maxW, labelSize); ctx.font = font(ls); ctx.textAlign = align === 'center' ? 'center' : 'left';
   cy += ls * 0.8; ctx.fillText(spec.label, x, cy);
   return cy;
 }
 
 function footer(ctx, W, y, align, x = W / 2) {
-  ctx.textBaseline = 'alphabetic'; ctx.fillStyle = '#fff'; const s = fit(ctx, SITE_URL, W - 140, 34, TEXT, 600, 22); ctx.font = font(s, TEXT, 600); ctx.textAlign = align; ctx.fillText(SITE_URL, x, y);
+  ctx.textBaseline = 'alphabetic'; ctx.fillStyle = WHITE; const s = fit(ctx, SITE_URL, W - 140, 34, TEXT, 600, 22); ctx.font = font(s, TEXT, 600); ctx.textAlign = align; ctx.fillText(SITE_URL, x, y);
 }
 
 // ------------------------------------------------------------------ the layouts
@@ -162,7 +161,7 @@ function drawStory(ctx, spec, assets) {
   const bs = 760, by = Math.max(bottom + (spec.text ? 110 : 70), 790);
   board(ctx, assets, spec, (W - bs) / 2, by, bs);
   let y = by + bs + 82;
-  ctx.fillStyle = '#fff'; const ts = fit(ctx, spec.title, 900, 56); ctx.font = font(ts); ctx.textAlign = 'center'; ctx.fillText(spec.title, W / 2, y);
+  ctx.fillStyle = WHITE; const ts = fit(ctx, spec.title, 900, 56); ctx.font = font(ts); ctx.textAlign = 'center'; ctx.fillText(spec.title, W / 2, y);
   ctx.fillStyle = GREY; ctx.font = font(32, TEXT, 600); ctx.fillText(spec.sub, W / 2, y + 52);
   footer(ctx, W, Math.min(H - 96, y + 52 + 100), 'center');
 }
@@ -179,21 +178,21 @@ function drawSquare(ctx, spec, assets) {
   const top = hero(ctx, spec, { x: colX, y: by + (spec.text ? 40 : 70), maxW: colW, align: 'left', numSize: spec.text ? 84 : 210, labelSize: 52, eyebrowSize: 24, gap: 18, gap2: 22, flameMode: 'above' });
   void top;
   let y = by + bs + 84;
-  ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; const ts = fit(ctx, spec.title, W - 120, 50); ctx.font = font(ts); ctx.fillText(spec.title, 60, y);
+  ctx.fillStyle = WHITE; ctx.textAlign = 'left'; const ts = fit(ctx, spec.title, W - 120, 50); ctx.font = font(ts); ctx.fillText(spec.title, 60, y);
   ctx.fillStyle = GREY; ctx.font = font(28, TEXT, 600); ctx.fillText(spec.sub, 60, y + 46);
   ctx.fillStyle = LINE; ctx.fillRect(60, H - 112, W - 120, 2);
-  ctx.fillStyle = '#fff'; ctx.font = font(30, TEXT, 600); ctx.textAlign = 'left'; ctx.fillText(SITE_URL, 60, H - 56);
+  ctx.fillStyle = WHITE; ctx.font = font(30, TEXT, 600); ctx.textAlign = 'left'; ctx.fillText(SITE_URL, 60, H - 56);
   ctx.fillStyle = GREY; ctx.font = font(26, TEXT, 600); ctx.textAlign = 'right'; ctx.fillText('Gambits & traps, free', W - 60, H - 56);
 }
 
 function xpBar(ctx, x, y, w, h, pct) {
-  ctx.fillStyle = '#1a1a1a'; rr(ctx, x, y, w, h, h / 2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.1)'; rr(ctx, x, y, w, h, h / 2); ctx.fill();
   const fw = Math.max(h, (w * pct) / 100); ctx.fillStyle = goldFill(ctx, y, y + h); rr(ctx, x, y, fw, h, h / 2); ctx.fill();
 }
 function statTile(ctx, x, y, w, h, st, gold) {
-  ctx.fillStyle = '#0b0b0b'; rr(ctx, x, y, w, h, 24); ctx.fill(); ctx.strokeStyle = LINE; ctx.lineWidth = 2; rr(ctx, x + 1, y + 1, w - 2, h - 2, 24); ctx.stroke();
+  ctx.fillStyle = '#0d0d0d'; rr(ctx, x, y, w, h, 24); ctx.fill(); ctx.strokeStyle = LINE; ctx.lineWidth = 2; rr(ctx, x + 1, y + 1, w - 2, h - 2, 24); ctx.stroke();
   ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = gold ? GOLD : '#fff'; const s = fit(ctx, st.n, w - 56, h * 0.5); ctx.font = font(s); ctx.fillText(st.n, x + 28, y + h * 0.58);
+  ctx.fillStyle = gold ? GOLD : WHITE; const s = fit(ctx, st.n, w - 56, h * 0.5); ctx.font = font(s); ctx.fillText(st.n, x + 28, y + h * 0.58);
   ctx.fillStyle = GREY; ctx.font = font(h * 0.2, TEXT, 600); ctx.fillText(st.l, x + 28, y + h * 0.84);
 }
 function profileStory(ctx, spec, assets) {
@@ -219,7 +218,7 @@ function profileSquare(ctx, spec, assets) {
   const gap = 20, tw = (W - 120 - gap * 2) / 3, th = 150;
   spec.stats.forEach((st, i) => statTile(ctx, 60 + (i % 3) * (tw + gap), y + Math.floor(i / 3) * (th + gap), tw, th, st, i === 3 || i === 5));
   ctx.fillStyle = LINE; ctx.fillRect(60, H - 112, W - 120, 2);
-  ctx.fillStyle = '#fff'; ctx.font = font(30, TEXT, 600); ctx.textAlign = 'left'; ctx.fillText(SITE_URL, 60, H - 56);
+  ctx.fillStyle = WHITE; ctx.font = font(30, TEXT, 600); ctx.textAlign = 'left'; ctx.fillText(SITE_URL, 60, H - 56);
   ctx.fillStyle = GREY; ctx.font = font(26, TEXT, 600); ctx.textAlign = 'right'; ctx.fillText(spec.sub, W - 60, H - 56);
 }
 

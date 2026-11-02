@@ -74,22 +74,22 @@ const otdNow = D.openingOfTheDay(gambits, todayKey), otdName = OPENINGS.find((o)
 const mk = (kinds, prog, done) => ({ day: todayKey, otd: otdNow, kinds, prog, done });
 const shotOf = async (page, name) => { if (!SHOTS) return; await page.evaluate(() => window.scrollTo(0, 0)); await page.screenshot({ path: `${SHOTS}/${name}.png` }); };
 let page = await open(mk(['otd', 'puzzles', 'traps'], { puzzles: 2, traps: 1 }, {}));
-check('Home shows the gambit of the day with a green "Play it" button', (await page.textContent('#home-daily h3')) === otdName && await page.$eval('#home-daily [data-daily="play"]', (b) => b.classList.contains('primary') && /Play it/.test(b.textContent) && getComputedStyle(b).backgroundColor !== 'rgba(0, 0, 0, 0)'));
+check('Home shows the gambit of the day with a gold "Play it" button', (await page.textContent('#home-daily h3')) === otdName && await page.$eval('#home-daily [data-daily="play"]', (b) => b.classList.contains('primary') && /Play it/.test(b.textContent) && (getComputedStyle(b).backgroundColor !== 'rgba(0, 0, 0, 0)' || getComputedStyle(b).backgroundImage !== 'none')));
 check('the card sits above the progress strip and the rails (prominent)', await page.evaluate(() => { const y = (s) => document.querySelector(s).getBoundingClientRect().top; return y('#home-daily') < y('#profile-strip') && y('#profile-strip') < y('#home-rails'); }));
 const bars = await page.$$eval('#home-daily .dq', (rows) => rows.map((r) => ({ kind: r.dataset.kind, w: Math.round(parseFloat(r.querySelector('.dq-bar i').style.width)), now: r.querySelector('.dq-bar').getAttribute('aria-valuenow'), max: r.querySelector('.dq-bar').getAttribute('aria-valuemax'), p: r.querySelector('.dq-p').textContent })));
 check('each quest has a progress bar (0%, 67%, 50%)', JSON.stringify(bars.map((b) => [b.kind, b.w, b.p])) === JSON.stringify([['otd', 0, '0/1'], ['puzzles', 67, '2/3'], ['traps', 50, '1/2']]), JSON.stringify(bars));
 check('the trap quest reads "Land 2 traps…"', /Land 2 traps/.test(await page.textContent('#home-daily .dq[data-kind="traps"] .dq-t')));
 check('header says 0/3 done and resets at midnight', /0\/3 done · resets at midnight/.test(await page.textContent('#home-daily .dq-head')));
-const gold = '245, 196, 81';
+const gold = /201, 169, 97|216, 192, 138/;
 const colors = await page.evaluate(() => { const f = (s, p) => getComputedStyle(document.querySelector(s))[p]; return { fill: f('#home-daily .dq[data-kind="puzzles"] .dq-bar i', 'backgroundColor'), xp: f('#home-daily .dq-xp', 'color') }; });
-check('XP reward is gold, the unfinished bar is white (gold only for achievements)', colors.xp.includes(gold) && colors.fill === 'rgb(255, 255, 255)', JSON.stringify(colors));
+check('XP reward stays muted and the unfinished bar neutral white until the quest is done (gold only for achievements)', !gold.test(colors.xp) && /^rgba?\(255, 255, 255/.test(colors.fill), JSON.stringify(colors));
 await shotOf(page, 'home-top-in-progress');
 await page.evaluate(() => document.querySelector('#home-daily').scrollIntoView({ block: 'start' })); await page.evaluate(() => window.scrollBy(0, -70));
 if (SHOTS) { await page.screenshot({ path: `${SHOTS}/quests-in-progress.png` }); await page.locator('#home-daily').screenshot({ path: `${SHOTS}/ootd-card-element.png` }); }
 await page.close();
 
 page = await open(mk(['otd', 'puzzles', 'perfect'], { otd: 1, puzzles: 3, perfect: 1 }, { otd: true, puzzles: true, perfect: true }));
-check('completed quests turn gold, show 3/3 and the all-done note', await page.evaluate(() => { const g = 'rgb(245, 196, 81)'; const rows = [...document.querySelectorAll('#home-daily .dq.done')]; return rows.length === 3 && rows.every((r) => getComputedStyle(r.querySelector('.dq-bar i')).backgroundColor === g && getComputedStyle(r.querySelector('.dq-ck')).backgroundColor === g) && /3\/3 done/.test(document.querySelector('#home-daily .dq-head').textContent) && !!document.querySelector('#home-daily .dq-all'); }));
+check('completed quests turn gold, show 3/3 and the all-done note', await page.evaluate(() => { const g = 'rgb(201, 169, 97)'; const rows = [...document.querySelectorAll('#home-daily .dq.done')]; return rows.length === 3 && rows.every((r) => getComputedStyle(r.querySelector('.dq-bar i')).backgroundColor === g && getComputedStyle(r.querySelector('.dq-ck')).backgroundColor === g) && /3\/3 done/.test(document.querySelector('#home-daily .dq-head').textContent) && !!document.querySelector('#home-daily .dq-all'); }));
 if (SHOTS) { await page.evaluate(() => document.querySelector('#home-daily').scrollIntoView({ block: 'start' })); await page.evaluate(() => window.scrollBy(0, -70)); await page.screenshot({ path: `${SHOTS}/quests-all-done.png` }); }
 await page.close();
 

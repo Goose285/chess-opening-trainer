@@ -58,7 +58,7 @@ const SEED = { openings: {
 }, watched: ['danish'] };
 const level = (page, id) => page.$eval(`.mm-cell[data-train="${id}"]`, (c) => [...c.classList].find((x) => x.startsWith('lv-')).slice(3));
 let page = await open(SEED);
-check('Home has the Mastery map card with the mastered count (gold only because 1 is mastered)', await page.evaluate(() => { const e = document.querySelector('#home-mastery .mm-entry'); const n = e.querySelector('em'); return !!e && /1 of 37 mastered/.test(e.textContent) && getComputedStyle(n).color === 'rgb(245, 196, 81)'; }));
+check('Home has the Mastery map card with the mastered count (gold only because 1 is mastered)', await page.evaluate(() => { const e = document.querySelector('#home-mastery .mm-entry'); const n = e.querySelector('em'); return !!e && /1 of 37 mastered/.test(e.textContent) && /201, 169, 97|216, 192, 138/.test(getComputedStyle(n).color); }));
 check('the card sits below Opening of the Day and above the rails', await page.evaluate(() => { const y = (s) => document.querySelector(s).getBoundingClientRect().top; return y('#home-daily') < y('#home-mastery') && y('#home-mastery') < y('#home-rails'); }));
 if (SHOTS) { await page.evaluate(() => document.querySelector('#home-mastery').scrollIntoView({ block: 'center' })); await page.waitForTimeout(300); await page.screenshot({ path: `${SHOTS}/home-entry-card.png` }); }
 await page.click('#home-mastery .mm-entry'); await page.waitForSelector('.mm-cell');
@@ -68,7 +68,7 @@ check('levels from stats: gold→mastered, silver→solid, bronze/played/watched
 check('summary says 1 of 37 mastered, 5 started', /1 of 37 gambits mastered/.test(await page.textContent('.mm-sum')) && /5 started/.test(await page.textContent('.mm-sum')), await page.textContent('.mm-sum'));
 check('"3/14 lines" style coverage and best accuracy are shown', /3\/14 lines/.test(await page.textContent('.mm-cell[data-train="fried-liver"]')) && /100%/.test(await page.textContent('.mm-cell[data-train="fried-liver"]')));
 const goldy = await page.evaluate(() => {
-  const isGold = (c) => /245, 196, 81/.test(c);
+  const isGold = (c) => /201, 169, 97|216, 192, 138/.test(c);
   const bad = [];
   document.querySelectorAll('.mm-cell').forEach((cell) => {
     const lvl = [...cell.classList].find((x) => x.startsWith('lv-'));
